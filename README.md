@@ -1,7 +1,7 @@
 # CompilersProject
 
 This is the repository for
-[Scala Compiler, the Scala to MIPS compiler](https://git.cse.iitk.ac.in/smanocha/compilersproject).
+Scala Compiler, the Scala to MIPS compiler hosted at [IITK](https://git.cse.iitk.ac.in/smanocha/compilersproject)  and [Github](https://github.com/sid17/CompilersProject)
 
 ## Contributors
 * [Siddhant Manocha](http://home.iitk.ac.in/~smanocha)
