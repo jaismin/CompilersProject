@@ -12,7 +12,7 @@ tokens = [
     'FLOAT_CONST',
     'INT_CONST',
     'STRING_CONST',
-    'STRING_CONST1',
+    'CHARACTER',
     'COLON',
     'ASSIGN',
     'EQUAL',
