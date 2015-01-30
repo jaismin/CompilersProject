@@ -1,8 +1,8 @@
 # lexer for a Scala language
-import ply.lex as lex
 import sys
 import os.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)))
+from include import lex
 from include.tokensDefination import *
 from include.regexDefination import *
 import include.printLexerOutput as printLexerOutput
