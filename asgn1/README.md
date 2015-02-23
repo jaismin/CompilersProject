@@ -38,3 +38,8 @@ Alternately, the given file can also be run via the following commands.
 * cd asgn1
 * make
 * bin/lexer test/HelloWorld.scala
+
+### PARSER
+
+To run the dot file in graphviz,
+dot -Tps a.dot -o outfile.ps

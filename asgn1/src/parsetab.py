@@ -5,9 +5,9 @@ _tabversion = '3.2'
 
 _lr_method = 'LALR'
 
-_lr_signature = '\xf2\xc5\xb4\x0c\xb5\xe1Q\xcfFb\xd6\xc8\x08W-S'
+_lr_signature = '\xf2\x13\xd4Kz--\xed\xc7\xc00\xfaFW\xca\x9a'
     
-_lr_action_items = {'INT_CONST':([0,2,3,10,11,12,13,14,],[1,1,1,1,1,1,1,1,]),'DIVIDE':([1,5,6,7,8,9,15,16,17,18,19,20,],[-9,-10,12,-10,12,-7,-8,12,12,-6,12,-5,]),')':([1,7,8,9,15,17,18,19,20,],[-9,-10,15,-7,-8,-3,-6,-4,-5,]),'(':([0,2,3,10,11,12,13,14,],[2,2,2,2,2,2,2,2,]),'ASSIGN':([5,],[10,]),'-':([0,2,3,10,11,12,13,14,],[3,3,3,3,3,3,3,3,]),'TIMES':([1,5,6,7,8,9,15,16,17,18,19,20,],[-9,-10,14,-10,14,-7,-8,14,14,-6,14,-5,]),'PLUS':([1,5,6,7,8,9,15,16,17,18,19,20,],[-9,-10,11,-10,11,-7,-8,11,-3,-6,-4,-5,]),'IDENTIFIER':([0,2,3,10,11,12,13,14,],[5,7,7,7,7,7,7,7,]),'MINUS':([1,5,6,7,8,9,15,16,17,18,19,20,],[-9,-10,13,-10,13,-7,-8,13,-3,-6,-4,-5,]),'$end':([1,4,5,6,7,9,15,16,17,18,19,20,],[-9,0,-10,-2,-10,-7,-8,-1,-3,-6,-4,-5,]),}
+_lr_action_items = {'STATE_END':([22,23,26,27,28,36,37,43,44,45,46,47,49,52,],[-25,-18,39,-26,42,-26,-23,-19,-22,-20,-21,-24,-17,-27,]),'KWRD_PACKAGE':([0,3,9,10,19,],[1,1,-10,-9,-8,]),'INT_CONST':([18,24,25,32,33,34,35,39,40,42,],[22,22,22,22,22,22,22,22,22,22,]),'KWRD_IMPORT':([0,4,8,],[2,2,-7,]),'BLOCK_END':([18,21,29,39,42,48,51,],[-28,31,-16,-28,-28,-14,-15,]),'DIVIDE':([22,23,27,36,37,38,43,44,45,46,47,49,],[-25,33,-26,-26,-23,33,33,-22,33,-21,-24,33,]),'RPAREN':([22,36,37,38,43,44,45,46,47,50,],[-25,-26,-23,47,-19,-22,-20,-21,-24,52,]),'ASSIGN':([27,],[40,]),'-':([18,24,25,32,33,34,35,39,40,42,],[24,24,24,24,24,24,24,24,24,24,]),'BLOCK_BEGIN':([15,17,30,],[18,-12,-13,]),'TIMES':([22,23,27,36,37,38,43,44,45,46,47,49,],[-25,35,-26,-26,-23,35,35,-22,35,-21,-24,35,]),'KWRD_EXTNDS':([17,],[20,]),'PLUS':([22,23,27,36,37,38,43,44,45,46,47,49,],[-25,32,-26,-26,-23,32,-19,-22,-20,-21,-24,32,]),'LPAREN':([18,24,25,27,32,33,34,35,39,40,42,],[25,25,25,41,25,25,25,25,25,25,25,]),'KWRD_OBJECT':([0,3,4,6,7,8,9,10,11,12,19,],[-28,-5,-4,14,-6,-7,-10,-9,-3,-2,-8,]),'IDENTIFIER':([1,2,14,16,18,20,24,25,32,33,34,35,39,40,41,42,],[8,10,17,10,27,30,36,36,36,36,36,36,27,36,50,27,]),'MINUS':([22,23,27,36,37,38,43,44,45,46,47,49,],[-25,34,-26,-26,-23,34,-19,-22,-20,-21,-24,34,]),'DOT':([10,],[16,]),'$end':([5,13,31,],[0,-1,-11,]),}
 
 _lr_action = { }
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'expression':([0,2,3,10,11,12,13,14,],[6,8,9,16,17,18,19,20,]),'statement':([0,],[4,]),}
+_lr_goto_items = {'block_statements':([18,39,42,],[21,48,51,]),'library_name':([2,16,],[9,19,]),'import_def':([0,4,],[3,12,]),'package_def':([0,3,],[4,11,]),'print_st':([18,39,42,],[28,28,28,]),'expression':([18,24,25,32,33,34,35,39,40,42,],[23,37,38,43,44,45,46,23,49,23,]),'object_def':([6,],[13,]),'arithmetic_statement':([18,39,42,],[26,26,26,]),'program_struct':([0,],[5,]),'object_declare':([6,],[15,]),'header_def':([0,],[6,]),'empty':([0,18,39,42,],[7,29,29,29,]),}
 
 _lr_goto = { }
 for _k, _v in _lr_goto_items.items():
@@ -25,15 +25,33 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> statement","S'",1,None,None,None),
-  ('statement -> IDENTIFIER ASSIGN expression','statement',3,'p_statement_assign','parser.py',22),
-  ('statement -> expression','statement',1,'p_statement_expr','parser.py',27),
-  ('expression -> expression PLUS expression','expression',3,'p_expression_binop','parser.py',31),
-  ('expression -> expression MINUS expression','expression',3,'p_expression_binop','parser.py',32),
-  ('expression -> expression TIMES expression','expression',3,'p_expression_binop','parser.py',33),
-  ('expression -> expression DIVIDE expression','expression',3,'p_expression_binop','parser.py',34),
-  ('expression -> - expression','expression',2,'p_expression_uminus','parser.py',41),
-  ('expression -> ( expression )','expression',3,'p_expression_group','parser.py',45),
-  ('expression -> INT_CONST','expression',1,'p_expression_number','parser.py',49),
-  ('expression -> IDENTIFIER','expression',1,'p_expression_name','parser.py',53),
+  ("S' -> program_struct","S'",1,None,None,None),
+  ('program_struct -> header_def object_def','program_struct',2,'p_program_structure','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',12),
+  ('header_def -> package_def import_def','header_def',2,'p_header_define','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',15),
+  ('header_def -> import_def package_def','header_def',2,'p_header_define','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',16),
+  ('header_def -> package_def','header_def',1,'p_header_define','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',17),
+  ('header_def -> import_def','header_def',1,'p_header_define','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',18),
+  ('header_def -> empty','header_def',1,'p_header_define','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',19),
+  ('package_def -> KWRD_PACKAGE IDENTIFIER','package_def',2,'p_package_define','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',23),
+  ('library_name -> IDENTIFIER DOT library_name','library_name',3,'p_import_librarynames','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',28),
+  ('library_name -> IDENTIFIER','library_name',1,'p_import_librarynames','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',29),
+  ('import_def -> KWRD_IMPORT library_name','import_def',2,'p_import_define','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',32),
+  ('object_def -> object_declare BLOCK_BEGIN block_statements BLOCK_END','object_def',4,'p_object_define','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',38),
+  ('object_declare -> KWRD_OBJECT IDENTIFIER','object_declare',2,'p_object_declare','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',42),
+  ('object_declare -> KWRD_OBJECT IDENTIFIER KWRD_EXTNDS IDENTIFIER','object_declare',4,'p_object_declare','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',43),
+  ('block_statements -> arithmetic_statement STATE_END block_statements','block_statements',3,'p_block_statements','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',48),
+  ('block_statements -> print_st STATE_END block_statements','block_statements',3,'p_block_statements','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',49),
+  ('block_statements -> empty','block_statements',1,'p_block_statements','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',50),
+  ('arithmetic_statement -> IDENTIFIER ASSIGN expression','arithmetic_statement',3,'p_arithmetic_statement_assign','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',55),
+  ('arithmetic_statement -> expression','arithmetic_statement',1,'p_arithmetic_statement_expr','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',59),
+  ('expression -> expression PLUS expression','expression',3,'p_expression_binop','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',63),
+  ('expression -> expression MINUS expression','expression',3,'p_expression_binop','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',64),
+  ('expression -> expression TIMES expression','expression',3,'p_expression_binop','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',65),
+  ('expression -> expression DIVIDE expression','expression',3,'p_expression_binop','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',66),
+  ('expression -> - expression','expression',2,'p_expression_uminus','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',77),
+  ('expression -> LPAREN expression RPAREN','expression',3,'p_expression_group','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',81),
+  ('expression -> INT_CONST','expression',1,'p_expression_number','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',85),
+  ('expression -> IDENTIFIER','expression',1,'p_expression_name','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',89),
+  ('print_st -> IDENTIFIER LPAREN IDENTIFIER RPAREN','print_st',4,'p_printstatement_1','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',97),
+  ('empty -> <empty>','empty',0,'p_empty','/home/siddhantmanocha/Dropbox/Studies/6thsem/cs335/compilerProject/asgn1/include/grammar.py',104),
 ]

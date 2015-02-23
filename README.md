@@ -21,4 +21,6 @@ Refer to the Readme.md file under Assignment1
 
 ## Compilation Instructions
 
-Refer to the readme.md files under individual assignments.
+* cd asgn1
+* make
+* bin/lexer test/HelloWorld.scala

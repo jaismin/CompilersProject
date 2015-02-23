@@ -4,7 +4,6 @@ Unused terminals:
 
     KWRD_TYPE
     TYPE_STRING
-    BLOCK_END
     LESS
     LOWER_BOUND
     FLOAT_CONST
@@ -13,7 +12,6 @@ Unused terminals:
     KWRD_LAZY
     BOOL_CONSTF
     VIEWABLE
-    RPAREN
     KWRD_THIS
     KWRD_WITH
     KWRD_FORSOME
@@ -29,12 +27,11 @@ Unused terminals:
     KWRD_PRIVATE
     OR
     VIEW
-    STATE_END
-    KWRD_PACKAGE
     KWRD_CASE
     EXACTEQ
     RBPAREN
     GEQ
+    OR_BITWISE
     KWRD_ABST
     KWRD_UNTIL
     COLON
@@ -42,7 +39,6 @@ Unused terminals:
     NEQUAL
     KWRD_STATIC
     KWRD_NEW
-    KWRD_EXTNDS
     UNDER
     AND
     KWRD_IF
@@ -52,7 +48,6 @@ Unused terminals:
     INNER_CLASS
     KWRD_DEF
     KWRD_THROW
-    DOT
     KWRD_MACRO
     KWRD_CLASS
     KWRD_PUBLIC
@@ -71,49 +66,63 @@ Unused terminals:
     TYPE_INT
     CHARACTER
     EQUAL
-    BLOCK_BEGIN
     SUBTYPE
     KWRD_FOR
     QUESTION
     KWRD_VAR
     KWRD_VAL
     COMMA
-    KWRD_OBJECT
-    KWRD_IMPORT
     KWRD_YIELD
     KWRD_OVERRIDE
     KWRD_NULL
     AT
-    LPAREN
     KWRD_TRAIT
     LBPAREN
+    AND_BITWISE
     PLUSEQ
     KWRD_CATCH
 
 Grammar
 
-Rule 0     S' -> statement
-Rule 1     statement -> IDENTIFIER ASSIGN expression
-Rule 2     statement -> expression
-Rule 3     expression -> expression PLUS expression
-Rule 4     expression -> expression MINUS expression
-Rule 5     expression -> expression TIMES expression
-Rule 6     expression -> expression DIVIDE expression
-Rule 7     expression -> - expression
-Rule 8     expression -> ( expression )
-Rule 9     expression -> INT_CONST
-Rule 10    expression -> IDENTIFIER
+Rule 0     S' -> program_struct
+Rule 1     program_struct -> header_def object_def
+Rule 2     header_def -> package_def import_def
+Rule 3     header_def -> import_def package_def
+Rule 4     header_def -> package_def
+Rule 5     header_def -> import_def
+Rule 6     header_def -> empty
+Rule 7     package_def -> KWRD_PACKAGE IDENTIFIER
+Rule 8     library_name -> IDENTIFIER DOT library_name
+Rule 9     library_name -> IDENTIFIER
+Rule 10    import_def -> KWRD_IMPORT library_name
+Rule 11    object_def -> object_declare BLOCK_BEGIN block_statements BLOCK_END
+Rule 12    object_declare -> KWRD_OBJECT IDENTIFIER
+Rule 13    object_declare -> KWRD_OBJECT IDENTIFIER KWRD_EXTNDS IDENTIFIER
+Rule 14    block_statements -> arithmetic_statement STATE_END block_statements
+Rule 15    block_statements -> print_st STATE_END block_statements
+Rule 16    block_statements -> empty
+Rule 17    arithmetic_statement -> IDENTIFIER ASSIGN expression
+Rule 18    arithmetic_statement -> expression
+Rule 19    expression -> expression PLUS expression
+Rule 20    expression -> expression MINUS expression
+Rule 21    expression -> expression TIMES expression
+Rule 22    expression -> expression DIVIDE expression
+Rule 23    expression -> - expression
+Rule 24    expression -> LPAREN expression RPAREN
+Rule 25    expression -> INT_CONST
+Rule 26    expression -> IDENTIFIER
+Rule 27    print_st -> IDENTIFIER LPAREN IDENTIFIER RPAREN
+Rule 28    empty -> <empty>
 
 Terminals, with rules where they appear
 
-(                    : 8
-)                    : 8
--                    : 7
+-                    : 23
 AND                  : 
-ASSIGN               : 1
+AND_BITWISE          : 
+ASSIGN               : 17
 AT                   : 
-BLOCK_BEGIN          : 
-BLOCK_END            : 
+BLOCK_BEGIN          : 11
+BLOCK_END            : 11
 BOOL_CONSTF          : 
 BOOL_CONSTT          : 
 CHARACTER            : 
@@ -121,17 +130,17 @@ CHOOSE               :
 COLON                : 
 COMM                 : 
 COMMA                : 
-DIVIDE               : 6
-DOT                  : 
+DIVIDE               : 22
+DOT                  : 8
 EQUAL                : 
 EXACTEQ              : 
 FLOAT_CONST          : 
 FUNTYPE              : 
 GEQ                  : 
 GREATER              : 
-IDENTIFIER           : 1 10
+IDENTIFIER           : 7 8 9 12 13 13 17 26 27 27
 INNER_CLASS          : 
-INT_CONST            : 9
+INT_CONST            : 25
 KWRD_ABST            : 
 KWRD_ARRAY           : 
 KWRD_CASE            : 
@@ -140,7 +149,7 @@ KWRD_CLASS           :
 KWRD_DEF             : 
 KWRD_DO              : 
 KWRD_ELSE            : 
-KWRD_EXTNDS          : 
+KWRD_EXTNDS          : 13
 KWRD_FINAL           : 
 KWRD_FINALLY         : 
 KWRD_FOR             : 
@@ -148,15 +157,15 @@ KWRD_FOREACH         :
 KWRD_FORSOME         : 
 KWRD_IF              : 
 KWRD_IMPLICIT        : 
-KWRD_IMPORT          : 
+KWRD_IMPORT          : 10
 KWRD_LAZY            : 
 KWRD_MACRO           : 
 KWRD_MATCH           : 
 KWRD_NEW             : 
 KWRD_NULL            : 
-KWRD_OBJECT          : 
+KWRD_OBJECT          : 12 13
 KWRD_OVERRIDE        : 
-KWRD_PACKAGE         : 
+KWRD_PACKAGE         : 7
 KWRD_PRIVATE         : 
 KWRD_PROTECTED       : 
 KWRD_PUBLIC          : 
@@ -179,23 +188,24 @@ LBPAREN              :
 LEQ                  : 
 LESS                 : 
 LOWER_BOUND          : 
-LPAREN               : 
-MINUS                : 4
+LPAREN               : 24 27
+MINUS                : 20
 MINUSEQ              : 
 NEQUAL               : 
 NIL                  : 
 NOT                  : 
 OR                   : 
-PLUS                 : 3
+OR_BITWISE           : 
+PLUS                 : 19
 PLUSEQ               : 
 QUESTION             : 
 RBPAREN              : 
-RPAREN               : 
-STATE_END            : 
+RPAREN               : 24 27
+STATE_END            : 14 15
 STRING_CONST         : 
 SUBTYPE              : 
 TILDA                : 
-TIMES                : 5
+TIMES                : 21
 TYPE_CHAR            : 
 TYPE_INT             : 
 TYPE_STRING          : 
@@ -207,367 +217,704 @@ error                :
 
 Nonterminals, with rules where they appear
 
-expression           : 1 2 3 3 4 4 5 5 6 6 7 8
-statement            : 0
+arithmetic_statement : 14
+block_statements     : 11 14 15
+empty                : 6 16
+expression           : 17 18 19 19 20 20 21 21 22 22 23 24
+header_def           : 1
+import_def           : 2 3 5
+library_name         : 8 10
+object_declare       : 11
+object_def           : 1
+package_def          : 2 3 4
+print_st             : 15
+program_struct       : 0
 
 Parsing method: LALR
 
 state 0
 
-    (0) S' -> . statement
-    (1) statement -> . IDENTIFIER ASSIGN expression
-    (2) statement -> . expression
-    (3) expression -> . expression PLUS expression
-    (4) expression -> . expression MINUS expression
-    (5) expression -> . expression TIMES expression
-    (6) expression -> . expression DIVIDE expression
-    (7) expression -> . - expression
-    (8) expression -> . ( expression )
-    (9) expression -> . INT_CONST
-    (10) expression -> . IDENTIFIER
+    (0) S' -> . program_struct
+    (1) program_struct -> . header_def object_def
+    (2) header_def -> . package_def import_def
+    (3) header_def -> . import_def package_def
+    (4) header_def -> . package_def
+    (5) header_def -> . import_def
+    (6) header_def -> . empty
+    (7) package_def -> . KWRD_PACKAGE IDENTIFIER
+    (10) import_def -> . KWRD_IMPORT library_name
+    (28) empty -> .
 
-    IDENTIFIER      shift and go to state 5
-    -               shift and go to state 3
-    (               shift and go to state 2
-    INT_CONST       shift and go to state 1
+    KWRD_PACKAGE    shift and go to state 1
+    KWRD_IMPORT     shift and go to state 2
+    KWRD_OBJECT     reduce using rule 28 (empty -> .)
 
-    expression                     shift and go to state 6
-    statement                      shift and go to state 4
+    import_def                     shift and go to state 3
+    package_def                    shift and go to state 4
+    program_struct                 shift and go to state 5
+    header_def                     shift and go to state 6
+    empty                          shift and go to state 7
 
 state 1
 
-    (9) expression -> INT_CONST .
+    (7) package_def -> KWRD_PACKAGE . IDENTIFIER
 
-    )               reduce using rule 9 (expression -> INT_CONST .)
-    PLUS            reduce using rule 9 (expression -> INT_CONST .)
-    MINUS           reduce using rule 9 (expression -> INT_CONST .)
-    TIMES           reduce using rule 9 (expression -> INT_CONST .)
-    DIVIDE          reduce using rule 9 (expression -> INT_CONST .)
-    $end            reduce using rule 9 (expression -> INT_CONST .)
+    IDENTIFIER      shift and go to state 8
 
 
 state 2
 
-    (8) expression -> ( . expression )
-    (3) expression -> . expression PLUS expression
-    (4) expression -> . expression MINUS expression
-    (5) expression -> . expression TIMES expression
-    (6) expression -> . expression DIVIDE expression
-    (7) expression -> . - expression
-    (8) expression -> . ( expression )
-    (9) expression -> . INT_CONST
-    (10) expression -> . IDENTIFIER
+    (10) import_def -> KWRD_IMPORT . library_name
+    (8) library_name -> . IDENTIFIER DOT library_name
+    (9) library_name -> . IDENTIFIER
 
-    -               shift and go to state 3
-    (               shift and go to state 2
-    INT_CONST       shift and go to state 1
-    IDENTIFIER      shift and go to state 7
+    IDENTIFIER      shift and go to state 10
 
-    expression                     shift and go to state 8
+    library_name                   shift and go to state 9
 
 state 3
 
-    (7) expression -> - . expression
-    (3) expression -> . expression PLUS expression
-    (4) expression -> . expression MINUS expression
-    (5) expression -> . expression TIMES expression
-    (6) expression -> . expression DIVIDE expression
-    (7) expression -> . - expression
-    (8) expression -> . ( expression )
-    (9) expression -> . INT_CONST
-    (10) expression -> . IDENTIFIER
+    (3) header_def -> import_def . package_def
+    (5) header_def -> import_def .
+    (7) package_def -> . KWRD_PACKAGE IDENTIFIER
 
-    -               shift and go to state 3
-    (               shift and go to state 2
-    INT_CONST       shift and go to state 1
-    IDENTIFIER      shift and go to state 7
+    KWRD_OBJECT     reduce using rule 5 (header_def -> import_def .)
+    KWRD_PACKAGE    shift and go to state 1
 
-    expression                     shift and go to state 9
+    package_def                    shift and go to state 11
 
 state 4
 
-    (0) S' -> statement .
+    (2) header_def -> package_def . import_def
+    (4) header_def -> package_def .
+    (10) import_def -> . KWRD_IMPORT library_name
 
+    KWRD_OBJECT     reduce using rule 4 (header_def -> package_def .)
+    KWRD_IMPORT     shift and go to state 2
 
+    import_def                     shift and go to state 12
 
 state 5
 
-    (1) statement -> IDENTIFIER . ASSIGN expression
-    (10) expression -> IDENTIFIER .
+    (0) S' -> program_struct .
 
-    ASSIGN          shift and go to state 10
-    PLUS            reduce using rule 10 (expression -> IDENTIFIER .)
-    MINUS           reduce using rule 10 (expression -> IDENTIFIER .)
-    TIMES           reduce using rule 10 (expression -> IDENTIFIER .)
-    DIVIDE          reduce using rule 10 (expression -> IDENTIFIER .)
-    $end            reduce using rule 10 (expression -> IDENTIFIER .)
 
 
 state 6
 
-    (2) statement -> expression .
-    (3) expression -> expression . PLUS expression
-    (4) expression -> expression . MINUS expression
-    (5) expression -> expression . TIMES expression
-    (6) expression -> expression . DIVIDE expression
+    (1) program_struct -> header_def . object_def
+    (11) object_def -> . object_declare BLOCK_BEGIN block_statements BLOCK_END
+    (12) object_declare -> . KWRD_OBJECT IDENTIFIER
+    (13) object_declare -> . KWRD_OBJECT IDENTIFIER KWRD_EXTNDS IDENTIFIER
 
-    $end            reduce using rule 2 (statement -> expression .)
-    PLUS            shift and go to state 11
-    MINUS           shift and go to state 13
-    TIMES           shift and go to state 14
-    DIVIDE          shift and go to state 12
+    KWRD_OBJECT     shift and go to state 14
 
+    object_declare                 shift and go to state 15
+    object_def                     shift and go to state 13
 
 state 7
 
-    (10) expression -> IDENTIFIER .
+    (6) header_def -> empty .
 
-    )               reduce using rule 10 (expression -> IDENTIFIER .)
-    PLUS            reduce using rule 10 (expression -> IDENTIFIER .)
-    MINUS           reduce using rule 10 (expression -> IDENTIFIER .)
-    TIMES           reduce using rule 10 (expression -> IDENTIFIER .)
-    DIVIDE          reduce using rule 10 (expression -> IDENTIFIER .)
-    $end            reduce using rule 10 (expression -> IDENTIFIER .)
+    KWRD_OBJECT     reduce using rule 6 (header_def -> empty .)
 
 
 state 8
 
-    (8) expression -> ( expression . )
-    (3) expression -> expression . PLUS expression
-    (4) expression -> expression . MINUS expression
-    (5) expression -> expression . TIMES expression
-    (6) expression -> expression . DIVIDE expression
+    (7) package_def -> KWRD_PACKAGE IDENTIFIER .
 
-    )               shift and go to state 15
-    PLUS            shift and go to state 11
-    MINUS           shift and go to state 13
-    TIMES           shift and go to state 14
-    DIVIDE          shift and go to state 12
+    KWRD_IMPORT     reduce using rule 7 (package_def -> KWRD_PACKAGE IDENTIFIER .)
+    KWRD_OBJECT     reduce using rule 7 (package_def -> KWRD_PACKAGE IDENTIFIER .)
 
 
 state 9
 
-    (7) expression -> - expression .
-    (3) expression -> expression . PLUS expression
-    (4) expression -> expression . MINUS expression
-    (5) expression -> expression . TIMES expression
-    (6) expression -> expression . DIVIDE expression
+    (10) import_def -> KWRD_IMPORT library_name .
 
-    )               reduce using rule 7 (expression -> - expression .)
-    PLUS            reduce using rule 7 (expression -> - expression .)
-    MINUS           reduce using rule 7 (expression -> - expression .)
-    TIMES           reduce using rule 7 (expression -> - expression .)
-    DIVIDE          reduce using rule 7 (expression -> - expression .)
-    $end            reduce using rule 7 (expression -> - expression .)
-
-  ! PLUS            [ shift and go to state 11 ]
-  ! MINUS           [ shift and go to state 13 ]
-  ! TIMES           [ shift and go to state 14 ]
-  ! DIVIDE          [ shift and go to state 12 ]
+    KWRD_OBJECT     reduce using rule 10 (import_def -> KWRD_IMPORT library_name .)
+    KWRD_PACKAGE    reduce using rule 10 (import_def -> KWRD_IMPORT library_name .)
 
 
 state 10
 
-    (1) statement -> IDENTIFIER ASSIGN . expression
-    (3) expression -> . expression PLUS expression
-    (4) expression -> . expression MINUS expression
-    (5) expression -> . expression TIMES expression
-    (6) expression -> . expression DIVIDE expression
-    (7) expression -> . - expression
-    (8) expression -> . ( expression )
-    (9) expression -> . INT_CONST
-    (10) expression -> . IDENTIFIER
+    (8) library_name -> IDENTIFIER . DOT library_name
+    (9) library_name -> IDENTIFIER .
 
-    -               shift and go to state 3
-    (               shift and go to state 2
-    INT_CONST       shift and go to state 1
-    IDENTIFIER      shift and go to state 7
+    DOT             shift and go to state 16
+    KWRD_PACKAGE    reduce using rule 9 (library_name -> IDENTIFIER .)
+    KWRD_OBJECT     reduce using rule 9 (library_name -> IDENTIFIER .)
 
-    expression                     shift and go to state 16
 
 state 11
 
-    (3) expression -> expression PLUS . expression
-    (3) expression -> . expression PLUS expression
-    (4) expression -> . expression MINUS expression
-    (5) expression -> . expression TIMES expression
-    (6) expression -> . expression DIVIDE expression
-    (7) expression -> . - expression
-    (8) expression -> . ( expression )
-    (9) expression -> . INT_CONST
-    (10) expression -> . IDENTIFIER
+    (3) header_def -> import_def package_def .
 
-    -               shift and go to state 3
-    (               shift and go to state 2
-    INT_CONST       shift and go to state 1
-    IDENTIFIER      shift and go to state 7
+    KWRD_OBJECT     reduce using rule 3 (header_def -> import_def package_def .)
 
-    expression                     shift and go to state 17
 
 state 12
 
-    (6) expression -> expression DIVIDE . expression
-    (3) expression -> . expression PLUS expression
-    (4) expression -> . expression MINUS expression
-    (5) expression -> . expression TIMES expression
-    (6) expression -> . expression DIVIDE expression
-    (7) expression -> . - expression
-    (8) expression -> . ( expression )
-    (9) expression -> . INT_CONST
-    (10) expression -> . IDENTIFIER
+    (2) header_def -> package_def import_def .
 
-    -               shift and go to state 3
-    (               shift and go to state 2
-    INT_CONST       shift and go to state 1
-    IDENTIFIER      shift and go to state 7
+    KWRD_OBJECT     reduce using rule 2 (header_def -> package_def import_def .)
 
-    expression                     shift and go to state 18
 
 state 13
 
-    (4) expression -> expression MINUS . expression
-    (3) expression -> . expression PLUS expression
-    (4) expression -> . expression MINUS expression
-    (5) expression -> . expression TIMES expression
-    (6) expression -> . expression DIVIDE expression
-    (7) expression -> . - expression
-    (8) expression -> . ( expression )
-    (9) expression -> . INT_CONST
-    (10) expression -> . IDENTIFIER
+    (1) program_struct -> header_def object_def .
 
-    -               shift and go to state 3
-    (               shift and go to state 2
-    INT_CONST       shift and go to state 1
-    IDENTIFIER      shift and go to state 7
+    $end            reduce using rule 1 (program_struct -> header_def object_def .)
 
-    expression                     shift and go to state 19
 
 state 14
 
-    (5) expression -> expression TIMES . expression
-    (3) expression -> . expression PLUS expression
-    (4) expression -> . expression MINUS expression
-    (5) expression -> . expression TIMES expression
-    (6) expression -> . expression DIVIDE expression
-    (7) expression -> . - expression
-    (8) expression -> . ( expression )
-    (9) expression -> . INT_CONST
-    (10) expression -> . IDENTIFIER
+    (12) object_declare -> KWRD_OBJECT . IDENTIFIER
+    (13) object_declare -> KWRD_OBJECT . IDENTIFIER KWRD_EXTNDS IDENTIFIER
 
-    -               shift and go to state 3
-    (               shift and go to state 2
-    INT_CONST       shift and go to state 1
-    IDENTIFIER      shift and go to state 7
+    IDENTIFIER      shift and go to state 17
 
-    expression                     shift and go to state 20
 
 state 15
 
-    (8) expression -> ( expression ) .
+    (11) object_def -> object_declare . BLOCK_BEGIN block_statements BLOCK_END
 
-    )               reduce using rule 8 (expression -> ( expression ) .)
-    PLUS            reduce using rule 8 (expression -> ( expression ) .)
-    MINUS           reduce using rule 8 (expression -> ( expression ) .)
-    TIMES           reduce using rule 8 (expression -> ( expression ) .)
-    DIVIDE          reduce using rule 8 (expression -> ( expression ) .)
-    $end            reduce using rule 8 (expression -> ( expression ) .)
+    BLOCK_BEGIN     shift and go to state 18
 
 
 state 16
 
-    (1) statement -> IDENTIFIER ASSIGN expression .
-    (3) expression -> expression . PLUS expression
-    (4) expression -> expression . MINUS expression
-    (5) expression -> expression . TIMES expression
-    (6) expression -> expression . DIVIDE expression
+    (8) library_name -> IDENTIFIER DOT . library_name
+    (8) library_name -> . IDENTIFIER DOT library_name
+    (9) library_name -> . IDENTIFIER
 
-    $end            reduce using rule 1 (statement -> IDENTIFIER ASSIGN expression .)
-    PLUS            shift and go to state 11
-    MINUS           shift and go to state 13
-    TIMES           shift and go to state 14
-    DIVIDE          shift and go to state 12
+    IDENTIFIER      shift and go to state 10
 
+    library_name                   shift and go to state 19
 
 state 17
 
-    (3) expression -> expression PLUS expression .
-    (3) expression -> expression . PLUS expression
-    (4) expression -> expression . MINUS expression
-    (5) expression -> expression . TIMES expression
-    (6) expression -> expression . DIVIDE expression
+    (12) object_declare -> KWRD_OBJECT IDENTIFIER .
+    (13) object_declare -> KWRD_OBJECT IDENTIFIER . KWRD_EXTNDS IDENTIFIER
 
-    )               reduce using rule 3 (expression -> expression PLUS expression .)
-    PLUS            reduce using rule 3 (expression -> expression PLUS expression .)
-    MINUS           reduce using rule 3 (expression -> expression PLUS expression .)
-    $end            reduce using rule 3 (expression -> expression PLUS expression .)
-    TIMES           shift and go to state 14
-    DIVIDE          shift and go to state 12
-
-  ! TIMES           [ reduce using rule 3 (expression -> expression PLUS expression .) ]
-  ! DIVIDE          [ reduce using rule 3 (expression -> expression PLUS expression .) ]
-  ! PLUS            [ shift and go to state 11 ]
-  ! MINUS           [ shift and go to state 13 ]
+    BLOCK_BEGIN     reduce using rule 12 (object_declare -> KWRD_OBJECT IDENTIFIER .)
+    KWRD_EXTNDS     shift and go to state 20
 
 
 state 18
 
-    (6) expression -> expression DIVIDE expression .
-    (3) expression -> expression . PLUS expression
-    (4) expression -> expression . MINUS expression
-    (5) expression -> expression . TIMES expression
-    (6) expression -> expression . DIVIDE expression
+    (11) object_def -> object_declare BLOCK_BEGIN . block_statements BLOCK_END
+    (14) block_statements -> . arithmetic_statement STATE_END block_statements
+    (15) block_statements -> . print_st STATE_END block_statements
+    (16) block_statements -> . empty
+    (17) arithmetic_statement -> . IDENTIFIER ASSIGN expression
+    (18) arithmetic_statement -> . expression
+    (27) print_st -> . IDENTIFIER LPAREN IDENTIFIER RPAREN
+    (28) empty -> .
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression TIMES expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . - expression
+    (24) expression -> . LPAREN expression RPAREN
+    (25) expression -> . INT_CONST
+    (26) expression -> . IDENTIFIER
 
-    )               reduce using rule 6 (expression -> expression DIVIDE expression .)
-    PLUS            reduce using rule 6 (expression -> expression DIVIDE expression .)
-    MINUS           reduce using rule 6 (expression -> expression DIVIDE expression .)
-    TIMES           reduce using rule 6 (expression -> expression DIVIDE expression .)
-    DIVIDE          reduce using rule 6 (expression -> expression DIVIDE expression .)
-    $end            reduce using rule 6 (expression -> expression DIVIDE expression .)
+    IDENTIFIER      shift and go to state 27
+    BLOCK_END       reduce using rule 28 (empty -> .)
+    -               shift and go to state 24
+    LPAREN          shift and go to state 25
+    INT_CONST       shift and go to state 22
 
-  ! PLUS            [ shift and go to state 11 ]
-  ! MINUS           [ shift and go to state 13 ]
-  ! TIMES           [ shift and go to state 14 ]
-  ! DIVIDE          [ shift and go to state 12 ]
-
+    block_statements               shift and go to state 21
+    arithmetic_statement           shift and go to state 26
+    expression                     shift and go to state 23
+    print_st                       shift and go to state 28
+    empty                          shift and go to state 29
 
 state 19
 
-    (4) expression -> expression MINUS expression .
-    (3) expression -> expression . PLUS expression
-    (4) expression -> expression . MINUS expression
-    (5) expression -> expression . TIMES expression
-    (6) expression -> expression . DIVIDE expression
+    (8) library_name -> IDENTIFIER DOT library_name .
 
-    )               reduce using rule 4 (expression -> expression MINUS expression .)
-    PLUS            reduce using rule 4 (expression -> expression MINUS expression .)
-    MINUS           reduce using rule 4 (expression -> expression MINUS expression .)
-    $end            reduce using rule 4 (expression -> expression MINUS expression .)
-    TIMES           shift and go to state 14
-    DIVIDE          shift and go to state 12
-
-  ! TIMES           [ reduce using rule 4 (expression -> expression MINUS expression .) ]
-  ! DIVIDE          [ reduce using rule 4 (expression -> expression MINUS expression .) ]
-  ! PLUS            [ shift and go to state 11 ]
-  ! MINUS           [ shift and go to state 13 ]
+    KWRD_PACKAGE    reduce using rule 8 (library_name -> IDENTIFIER DOT library_name .)
+    KWRD_OBJECT     reduce using rule 8 (library_name -> IDENTIFIER DOT library_name .)
 
 
 state 20
 
-    (5) expression -> expression TIMES expression .
-    (3) expression -> expression . PLUS expression
-    (4) expression -> expression . MINUS expression
-    (5) expression -> expression . TIMES expression
-    (6) expression -> expression . DIVIDE expression
+    (13) object_declare -> KWRD_OBJECT IDENTIFIER KWRD_EXTNDS . IDENTIFIER
 
-    )               reduce using rule 5 (expression -> expression TIMES expression .)
-    PLUS            reduce using rule 5 (expression -> expression TIMES expression .)
-    MINUS           reduce using rule 5 (expression -> expression TIMES expression .)
-    TIMES           reduce using rule 5 (expression -> expression TIMES expression .)
-    DIVIDE          reduce using rule 5 (expression -> expression TIMES expression .)
-    $end            reduce using rule 5 (expression -> expression TIMES expression .)
+    IDENTIFIER      shift and go to state 30
 
-  ! PLUS            [ shift and go to state 11 ]
-  ! MINUS           [ shift and go to state 13 ]
-  ! TIMES           [ shift and go to state 14 ]
-  ! DIVIDE          [ shift and go to state 12 ]
+
+state 21
+
+    (11) object_def -> object_declare BLOCK_BEGIN block_statements . BLOCK_END
+
+    BLOCK_END       shift and go to state 31
+
+
+state 22
+
+    (25) expression -> INT_CONST .
+
+    PLUS            reduce using rule 25 (expression -> INT_CONST .)
+    MINUS           reduce using rule 25 (expression -> INT_CONST .)
+    TIMES           reduce using rule 25 (expression -> INT_CONST .)
+    DIVIDE          reduce using rule 25 (expression -> INT_CONST .)
+    STATE_END       reduce using rule 25 (expression -> INT_CONST .)
+    RPAREN          reduce using rule 25 (expression -> INT_CONST .)
+
+
+state 23
+
+    (18) arithmetic_statement -> expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . TIMES expression
+    (22) expression -> expression . DIVIDE expression
+
+    STATE_END       reduce using rule 18 (arithmetic_statement -> expression .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 34
+    TIMES           shift and go to state 35
+    DIVIDE          shift and go to state 33
+
+
+state 24
+
+    (23) expression -> - . expression
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression TIMES expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . - expression
+    (24) expression -> . LPAREN expression RPAREN
+    (25) expression -> . INT_CONST
+    (26) expression -> . IDENTIFIER
+
+    -               shift and go to state 24
+    LPAREN          shift and go to state 25
+    INT_CONST       shift and go to state 22
+    IDENTIFIER      shift and go to state 36
+
+    expression                     shift and go to state 37
+
+state 25
+
+    (24) expression -> LPAREN . expression RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression TIMES expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . - expression
+    (24) expression -> . LPAREN expression RPAREN
+    (25) expression -> . INT_CONST
+    (26) expression -> . IDENTIFIER
+
+    -               shift and go to state 24
+    LPAREN          shift and go to state 25
+    INT_CONST       shift and go to state 22
+    IDENTIFIER      shift and go to state 36
+
+    expression                     shift and go to state 38
+
+state 26
+
+    (14) block_statements -> arithmetic_statement . STATE_END block_statements
+
+    STATE_END       shift and go to state 39
+
+
+state 27
+
+    (17) arithmetic_statement -> IDENTIFIER . ASSIGN expression
+    (27) print_st -> IDENTIFIER . LPAREN IDENTIFIER RPAREN
+    (26) expression -> IDENTIFIER .
+
+    ASSIGN          shift and go to state 40
+    LPAREN          shift and go to state 41
+    PLUS            reduce using rule 26 (expression -> IDENTIFIER .)
+    MINUS           reduce using rule 26 (expression -> IDENTIFIER .)
+    TIMES           reduce using rule 26 (expression -> IDENTIFIER .)
+    DIVIDE          reduce using rule 26 (expression -> IDENTIFIER .)
+    STATE_END       reduce using rule 26 (expression -> IDENTIFIER .)
+
+
+state 28
+
+    (15) block_statements -> print_st . STATE_END block_statements
+
+    STATE_END       shift and go to state 42
+
+
+state 29
+
+    (16) block_statements -> empty .
+
+    BLOCK_END       reduce using rule 16 (block_statements -> empty .)
+
+
+state 30
+
+    (13) object_declare -> KWRD_OBJECT IDENTIFIER KWRD_EXTNDS IDENTIFIER .
+
+    BLOCK_BEGIN     reduce using rule 13 (object_declare -> KWRD_OBJECT IDENTIFIER KWRD_EXTNDS IDENTIFIER .)
+
+
+state 31
+
+    (11) object_def -> object_declare BLOCK_BEGIN block_statements BLOCK_END .
+
+    $end            reduce using rule 11 (object_def -> object_declare BLOCK_BEGIN block_statements BLOCK_END .)
+
+
+state 32
+
+    (19) expression -> expression PLUS . expression
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression TIMES expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . - expression
+    (24) expression -> . LPAREN expression RPAREN
+    (25) expression -> . INT_CONST
+    (26) expression -> . IDENTIFIER
+
+    -               shift and go to state 24
+    LPAREN          shift and go to state 25
+    INT_CONST       shift and go to state 22
+    IDENTIFIER      shift and go to state 36
+
+    expression                     shift and go to state 43
+
+state 33
+
+    (22) expression -> expression DIVIDE . expression
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression TIMES expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . - expression
+    (24) expression -> . LPAREN expression RPAREN
+    (25) expression -> . INT_CONST
+    (26) expression -> . IDENTIFIER
+
+    -               shift and go to state 24
+    LPAREN          shift and go to state 25
+    INT_CONST       shift and go to state 22
+    IDENTIFIER      shift and go to state 36
+
+    expression                     shift and go to state 44
+
+state 34
+
+    (20) expression -> expression MINUS . expression
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression TIMES expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . - expression
+    (24) expression -> . LPAREN expression RPAREN
+    (25) expression -> . INT_CONST
+    (26) expression -> . IDENTIFIER
+
+    -               shift and go to state 24
+    LPAREN          shift and go to state 25
+    INT_CONST       shift and go to state 22
+    IDENTIFIER      shift and go to state 36
+
+    expression                     shift and go to state 45
+
+state 35
+
+    (21) expression -> expression TIMES . expression
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression TIMES expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . - expression
+    (24) expression -> . LPAREN expression RPAREN
+    (25) expression -> . INT_CONST
+    (26) expression -> . IDENTIFIER
+
+    -               shift and go to state 24
+    LPAREN          shift and go to state 25
+    INT_CONST       shift and go to state 22
+    IDENTIFIER      shift and go to state 36
+
+    expression                     shift and go to state 46
+
+state 36
+
+    (26) expression -> IDENTIFIER .
+
+    PLUS            reduce using rule 26 (expression -> IDENTIFIER .)
+    MINUS           reduce using rule 26 (expression -> IDENTIFIER .)
+    TIMES           reduce using rule 26 (expression -> IDENTIFIER .)
+    DIVIDE          reduce using rule 26 (expression -> IDENTIFIER .)
+    STATE_END       reduce using rule 26 (expression -> IDENTIFIER .)
+    RPAREN          reduce using rule 26 (expression -> IDENTIFIER .)
+
+
+state 37
+
+    (23) expression -> - expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . TIMES expression
+    (22) expression -> expression . DIVIDE expression
+
+    PLUS            reduce using rule 23 (expression -> - expression .)
+    MINUS           reduce using rule 23 (expression -> - expression .)
+    TIMES           reduce using rule 23 (expression -> - expression .)
+    DIVIDE          reduce using rule 23 (expression -> - expression .)
+    STATE_END       reduce using rule 23 (expression -> - expression .)
+    RPAREN          reduce using rule 23 (expression -> - expression .)
+
+  ! PLUS            [ shift and go to state 32 ]
+  ! MINUS           [ shift and go to state 34 ]
+  ! TIMES           [ shift and go to state 35 ]
+  ! DIVIDE          [ shift and go to state 33 ]
+
+
+state 38
+
+    (24) expression -> LPAREN expression . RPAREN
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . TIMES expression
+    (22) expression -> expression . DIVIDE expression
+
+    RPAREN          shift and go to state 47
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 34
+    TIMES           shift and go to state 35
+    DIVIDE          shift and go to state 33
+
+
+state 39
+
+    (14) block_statements -> arithmetic_statement STATE_END . block_statements
+    (14) block_statements -> . arithmetic_statement STATE_END block_statements
+    (15) block_statements -> . print_st STATE_END block_statements
+    (16) block_statements -> . empty
+    (17) arithmetic_statement -> . IDENTIFIER ASSIGN expression
+    (18) arithmetic_statement -> . expression
+    (27) print_st -> . IDENTIFIER LPAREN IDENTIFIER RPAREN
+    (28) empty -> .
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression TIMES expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . - expression
+    (24) expression -> . LPAREN expression RPAREN
+    (25) expression -> . INT_CONST
+    (26) expression -> . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 27
+    BLOCK_END       reduce using rule 28 (empty -> .)
+    -               shift and go to state 24
+    LPAREN          shift and go to state 25
+    INT_CONST       shift and go to state 22
+
+    block_statements               shift and go to state 48
+    arithmetic_statement           shift and go to state 26
+    expression                     shift and go to state 23
+    print_st                       shift and go to state 28
+    empty                          shift and go to state 29
+
+state 40
+
+    (17) arithmetic_statement -> IDENTIFIER ASSIGN . expression
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression TIMES expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . - expression
+    (24) expression -> . LPAREN expression RPAREN
+    (25) expression -> . INT_CONST
+    (26) expression -> . IDENTIFIER
+
+    -               shift and go to state 24
+    LPAREN          shift and go to state 25
+    INT_CONST       shift and go to state 22
+    IDENTIFIER      shift and go to state 36
+
+    expression                     shift and go to state 49
+
+state 41
+
+    (27) print_st -> IDENTIFIER LPAREN . IDENTIFIER RPAREN
+
+    IDENTIFIER      shift and go to state 50
+
+
+state 42
+
+    (15) block_statements -> print_st STATE_END . block_statements
+    (14) block_statements -> . arithmetic_statement STATE_END block_statements
+    (15) block_statements -> . print_st STATE_END block_statements
+    (16) block_statements -> . empty
+    (17) arithmetic_statement -> . IDENTIFIER ASSIGN expression
+    (18) arithmetic_statement -> . expression
+    (27) print_st -> . IDENTIFIER LPAREN IDENTIFIER RPAREN
+    (28) empty -> .
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression TIMES expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . - expression
+    (24) expression -> . LPAREN expression RPAREN
+    (25) expression -> . INT_CONST
+    (26) expression -> . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 27
+    BLOCK_END       reduce using rule 28 (empty -> .)
+    -               shift and go to state 24
+    LPAREN          shift and go to state 25
+    INT_CONST       shift and go to state 22
+
+    block_statements               shift and go to state 51
+    arithmetic_statement           shift and go to state 26
+    expression                     shift and go to state 23
+    print_st                       shift and go to state 28
+    empty                          shift and go to state 29
+
+state 43
+
+    (19) expression -> expression PLUS expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . TIMES expression
+    (22) expression -> expression . DIVIDE expression
+
+    PLUS            reduce using rule 19 (expression -> expression PLUS expression .)
+    MINUS           reduce using rule 19 (expression -> expression PLUS expression .)
+    STATE_END       reduce using rule 19 (expression -> expression PLUS expression .)
+    RPAREN          reduce using rule 19 (expression -> expression PLUS expression .)
+    TIMES           shift and go to state 35
+    DIVIDE          shift and go to state 33
+
+  ! TIMES           [ reduce using rule 19 (expression -> expression PLUS expression .) ]
+  ! DIVIDE          [ reduce using rule 19 (expression -> expression PLUS expression .) ]
+  ! PLUS            [ shift and go to state 32 ]
+  ! MINUS           [ shift and go to state 34 ]
+
+
+state 44
+
+    (22) expression -> expression DIVIDE expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . TIMES expression
+    (22) expression -> expression . DIVIDE expression
+
+    PLUS            reduce using rule 22 (expression -> expression DIVIDE expression .)
+    MINUS           reduce using rule 22 (expression -> expression DIVIDE expression .)
+    TIMES           reduce using rule 22 (expression -> expression DIVIDE expression .)
+    DIVIDE          reduce using rule 22 (expression -> expression DIVIDE expression .)
+    STATE_END       reduce using rule 22 (expression -> expression DIVIDE expression .)
+    RPAREN          reduce using rule 22 (expression -> expression DIVIDE expression .)
+
+  ! PLUS            [ shift and go to state 32 ]
+  ! MINUS           [ shift and go to state 34 ]
+  ! TIMES           [ shift and go to state 35 ]
+  ! DIVIDE          [ shift and go to state 33 ]
+
+
+state 45
+
+    (20) expression -> expression MINUS expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . TIMES expression
+    (22) expression -> expression . DIVIDE expression
+
+    PLUS            reduce using rule 20 (expression -> expression MINUS expression .)
+    MINUS           reduce using rule 20 (expression -> expression MINUS expression .)
+    STATE_END       reduce using rule 20 (expression -> expression MINUS expression .)
+    RPAREN          reduce using rule 20 (expression -> expression MINUS expression .)
+    TIMES           shift and go to state 35
+    DIVIDE          shift and go to state 33
+
+  ! TIMES           [ reduce using rule 20 (expression -> expression MINUS expression .) ]
+  ! DIVIDE          [ reduce using rule 20 (expression -> expression MINUS expression .) ]
+  ! PLUS            [ shift and go to state 32 ]
+  ! MINUS           [ shift and go to state 34 ]
+
+
+state 46
+
+    (21) expression -> expression TIMES expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . TIMES expression
+    (22) expression -> expression . DIVIDE expression
+
+    PLUS            reduce using rule 21 (expression -> expression TIMES expression .)
+    MINUS           reduce using rule 21 (expression -> expression TIMES expression .)
+    TIMES           reduce using rule 21 (expression -> expression TIMES expression .)
+    DIVIDE          reduce using rule 21 (expression -> expression TIMES expression .)
+    STATE_END       reduce using rule 21 (expression -> expression TIMES expression .)
+    RPAREN          reduce using rule 21 (expression -> expression TIMES expression .)
+
+  ! PLUS            [ shift and go to state 32 ]
+  ! MINUS           [ shift and go to state 34 ]
+  ! TIMES           [ shift and go to state 35 ]
+  ! DIVIDE          [ shift and go to state 33 ]
+
+
+state 47
+
+    (24) expression -> LPAREN expression RPAREN .
+
+    PLUS            reduce using rule 24 (expression -> LPAREN expression RPAREN .)
+    MINUS           reduce using rule 24 (expression -> LPAREN expression RPAREN .)
+    TIMES           reduce using rule 24 (expression -> LPAREN expression RPAREN .)
+    DIVIDE          reduce using rule 24 (expression -> LPAREN expression RPAREN .)
+    STATE_END       reduce using rule 24 (expression -> LPAREN expression RPAREN .)
+    RPAREN          reduce using rule 24 (expression -> LPAREN expression RPAREN .)
+
+
+state 48
+
+    (14) block_statements -> arithmetic_statement STATE_END block_statements .
+
+    BLOCK_END       reduce using rule 14 (block_statements -> arithmetic_statement STATE_END block_statements .)
+
+
+state 49
+
+    (17) arithmetic_statement -> IDENTIFIER ASSIGN expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . TIMES expression
+    (22) expression -> expression . DIVIDE expression
+
+    STATE_END       reduce using rule 17 (arithmetic_statement -> IDENTIFIER ASSIGN expression .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 34
+    TIMES           shift and go to state 35
+    DIVIDE          shift and go to state 33
+
+
+state 50
+
+    (27) print_st -> IDENTIFIER LPAREN IDENTIFIER . RPAREN
+
+    RPAREN          shift and go to state 52
+
+
+state 51
+
+    (15) block_statements -> print_st STATE_END block_statements .
+
+    BLOCK_END       reduce using rule 15 (block_statements -> print_st STATE_END block_statements .)
+
+
+state 52
+
+    (27) print_st -> IDENTIFIER LPAREN IDENTIFIER RPAREN .
+
+    STATE_END       reduce using rule 27 (print_st -> IDENTIFIER LPAREN IDENTIFIER RPAREN .)
 
