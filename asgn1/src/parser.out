@@ -1,0 +1,573 @@
+Created by PLY version 3.4 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    KWRD_TYPE
+    TYPE_STRING
+    BLOCK_END
+    LESS
+    LOWER_BOUND
+    FLOAT_CONST
+    KWRD_ARRAY
+    STRING_CONST
+    KWRD_LAZY
+    BOOL_CONSTF
+    VIEWABLE
+    RPAREN
+    KWRD_THIS
+    KWRD_WITH
+    KWRD_FORSOME
+    BOOL_CONSTT
+    FUNTYPE
+    KWRD_TRY
+    KWRD_DO
+    KWRD_RETURN
+    NIL
+    KWRD_SUPER
+    KWRD_PROTECTED
+    KWRD_FOREACH
+    KWRD_PRIVATE
+    OR
+    VIEW
+    STATE_END
+    KWRD_PACKAGE
+    KWRD_CASE
+    EXACTEQ
+    RBPAREN
+    GEQ
+    KWRD_ABST
+    KWRD_UNTIL
+    COLON
+    KWRD_WHILE
+    NEQUAL
+    KWRD_STATIC
+    KWRD_NEW
+    KWRD_EXTNDS
+    UNDER
+    AND
+    KWRD_IF
+    UPPER_BOUND
+    NOT
+    TYPE_CHAR
+    INNER_CLASS
+    KWRD_DEF
+    KWRD_THROW
+    DOT
+    KWRD_MACRO
+    KWRD_CLASS
+    KWRD_PUBLIC
+    KWRD_MATCH
+    MINUSEQ
+    TILDA
+    KWRD_FINAL
+    COMM
+    KWRD_IMPLICIT
+    GREATER
+    KWRD_SEALED
+    KWRD_ELSE
+    LEQ
+    CHOOSE
+    KWRD_FINALLY
+    TYPE_INT
+    CHARACTER
+    EQUAL
+    BLOCK_BEGIN
+    SUBTYPE
+    KWRD_FOR
+    QUESTION
+    KWRD_VAR
+    KWRD_VAL
+    COMMA
+    KWRD_OBJECT
+    KWRD_IMPORT
+    KWRD_YIELD
+    KWRD_OVERRIDE
+    KWRD_NULL
+    AT
+    LPAREN
+    KWRD_TRAIT
+    LBPAREN
+    PLUSEQ
+    KWRD_CATCH
+
+Grammar
+
+Rule 0     S' -> statement
+Rule 1     statement -> IDENTIFIER ASSIGN expression
+Rule 2     statement -> expression
+Rule 3     expression -> expression PLUS expression
+Rule 4     expression -> expression MINUS expression
+Rule 5     expression -> expression TIMES expression
+Rule 6     expression -> expression DIVIDE expression
+Rule 7     expression -> - expression
+Rule 8     expression -> ( expression )
+Rule 9     expression -> INT_CONST
+Rule 10    expression -> IDENTIFIER
+
+Terminals, with rules where they appear
+
+(                    : 8
+)                    : 8
+-                    : 7
+AND                  : 
+ASSIGN               : 1
+AT                   : 
+BLOCK_BEGIN          : 
+BLOCK_END            : 
+BOOL_CONSTF          : 
+BOOL_CONSTT          : 
+CHARACTER            : 
+CHOOSE               : 
+COLON                : 
+COMM                 : 
+COMMA                : 
+DIVIDE               : 6
+DOT                  : 
+EQUAL                : 
+EXACTEQ              : 
+FLOAT_CONST          : 
+FUNTYPE              : 
+GEQ                  : 
+GREATER              : 
+IDENTIFIER           : 1 10
+INNER_CLASS          : 
+INT_CONST            : 9
+KWRD_ABST            : 
+KWRD_ARRAY           : 
+KWRD_CASE            : 
+KWRD_CATCH           : 
+KWRD_CLASS           : 
+KWRD_DEF             : 
+KWRD_DO              : 
+KWRD_ELSE            : 
+KWRD_EXTNDS          : 
+KWRD_FINAL           : 
+KWRD_FINALLY         : 
+KWRD_FOR             : 
+KWRD_FOREACH         : 
+KWRD_FORSOME         : 
+KWRD_IF              : 
+KWRD_IMPLICIT        : 
+KWRD_IMPORT          : 
+KWRD_LAZY            : 
+KWRD_MACRO           : 
+KWRD_MATCH           : 
+KWRD_NEW             : 
+KWRD_NULL            : 
+KWRD_OBJECT          : 
+KWRD_OVERRIDE        : 
+KWRD_PACKAGE         : 
+KWRD_PRIVATE         : 
+KWRD_PROTECTED       : 
+KWRD_PUBLIC          : 
+KWRD_RETURN          : 
+KWRD_SEALED          : 
+KWRD_STATIC          : 
+KWRD_SUPER           : 
+KWRD_THIS            : 
+KWRD_THROW           : 
+KWRD_TRAIT           : 
+KWRD_TRY             : 
+KWRD_TYPE            : 
+KWRD_UNTIL           : 
+KWRD_VAL             : 
+KWRD_VAR             : 
+KWRD_WHILE           : 
+KWRD_WITH            : 
+KWRD_YIELD           : 
+LBPAREN              : 
+LEQ                  : 
+LESS                 : 
+LOWER_BOUND          : 
+LPAREN               : 
+MINUS                : 4
+MINUSEQ              : 
+NEQUAL               : 
+NIL                  : 
+NOT                  : 
+OR                   : 
+PLUS                 : 3
+PLUSEQ               : 
+QUESTION             : 
+RBPAREN              : 
+RPAREN               : 
+STATE_END            : 
+STRING_CONST         : 
+SUBTYPE              : 
+TILDA                : 
+TIMES                : 5
+TYPE_CHAR            : 
+TYPE_INT             : 
+TYPE_STRING          : 
+UNDER                : 
+UPPER_BOUND          : 
+VIEW                 : 
+VIEWABLE             : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+expression           : 1 2 3 3 4 4 5 5 6 6 7 8
+statement            : 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . statement
+    (1) statement -> . IDENTIFIER ASSIGN expression
+    (2) statement -> . expression
+    (3) expression -> . expression PLUS expression
+    (4) expression -> . expression MINUS expression
+    (5) expression -> . expression TIMES expression
+    (6) expression -> . expression DIVIDE expression
+    (7) expression -> . - expression
+    (8) expression -> . ( expression )
+    (9) expression -> . INT_CONST
+    (10) expression -> . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 5
+    -               shift and go to state 3
+    (               shift and go to state 2
+    INT_CONST       shift and go to state 1
+
+    expression                     shift and go to state 6
+    statement                      shift and go to state 4
+
+state 1
+
+    (9) expression -> INT_CONST .
+
+    )               reduce using rule 9 (expression -> INT_CONST .)
+    PLUS            reduce using rule 9 (expression -> INT_CONST .)
+    MINUS           reduce using rule 9 (expression -> INT_CONST .)
+    TIMES           reduce using rule 9 (expression -> INT_CONST .)
+    DIVIDE          reduce using rule 9 (expression -> INT_CONST .)
+    $end            reduce using rule 9 (expression -> INT_CONST .)
+
+
+state 2
+
+    (8) expression -> ( . expression )
+    (3) expression -> . expression PLUS expression
+    (4) expression -> . expression MINUS expression
+    (5) expression -> . expression TIMES expression
+    (6) expression -> . expression DIVIDE expression
+    (7) expression -> . - expression
+    (8) expression -> . ( expression )
+    (9) expression -> . INT_CONST
+    (10) expression -> . IDENTIFIER
+
+    -               shift and go to state 3
+    (               shift and go to state 2
+    INT_CONST       shift and go to state 1
+    IDENTIFIER      shift and go to state 7
+
+    expression                     shift and go to state 8
+
+state 3
+
+    (7) expression -> - . expression
+    (3) expression -> . expression PLUS expression
+    (4) expression -> . expression MINUS expression
+    (5) expression -> . expression TIMES expression
+    (6) expression -> . expression DIVIDE expression
+    (7) expression -> . - expression
+    (8) expression -> . ( expression )
+    (9) expression -> . INT_CONST
+    (10) expression -> . IDENTIFIER
+
+    -               shift and go to state 3
+    (               shift and go to state 2
+    INT_CONST       shift and go to state 1
+    IDENTIFIER      shift and go to state 7
+
+    expression                     shift and go to state 9
+
+state 4
+
+    (0) S' -> statement .
+
+
+
+state 5
+
+    (1) statement -> IDENTIFIER . ASSIGN expression
+    (10) expression -> IDENTIFIER .
+
+    ASSIGN          shift and go to state 10
+    PLUS            reduce using rule 10 (expression -> IDENTIFIER .)
+    MINUS           reduce using rule 10 (expression -> IDENTIFIER .)
+    TIMES           reduce using rule 10 (expression -> IDENTIFIER .)
+    DIVIDE          reduce using rule 10 (expression -> IDENTIFIER .)
+    $end            reduce using rule 10 (expression -> IDENTIFIER .)
+
+
+state 6
+
+    (2) statement -> expression .
+    (3) expression -> expression . PLUS expression
+    (4) expression -> expression . MINUS expression
+    (5) expression -> expression . TIMES expression
+    (6) expression -> expression . DIVIDE expression
+
+    $end            reduce using rule 2 (statement -> expression .)
+    PLUS            shift and go to state 11
+    MINUS           shift and go to state 13
+    TIMES           shift and go to state 14
+    DIVIDE          shift and go to state 12
+
+
+state 7
+
+    (10) expression -> IDENTIFIER .
+
+    )               reduce using rule 10 (expression -> IDENTIFIER .)
+    PLUS            reduce using rule 10 (expression -> IDENTIFIER .)
+    MINUS           reduce using rule 10 (expression -> IDENTIFIER .)
+    TIMES           reduce using rule 10 (expression -> IDENTIFIER .)
+    DIVIDE          reduce using rule 10 (expression -> IDENTIFIER .)
+    $end            reduce using rule 10 (expression -> IDENTIFIER .)
+
+
+state 8
+
+    (8) expression -> ( expression . )
+    (3) expression -> expression . PLUS expression
+    (4) expression -> expression . MINUS expression
+    (5) expression -> expression . TIMES expression
+    (6) expression -> expression . DIVIDE expression
+
+    )               shift and go to state 15
+    PLUS            shift and go to state 11
+    MINUS           shift and go to state 13
+    TIMES           shift and go to state 14
+    DIVIDE          shift and go to state 12
+
+
+state 9
+
+    (7) expression -> - expression .
+    (3) expression -> expression . PLUS expression
+    (4) expression -> expression . MINUS expression
+    (5) expression -> expression . TIMES expression
+    (6) expression -> expression . DIVIDE expression
+
+    )               reduce using rule 7 (expression -> - expression .)
+    PLUS            reduce using rule 7 (expression -> - expression .)
+    MINUS           reduce using rule 7 (expression -> - expression .)
+    TIMES           reduce using rule 7 (expression -> - expression .)
+    DIVIDE          reduce using rule 7 (expression -> - expression .)
+    $end            reduce using rule 7 (expression -> - expression .)
+
+  ! PLUS            [ shift and go to state 11 ]
+  ! MINUS           [ shift and go to state 13 ]
+  ! TIMES           [ shift and go to state 14 ]
+  ! DIVIDE          [ shift and go to state 12 ]
+
+
+state 10
+
+    (1) statement -> IDENTIFIER ASSIGN . expression
+    (3) expression -> . expression PLUS expression
+    (4) expression -> . expression MINUS expression
+    (5) expression -> . expression TIMES expression
+    (6) expression -> . expression DIVIDE expression
+    (7) expression -> . - expression
+    (8) expression -> . ( expression )
+    (9) expression -> . INT_CONST
+    (10) expression -> . IDENTIFIER
+
+    -               shift and go to state 3
+    (               shift and go to state 2
+    INT_CONST       shift and go to state 1
+    IDENTIFIER      shift and go to state 7
+
+    expression                     shift and go to state 16
+
+state 11
+
+    (3) expression -> expression PLUS . expression
+    (3) expression -> . expression PLUS expression
+    (4) expression -> . expression MINUS expression
+    (5) expression -> . expression TIMES expression
+    (6) expression -> . expression DIVIDE expression
+    (7) expression -> . - expression
+    (8) expression -> . ( expression )
+    (9) expression -> . INT_CONST
+    (10) expression -> . IDENTIFIER
+
+    -               shift and go to state 3
+    (               shift and go to state 2
+    INT_CONST       shift and go to state 1
+    IDENTIFIER      shift and go to state 7
+
+    expression                     shift and go to state 17
+
+state 12
+
+    (6) expression -> expression DIVIDE . expression
+    (3) expression -> . expression PLUS expression
+    (4) expression -> . expression MINUS expression
+    (5) expression -> . expression TIMES expression
+    (6) expression -> . expression DIVIDE expression
+    (7) expression -> . - expression
+    (8) expression -> . ( expression )
+    (9) expression -> . INT_CONST
+    (10) expression -> . IDENTIFIER
+
+    -               shift and go to state 3
+    (               shift and go to state 2
+    INT_CONST       shift and go to state 1
+    IDENTIFIER      shift and go to state 7
+
+    expression                     shift and go to state 18
+
+state 13
+
+    (4) expression -> expression MINUS . expression
+    (3) expression -> . expression PLUS expression
+    (4) expression -> . expression MINUS expression
+    (5) expression -> . expression TIMES expression
+    (6) expression -> . expression DIVIDE expression
+    (7) expression -> . - expression
+    (8) expression -> . ( expression )
+    (9) expression -> . INT_CONST
+    (10) expression -> . IDENTIFIER
+
+    -               shift and go to state 3
+    (               shift and go to state 2
+    INT_CONST       shift and go to state 1
+    IDENTIFIER      shift and go to state 7
+
+    expression                     shift and go to state 19
+
+state 14
+
+    (5) expression -> expression TIMES . expression
+    (3) expression -> . expression PLUS expression
+    (4) expression -> . expression MINUS expression
+    (5) expression -> . expression TIMES expression
+    (6) expression -> . expression DIVIDE expression
+    (7) expression -> . - expression
+    (8) expression -> . ( expression )
+    (9) expression -> . INT_CONST
+    (10) expression -> . IDENTIFIER
+
+    -               shift and go to state 3
+    (               shift and go to state 2
+    INT_CONST       shift and go to state 1
+    IDENTIFIER      shift and go to state 7
+
+    expression                     shift and go to state 20
+
+state 15
+
+    (8) expression -> ( expression ) .
+
+    )               reduce using rule 8 (expression -> ( expression ) .)
+    PLUS            reduce using rule 8 (expression -> ( expression ) .)
+    MINUS           reduce using rule 8 (expression -> ( expression ) .)
+    TIMES           reduce using rule 8 (expression -> ( expression ) .)
+    DIVIDE          reduce using rule 8 (expression -> ( expression ) .)
+    $end            reduce using rule 8 (expression -> ( expression ) .)
+
+
+state 16
+
+    (1) statement -> IDENTIFIER ASSIGN expression .
+    (3) expression -> expression . PLUS expression
+    (4) expression -> expression . MINUS expression
+    (5) expression -> expression . TIMES expression
+    (6) expression -> expression . DIVIDE expression
+
+    $end            reduce using rule 1 (statement -> IDENTIFIER ASSIGN expression .)
+    PLUS            shift and go to state 11
+    MINUS           shift and go to state 13
+    TIMES           shift and go to state 14
+    DIVIDE          shift and go to state 12
+
+
+state 17
+
+    (3) expression -> expression PLUS expression .
+    (3) expression -> expression . PLUS expression
+    (4) expression -> expression . MINUS expression
+    (5) expression -> expression . TIMES expression
+    (6) expression -> expression . DIVIDE expression
+
+    )               reduce using rule 3 (expression -> expression PLUS expression .)
+    PLUS            reduce using rule 3 (expression -> expression PLUS expression .)
+    MINUS           reduce using rule 3 (expression -> expression PLUS expression .)
+    $end            reduce using rule 3 (expression -> expression PLUS expression .)
+    TIMES           shift and go to state 14
+    DIVIDE          shift and go to state 12
+
+  ! TIMES           [ reduce using rule 3 (expression -> expression PLUS expression .) ]
+  ! DIVIDE          [ reduce using rule 3 (expression -> expression PLUS expression .) ]
+  ! PLUS            [ shift and go to state 11 ]
+  ! MINUS           [ shift and go to state 13 ]
+
+
+state 18
+
+    (6) expression -> expression DIVIDE expression .
+    (3) expression -> expression . PLUS expression
+    (4) expression -> expression . MINUS expression
+    (5) expression -> expression . TIMES expression
+    (6) expression -> expression . DIVIDE expression
+
+    )               reduce using rule 6 (expression -> expression DIVIDE expression .)
+    PLUS            reduce using rule 6 (expression -> expression DIVIDE expression .)
+    MINUS           reduce using rule 6 (expression -> expression DIVIDE expression .)
+    TIMES           reduce using rule 6 (expression -> expression DIVIDE expression .)
+    DIVIDE          reduce using rule 6 (expression -> expression DIVIDE expression .)
+    $end            reduce using rule 6 (expression -> expression DIVIDE expression .)
+
+  ! PLUS            [ shift and go to state 11 ]
+  ! MINUS           [ shift and go to state 13 ]
+  ! TIMES           [ shift and go to state 14 ]
+  ! DIVIDE          [ shift and go to state 12 ]
+
+
+state 19
+
+    (4) expression -> expression MINUS expression .
+    (3) expression -> expression . PLUS expression
+    (4) expression -> expression . MINUS expression
+    (5) expression -> expression . TIMES expression
+    (6) expression -> expression . DIVIDE expression
+
+    )               reduce using rule 4 (expression -> expression MINUS expression .)
+    PLUS            reduce using rule 4 (expression -> expression MINUS expression .)
+    MINUS           reduce using rule 4 (expression -> expression MINUS expression .)
+    $end            reduce using rule 4 (expression -> expression MINUS expression .)
+    TIMES           shift and go to state 14
+    DIVIDE          shift and go to state 12
+
+  ! TIMES           [ reduce using rule 4 (expression -> expression MINUS expression .) ]
+  ! DIVIDE          [ reduce using rule 4 (expression -> expression MINUS expression .) ]
+  ! PLUS            [ shift and go to state 11 ]
+  ! MINUS           [ shift and go to state 13 ]
+
+
+state 20
+
+    (5) expression -> expression TIMES expression .
+    (3) expression -> expression . PLUS expression
+    (4) expression -> expression . MINUS expression
+    (5) expression -> expression . TIMES expression
+    (6) expression -> expression . DIVIDE expression
+
+    )               reduce using rule 5 (expression -> expression TIMES expression .)
+    PLUS            reduce using rule 5 (expression -> expression TIMES expression .)
+    MINUS           reduce using rule 5 (expression -> expression TIMES expression .)
+    TIMES           reduce using rule 5 (expression -> expression TIMES expression .)
+    DIVIDE          reduce using rule 5 (expression -> expression TIMES expression .)
+    $end            reduce using rule 5 (expression -> expression TIMES expression .)
+
+  ! PLUS            [ shift and go to state 11 ]
+  ! MINUS           [ shift and go to state 13 ]
+  ! TIMES           [ shift and go to state 14 ]
+  ! DIVIDE          [ shift and go to state 12 ]
+

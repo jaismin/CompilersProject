@@ -1,0 +1,21 @@
+# lexer for a Scala language
+import ply.lex as lex
+import sys
+from tokensDefination import *
+from regexDefination import *
+import printLexerOutput
+
+# build the lexer
+lexer = lex.lex()
+
+# read the file contents
+f = open(sys.argv[1],"r")
+code_full = f.read()
+code_full=code_full+'\n'
+f.close()
+
+#use the lexer
+lexer.input(code_full)
+
+# print the output
+printLexerOutput.printLexer(lexer,code_full)
