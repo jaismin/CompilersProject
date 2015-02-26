@@ -1,0 +1,215 @@
+passing arguements to the functions
+def sort(xs: Array[Int])
+
+(p: T => Boolean) example arguement for scala functions
+T => Boolean is the type of functions that take an element of type t and return
+a Boolean
+
+blocks for if and while statements
+
+semi colons not necessary if on next line
+
+variables start with var
+read only values with val
+
+the declared type given after the symbol with a colon , it can also get it from the context
+
+Array types are written as Array[T]  rather than t[]
+and a(i) used for referencing rather than a[i]
+
+Nested functions can access
+parameters and local variables of enclosing functions
+
+An alphanumeric identifier starts with a letter or underscore, which can be followed by further letters, digits, or 
+underscores. 
+
+Scala is a line-oriented language where statements may be terminated by semicolons (;) or newlines
+
+The package 
+declaration is the first non-comment line in the source file
+package com.liftcode.stuff
+
+var myVar : String = "Foo" mutable variables
+
+val myVar : String = "Foo" immutable variable
+
+val or val VariableName : DataType [= Initial Value]
+variable declaration
+
+var myVar = 10;
+val myVal = "Hello, Scala!";
+type inferencing
+
+multiple assignments:
+val (myVar1: Int, myVar2: String) = Pair(40, "Foo")
+
+
+
+Nested class definitios
+
+class Outer {
+ class Inner {
+ private def f() { println("f") }
+ class InnerMost {
+ f() // OK
+ }
+ }
+ (new Inner).f() // Error: f is not accessible
+}
+
+Creating packages:
+
+package p {
+ class Super {
+ protected def f() { println("f") }
+ }
+ class Sub extends Super {
+ f()
+ }
+ class Other {
+ (new Super).f() // Error: f is not accessible
+ }
+}
+
+
+Scope accessibility within the package:
+
+package society {
+ package professional {
+ class Executive {
+ private[professional] var workDetails = null
+ private[society] var friends = null
+ private[this] var secrets = null
+ def help(another : Executive) {
+ println(another.workDetails)
+ println(another.secrets) //ERROR
+ }
+ }
+ }
+}
+
+Page 31 tutorial
+Bitwise operators in lexer
+Assignment operators 
+
+Page 33 Scala tutorial
+assosiativity and precedence
+
+if
+if else
+if else if ... else
+if else if else if .....else if
+
+while loop 
+do while loop 
+for loop
+
+loops with ranges in scala for loop
+
+less than or equal to
+for( a <- 1 to 10){
+ println( "Value of a: " + a );
+ }
+
+less than
+for( a <- 1 until 10){
+ println( "Value of a: " + a );
+ }
+
+ multiple variable loop over
+for( a <- 1 to 3; b <- 1 to 3)
+
+val numList = List(1,2,3,4,5,6);
+for( var x <- List )
+
+filters in for loop
+for( a <- numList
+ if a != 3; if a < 8 )
+
+break a loop in scala
+val loop = new Breaks;
+ loop.breakable {
+ for( a <- numList){
+ println( "Value of a: " + a );
+ if( a == 4 ){
+ loop.break;
+ }
+ }
+ }
+
+
+Function definitions in scala
+def functionName ([list of parameters]) : [return type] = {
+ function body
+ return [expr]
+}
+
+
+object add{
+ def addInt( a:Int, b:Int ) : Int = {
+ var sum:Int = 0
+ sum = a + b
+
+object Hello{
+ def printMe( ) : Unit = {
+ println("Hello, Scala!")
+ }
+}
+
+unit is same as void in java
+
+page 54 functions support
+
+declaring arrays:
+var z:Array[String] = new Array[String](3)
+or
+var z = new Array[String](3)
+
+
+var z = Array("Zara", "Nuha", "Ayan")
+z(0) = "Zara"; z(1) = "Nuha"; z(4/2) = "Ayan"
+
+
+var myMatrix = ofDim[Int](3,3) multi d array
+
+
+class definitions in scala
+
+class Point(xc: Int, yc: Int) {
+ var x: Int = xc
+ var y: Int = yc
+ def move(dx: Int, dy: Int) {
+ x = x + dx
+ y = y + dy
+ println ("Point x location : " + x);
+ println ("Point y location : " + y);
+ }
+}
+
+Scala 
+has singleton objects. A singleton is a class that can have only one instance, i.e., object.
+
+
+variable declaration
+arithmetic expressions
+string concatenation
+while
+for 
+functions
+if else
+class declarations
+multiple assignments
++=  , -= , *= , /=, %=
+Arithmetic Operators
+ Relational Operators
+ Logical Operators
+ Bitwise Operators
+ Assignment Operators
+single-d arrays
+multi-d arrays
+file handling
+scope
+
+
+
+

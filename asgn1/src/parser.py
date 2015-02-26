@@ -9,10 +9,11 @@ from include.grammar import *
 
 class Node(object): 
     gid = 1   
-    def __init__(self,name,children):
+    def __init__(self,name,children,val=None):
         self.name = name
         self.children = children
         self.id=Node.gid
+        self.val=val
         Node.gid+=1
 
 def create_child_nodes(name1,name2):
@@ -42,4 +43,4 @@ f.close()
 
 #parse over the input
 node=parser.parse(code_full)
-printnodes(node)
+# printnodes(node)
