@@ -1,8 +1,6 @@
 tokens = [ 
     'PLUS',
-    'PLUSEQ',
     'MINUS',
-    'MINUSEQ',
     'TIMES',
     'DIVIDE',
     'LPAREN',
@@ -46,6 +44,20 @@ tokens = [
     'INNER_CLASS',
     'AT',
     'QUESTION',
+    'TIMES_ASSIGN',
+    'DIVIDE_ASSIGN',
+    'REMAINDER_ASSIGN',
+    'PLUS_ASSIGN',
+    'MINUS_ASSIGN',
+    'LSHIFT_ASSIGN',
+    'RSHIFT_ASSIGN',
+    'AND_ASSIGN',
+    'OR_ASSIGN',
+    'XOR_ASSIGN',
+    'XOR',
+    'LSHIFT',
+    'RSHIFT',
+    'REMAINDER', 
 ]
 
 reserved = {

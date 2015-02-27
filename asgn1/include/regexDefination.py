@@ -1,9 +1,7 @@
 from tokensDefination import *
 # regular expression for simple tokens
 t_PLUS = r'\+'
-t_PLUSEQ = r'\+='
 t_MINUS = r'-'
-t_MINUSEQ = r'\-='
 t_TIMES = r'\*'
 t_DIVIDE = r'/'
 t_LPAREN = r'\('
@@ -44,6 +42,20 @@ t_INNER_CLASS = r'\#'
 t_AT = r'@'
 t_QUESTION = r'\?'
 t_COMM = r'::'
+t_TIMES_ASSIGN = r'\*='
+t_DIVIDE_ASSIGN = r'/='
+t_REMAINDER_ASSIGN = r'%='
+t_PLUS_ASSIGN = r'\+='
+t_MINUS_ASSIGN = r'-='
+t_LSHIFT_ASSIGN = r'<<='
+t_RSHIFT_ASSIGN = r'>>='
+t_AND_ASSIGN = r'&='
+t_OR_ASSIGN = r'\|='
+t_XOR_ASSIGN = r'\^='
+t_XOR = r'\^'
+t_LSHIFT = r'<<'
+t_RSHIFT = r'>>'
+t_REMAINDER = r'%'
 
 # Floating literal
 def t_FLOAT_CONST(t):
