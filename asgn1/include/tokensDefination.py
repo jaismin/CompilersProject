@@ -112,7 +112,8 @@ reserved = {
     'Double' : 'TYPE_FLOAT',
     'Boolean' : 'TYPE_BOOLEAN',
     'Array' : 'KWRD_ARRAY',
-    'macro' : 'KWRD_MACRO'
+    'macro' : 'KWRD_MACRO',
+    'Unit' : 'TYPE_VOID'
 }
 
 tokens = tokens + list(reserved.values())

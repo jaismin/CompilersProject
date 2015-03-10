@@ -2,13 +2,15 @@
 names = {}
 
 def p_program_structure(p):
-    'ProgramStructure : ObjectDef'
+    '''ProgramStructure : ProgramStructure  class_and_objects
+                      | class_and_objects '''
     
+def p_class_and_objects(p):
+  '''class_and_objects : SingletonObject
+                       | class_declaration'''
 
-#object definition
-
-def p_object_define(p):
-    'ObjectDef : ObjectDeclare block'
+def p_SingletonObject(p):
+    'SingletonObject : ObjectDeclare block'
    
 # object declaration
 def p_object_declare(p):
@@ -228,8 +230,10 @@ def p_block_statements(p):
 
 def p_block_statement(p):
       '''block_statement : local_variable_declaration_statement
-                           | statement'''
-                           # | class_declaration
+                           | statement
+                           | class_declaration
+                           | SingletonObject
+                           | method_declaration'''
         # p[0] = p[1]
 
 # var (a:Int)=(h);
@@ -257,9 +261,18 @@ def p_local_variable_declaration(p):
       # print 'Hello World'
         # p[0] = VariableDeclaration(p[1], p[2])
 
+def p_variable_declaration_initializer(p):
+  '''variable_declaration_initializer : expression
+                                      | array_initializer
+                                      | class_initializer'''
+
+def p_variable_arguement_list(p):
+  ''' variable_arguement_list : variable_declaration_initializer
+                    | variable_arguement_list COMMA variable_declaration_initializer'''
+
 def p_variable_declaration_body(p):
-      '''variable_declaration_body : variable_declarator ASSIGN  expression 
-                                    | LPAREN variable_declarators RPAREN ASSIGN LPAREN argument_list RPAREN'''
+      '''variable_declaration_body : variable_declarator ASSIGN  variable_declaration_initializer 
+                                    | LPAREN variable_declarators RPAREN ASSIGN LPAREN variable_arguement_list RPAREN'''
       # print 'Hello World'
         # p[0] = VariableDeclaration(p[1], p[2])
 
@@ -278,7 +291,7 @@ def p_variable_declarator(p):
 
 
 def p_variable_declarator_id(p):
-      '''variable_declarator_id : IDENTIFIER COLON primitive_type'''
+      '''variable_declarator_id : IDENTIFIER COLON type'''
       # p[0] = Variable(p[1], dimensions=p[2])
 
 
@@ -359,34 +372,101 @@ def p_return_statement(p):
         # p[0] = Return(p[2])
 
 
-# def p_class_declaration(p):
-#         '''class_declaration : class_header class_body'''
-#         # p[0] = ClassDeclaration(p[1]['name'], p[2], modifiers=p[1]['modifiers'],
-#         #                         extends=p[1]['extends'], implements=p[1]['implements'],
-#         #                         type_parameters=p[1]['type_parameters'])
+def p_constructor_arguement_list_opt(p):
+  '''constructor_arguement_list_opt : constructor_arguement_list
+                            | empty '''
+                            # | variable_declarators COMMA variable_declarator
+        # if len(p) == 2:
+        #     p[0] = [p[1]]
+        # else:
+        #     p[0] = p[1] + [p[3]]
+def p_constructor_arguement_list(p):
+  '''constructor_arguement_list : constructor_arguement_list_declarator
+                         | constructor_arguement_list COMMA constructor_arguement_list_declarator'''
+                  
+def p_constructor_arguement_list_declarator(p):
+    '''constructor_arguement_list_declarator : declaration_keyword IDENTIFIER COLON type'''
+      
+
+def p_func_arguement_list_opt(p):
+  '''func_arguement_list_opt : variable_declarators
+                            | empty '''
+
+def p_class_declaration(p):
+        '''class_declaration : class_header class_body'''
+        # p[0] = ClassDeclaration(p[1]['name'], p[2], modifiers=p[1]['modifiers'],
+        #                         extends=p[1]['extends'], implements=p[1]['implements'],
+        #                         type_parameters=p[1]['type_parameters'])
 
 
-# def p_class_header(p):
-#         '''class_header : class_header_name class_header_extends_opt'''
-#         # p[1]['extends'] = p[2]
-#         # p[1]['implements'] = p[3]
-#         # p[0] = p[1]
+def p_class_header(p):
+        '''class_header : class_header_name class_header_extends_opt'''
+        # p[1]['extends'] = p[2]
+        # p[1]['implements'] = p[3]
+        # p[0] = p[1]
 
 
-# def p_class_header_name(p):
-#         '''class_header_name : empty  ''' # class_header_name1 type_parameters
-#                              # | class_header_name1
-#         # if len(p) == 2:
-#         #     p[1]['type_parameters'] = []
-#         # else:
-#         #     p[1]['type_parameters'] = p[2]
-#         # p[0] = p[1]
-# def p_class_header_extends_opt(p):
-#         '''class_header_extends_opt : empty  ''' 
+def p_class_header_name(p):
+        '''class_header_name : class_header_name1 LPAREN constructor_arguement_list_opt RPAREN''' # class_header_name1 type_parameters
+                             # | class_header_name1
+        # if len(p) == 2:
+        #     p[1]['type_parameters'] = []
+        # else:
+        #     p[1]['type_parameters'] = p[2]
+        # p[0] = p[1]
 
-# def p_class_body(p):
-#         '''class_body : empty  ''' 
+def p_class_header_name1(p):
+        '''class_header_name1 : modifier_opts KWRD_CLASS name'''
+        # p[0] = {'modifiers': p[1], 'name': p[3]}
 
+def p_class_header_extends_opt(p):
+        '''class_header_extends_opt : class_header_extends
+                                    | empty'''
+        # p[0] = p[1]
+
+
+def p_class_header_extends(p):
+        '''class_header_extends : KWRD_EXTNDS name LPAREN func_arguement_list_opt RPAREN'''
+        # p[0] = p[2]
+
+
+
+def p_class_body(p):
+        '''class_body : block ''' 
+
+
+
+def p_method_declaration(p):
+        '''method_declaration : method_header method_body'''
+        # if len(p) == 2:
+        #     p[0] = p[1]
+        # else:
+        #     p[0] = MethodDeclaration(p[1]['name'], parameters=p[1]['parameters'],
+        #                              extended_dims=p[1]['extended_dims'], type_parameters=p[1]['type_parameters'],
+        #                              return_type=p[1]['type'], modifiers=p[1]['modifiers'],
+        #                              throws=p[1]['throws'], body=p[2])
+
+
+def p_method_header(p):
+        '''method_header : method_header_name LPAREN func_arguement_list_opt RPAREN COLON method_return_type ASSIGN'''
+        # p[1]['extends'] = p[2]
+        # p[1]['implements'] = p[3]
+        # p[0] = p[1]
+
+def p_method_return_type(p):
+        '''method_return_type : type 
+                              | TYPE_VOID'''
+def p_method_header_name(p):
+        '''method_header_name : modifier_opts KWRD_DEF IDENTIFIER''' # class_header_name1 type_parameters
+                             # | class_header_name1
+        # if len(p) == 2:
+        #     p[1]['type_parameters'] = []
+        # else:
+        #     p[1]['type_parameters'] = p[2]
+        # p[0] = p[1]
+
+def p_method_body(p):
+        '''method_body : block ''' 
 
 
 def p_modifier(p):
@@ -397,8 +477,8 @@ def p_modifier(p):
         # p[0] = p[1]
 
 def p_type(p):
-        '''type : primitive_type '''
-                # | reference_type
+        '''type : primitive_type 
+                | reference_type '''
         # p[0] = p[1]
 
 def p_primitive_type(p):
@@ -409,10 +489,23 @@ def p_primitive_type(p):
                       | TYPE_BOOLEAN'''
         # p[0] = p[1]
 
-# def p_reference_type(p):
-#       '''reference_type : class_type
-#                         | array_type'''
-#       # p[0] = p[1]
+def p_reference_type(p):
+      '''reference_type : class_data_type
+                        | array_data_type'''
+      # p[0] = p[1]
+
+def p_class_data_type(p):
+      '''class_data_type : name'''
+
+def p_array_data_type(p):
+      '''array_data_type : KWRD_ARRAY LBPAREN type RBPAREN'''
+
+def p_array_initializer(p):
+  ''' array_initializer : KWRD_NEW KWRD_ARRAY LBPAREN type RBPAREN LPAREN INT_CONST RPAREN
+                        | KWRD_ARRAY LPAREN argument_list_opt RPAREN '''
+
+def p_class_initializer(p):
+  ''' class_initializer : KWRD_NEW name LPAREN argument_list_opt RPAREN ''' 
 
 # print statement
 def p_printstatement_1(p):
