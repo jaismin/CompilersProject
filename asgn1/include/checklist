@@ -1,0 +1,15 @@
+p_block_statement(p)
+reference type
+expression_statement explicit constructor invocation
+p_statement_expression
+array_access uses square brackets
+compulsary brackets after for and others
+check to handle precedence and dangling else problem
+
+check out statement_no_short_if in case of if else statements has while no short if
+
+check out if then else
+
+ pattern matching scala , doubts for switch case
+
+ check for the paranthese case

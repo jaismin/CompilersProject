@@ -57,7 +57,8 @@ tokens = [
     'XOR',
     'LSHIFT',
     'RSHIFT',
-    'REMAINDER', 
+    'REMAINDER',
+    'newline' 
 ]
 
 reserved = {
@@ -108,6 +109,8 @@ reserved = {
     'Int' : 'TYPE_INT',
     'Char' : 'TYPE_CHAR',
     'String' : 'TYPE_STRING',
+    'Double' : 'TYPE_FLOAT',
+    'Boolean' : 'TYPE_BOOLEAN',
     'Array' : 'KWRD_ARRAY',
     'macro' : 'KWRD_MACRO'
 }

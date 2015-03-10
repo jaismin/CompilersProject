@@ -1,53 +1,65 @@
-package examples
-
 /** Quick sort, imperative style */
-object sort {
+// remember how to declare variables
+// compulsary ended by semi colon
+object sort 
+{
 
-  /** Nested methods can use and even update everything 
-   *  visible in their scope (including local variables or 
-   *  arguments of enclosing methods). 
-   */
-  def sort(a: Array[Int]) {
+  var (a:Int,b:Double)=(2,8,9,f(j));
+  var (a:Int,b:Double)=(2,8,9,a[j]);
+  var (a:Int,b:Double)=(2,8,9,obj.j);
+  var (a:Int,b:Double)=(2,8,9,t);
+  var (a:Int,b:Double)=(2,8,9,j);
+  var (a:Int,b:Double)=(2,8,9,j);
 
-    def swap(i: Int, j: Int) {
-      val t = a(i); a(i) = a(j); a(j) = t
-    }
+  val (a:Int,b:Double)=(2,8,9,f(j));
+  val (a:Int,b:Double)=(2,8,9,a[j]);
+  val (a:Int,b:Double)=(2,8,9,obj.j);
+  val (a:Int,b:Double)=(2,8,9,t);
+  val (a:Int,b:Double)=(2,8,9,j);
+  val (a:Int,b:Double)=(2,8,9,j);
 
-    def sort1(l: Int, r: Int) {
-      val pivot = a((l + r) / 2)
-      var i = l
-      var j = r
-      while (i <= j) {
-        while (a(i) < pivot) i += 1
-        while (a(j) > pivot) j -= 1
-        if (i <= j) {
-          swap(i, j)
-          i += 1
-          j -= 1
-        }
+  val a:String=4;
+  var we:Boolean=4;
+
+
+
+
+  a=5+4;
+  {
+    a=5+4;
+  }
+
+  a=(76+90)*76 ;
+  b=1 << (a + b);
+  ans = msub(1 << (a + b), (minv(m.val1) * (phi[m / i] * 2 / gcd(a + b, b))) % MOD); 
+  var (ans:Int) = (msub(1 << (a + b), (minv(m.val1) * (phi[m / i] * 2 / gcd(a + b, b))) % MOD)); 
+
+if((num%2)==0) //checking whether remainder is 0 or not. 
+{
+  a=23;
+  b=23;
+}
+else if((num%2)==0)
+g=78;
+else
+{
+  a=23;
+  b=23;
+}
+
+
+ while( a < 20 ){
+         // println( "Value of a: " + a );
+         a=a+0;
+         a = a + 1;
       }
-      if (l < j) sort1(l, j)
-      if (j < r) sort1(i, r)
-    }
 
-    if (a.length > 0)
-      sort1(0, a.length - 1)
-  }
+do
+{
+   println( "Value of a: " + a );
+   a = a + 1;
+} while( a < 20 );
 
-  def println(ar: Array[Int]) {
-    def print1 = {
-      def iter(i: Int): String =
-        ar(i) + (if (i < ar.length-1) "," + iter(i+1) else "")
-      if (ar.length == 0) "" else iter(0)
-    }
-    Console.println("[" + print1 + "]")
-  }
 
-  def main(args: Array[String]) {
-    val ar = Array(6, 2, 8, 5, 1)
-    println(ar)
-    sort(ar)
-    println(ar)
-  }
-
+return 100 ;
 }

@@ -3,16 +3,18 @@ names = {}
 
 def p_program_structure(p):
     'ProgramStructure : ObjectDef'
+    
 
 #object definition
 
 def p_object_define(p):
-    'ObjectDef : ObjectDeclare BLOCK_BEGIN Block BLOCK_END'
-
+    'ObjectDef : ObjectDeclare block'
+   
 # object declaration
 def p_object_declare(p):
     '''ObjectDeclare : KWRD_OBJECT IDENTIFIER 
                 | KWRD_OBJECT IDENTIFIER KWRD_EXTNDS IDENTIFIER'''
+    
 
 # expression
 def p_expression(p):
@@ -21,9 +23,15 @@ def p_expression(p):
     # p[0] = Node("",)
     # p[0] = p[1]
 
+def p_expression_optional(p):
+        '''expression_optional : expression
+                          | empty'''
+        # p[0] = p[1]
+
+
 def p_assignment_expression(p):
     '''assignment_expression : assignment
-                             | conditional_expression'''
+                             | conditional_or_expression'''
     # val=p[1].val
 
 # assignment
@@ -106,7 +114,7 @@ def p_multiplicative_expression(p):
                                      | multiplicative_expression REMAINDER unary_expression'''
     # self.binop(p, Multiplicative)
 def p_unary_expression(p):
-    '''unary_expression :PLUS unary_expression
+    '''unary_expression : PLUS unary_expression
                             | MINUS unary_expression
                             | unary_expression_not_plus_minus'''
 
@@ -114,7 +122,8 @@ def p_unary_expression(p):
 def p_unary_expression_not_plus_minus(p):
     '''unary_expression_not_plus_minus : variable_literal
                                            | TILDA unary_expression
-                                           | NOT unary_expression'''
+                                           | NOT unary_expression
+                                           | LPAREN expression RPAREN'''
 
 def p_primary(p):
     '''primary : literal
@@ -131,19 +140,19 @@ def p_literal(p):
 
 
 def p_int_float(p):
-    '''int_float : FLOAT_CONST | 
+    '''int_float : FLOAT_CONST
                 | INT_CONST'''
 
-def p_method_invocation(p):
-    '''method_invocation : IDENTIFIER LPAREN argument_list_opt RPAREN '''
-    # p[0] = MethodInvocation(p[1], arguments=p[3])
+# def p_method_invocation(p):
+#     '''method_invocation : IDENTIFIER LPAREN argument_list_opt RPAREN '''
+#     # p[0] = MethodInvocation(p[1], arguments=p[3])
 
-def p_method_invocation3(p):
-    '''method_invocation : name DOT IDENTIFIER LPAREN argument_list_opt RPAREN '''
+def p_method_invocation(p):
+    '''method_invocation : name LPAREN argument_list_opt RPAREN '''
     # p[0] = MethodInvocation(p[3], target=p[1], arguments=p[5])
 
 def p_array_access(p):
-    '''array_access : name LPAREN expression RPAREN '''
+    '''array_access : name LBPAREN expression RBPAREN '''
         # p[0] = ArrayAccess(p[3], p[1])
 
 def p_argument_list_opt(p):
@@ -155,17 +164,12 @@ def p_argument_list_opt2(p):
         # p[0] = []
 
 def p_argument_list(p):
-    '''argument_list : variable_literal
-                    | argument_list COMMA variable_literal'''
+    '''argument_list : expression
+                    | argument_list COMMA expression'''
     # if len(p) == 2:
     #     p[0] = [p[1]]
     # else:
     #     p[0] = p[1] + [p[3]]
-
-
-
-
-
 
 
 
@@ -185,7 +189,7 @@ def p_qualified_name(p):
     # p[1].append_name(p[3])
     # p[0] = p[1]
 
-def p_valid_variable
+def p_valid_variable(p):
     '''valid_variable : name
                       | array_access'''
 
@@ -200,11 +204,13 @@ def p_variableliteral(p):
 
 
 def p_block(p):
-      '''block : '{' block_statements_opt '}' '''
+      '''block : BLOCK_BEGIN block_statements_opt BLOCK_END '''
+      print '1'
         # p[0] = Block(p[2])
 
 def p_block_statements_opt(p):
       '''block_statements_opt : block_statements'''
+      print '2'
         # p[0] = p[1]
 
 def p_block_statements_opt2(p):
@@ -222,25 +228,42 @@ def p_block_statements(p):
 
 def p_block_statement(p):
       '''block_statement : local_variable_declaration_statement
-                           | statement
-                           | class_declaration'''
+                           | statement'''
+                           # | class_declaration
         # p[0] = p[1]
+
+# var (a:Int)=(h);
+# var (a:Int,b:Int,c:Int)=(1,2,3);
+# var (a:Int)=(h)
+# var (a:Int,b:Int,c:Int)=(1,2,3)
+# supported
+
+def p_modifier_opts(p):
+  '''modifier_opts : modifier
+                    | empty '''
+
+def p_declaration_keyword(p):
+  '''declaration_keyword : KWRD_VAR
+                    | KWRD_VAL '''
+
 
 def p_local_variable_declaration_statement(p):
       '''local_variable_declaration_statement : local_variable_declaration STATE_END '''
         # p[0] = p[1]
 
-def p_local_variable_declaration_statement2(p):
-      '''local_variable_declaration_statement : local_variable_declaration newline '''
-        # p[0] = p[1]
-
+# 
 def p_local_variable_declaration(p):
-      '''local_variable_declaration : KWRD_VAR LPAREN variable_declarators RPAREN'''
+      '''local_variable_declaration : modifier_opts declaration_keyword variable_declaration_body'''
+      # print 'Hello World'
         # p[0] = VariableDeclaration(p[1], p[2])
 
-def p_local_variable_declaration2(p):
-      '''local_variable_declaration : modifier KWRD_VAR LPAREN variable_declarators RPAREN'''
-        # p[0] = VariableDeclaration(p[2], p[3], modifiers=p[1])
+def p_variable_declaration_body(p):
+      '''variable_declaration_body : variable_declarator ASSIGN  expression 
+                                    | LPAREN variable_declarators RPAREN ASSIGN LPAREN argument_list RPAREN'''
+      # print 'Hello World'
+        # p[0] = VariableDeclaration(p[1], p[2])
+
+
 
 def p_variable_declarators(p):
       '''variable_declarators : variable_declarator
@@ -250,37 +273,146 @@ def p_variable_declarators(p):
         # else:
         #     p[0] = p[1] + [p[3]]
 
-def p_variable_declarator(self, p):
+def p_variable_declarator(p):
       '''variable_declarator : variable_declarator_id'''
 
-def p_variable_declarator_id(self, p):
-      '''variable_declarator_id : IDENTIFIER COLON type'''
+
+def p_variable_declarator_id(p):
+      '''variable_declarator_id : IDENTIFIER COLON primitive_type'''
       # p[0] = Variable(p[1], dimensions=p[2])
 
+
+def p_statement(p):
+        '''statement : normal_statement 
+                     | if_then_statement
+                     | if_then_else_statement
+                     | while_statement
+                     | do_while_statement'''
+                     # | for_statement
+        # p[0] = p[1]
+
+
+def p_normal_statement(p):
+        '''normal_statement : block 
+                             | expression_statement
+                             | empty_statement
+                             | return_statement'''
+                             # | assert_statement
+                             # | 
+                             # | 
+                             # | do_statement
+                             # | break_statement
+                             # | continue_statement
+                             # | 
+                             # | synchronized_statement
+                             # | throw_statement
+                             # | try_statement
+                             # | try_statement_with_resources
+        # p[0] = p[1]
+
+
+def p_expression_statement(p):
+        '''expression_statement : statement_expression STATE_END'''
+                                # | explicit_constructor_invocation
+        # if len(p) == 2:
+        #     p[0] = p[1]
+        # else:
+        #     p[0] = ExpressionStatement(p[1])
+
+def p_statement_expression(p):
+        '''statement_expression : assignment
+                                | method_invocation'''
+                                # | class_instance_creation_expression
+        # p[0] = p[1]
+
+def p_if_then_statement(p):
+        '''if_then_statement : KWRD_IF LPAREN expression RPAREN statement'''
+        # p[0] = IfThenElse(p[3], p[5])
+
+def p_if_then_else_statement(p):
+        '''if_then_else_statement : KWRD_IF LPAREN expression RPAREN if_then_else_intermediate KWRD_ELSE statement'''
+        # p[0] = IfThenElse(p[3], p[5], p[7])
+
+def p_if_then_else_statement_precedence(p):
+        '''if_then_else_statement_precedence : KWRD_IF LPAREN expression RPAREN if_then_else_intermediate KWRD_ELSE if_then_else_intermediate'''
+        # p[0] = IfThenElse(p[3], p[5], p[7])
+
+def p_if_then_else_intermediate(p):
+        '''if_then_else_intermediate : normal_statement
+                                              | if_then_else_statement_precedence'''
+        # p[0] = IfThenElse(p[3], p[5], p[7])
+
+def p_while_statement(p):
+        '''while_statement : KWRD_WHILE LPAREN expression RPAREN statement'''
+        # p[0] = While(p[3], p[5])
+
+def p_do_while_statement(p):
+        '''do_while_statement : KWRD_DO statement KWRD_WHILE LPAREN expression RPAREN STATE_END '''
+        # p[0] = DoWhile(p[5], body=p[2])
+
+def p_empty_statement(p):
+        '''empty_statement : STATE_END '''
+        # p[0] = Empty()
+
+def p_return_statement(p):
+        '''return_statement : KWRD_RETURN expression_optional STATE_END '''
+        # p[0] = Return(p[2])
+
+
+# def p_class_declaration(p):
+#         '''class_declaration : class_header class_body'''
+#         # p[0] = ClassDeclaration(p[1]['name'], p[2], modifiers=p[1]['modifiers'],
+#         #                         extends=p[1]['extends'], implements=p[1]['implements'],
+#         #                         type_parameters=p[1]['type_parameters'])
+
+
+# def p_class_header(p):
+#         '''class_header : class_header_name class_header_extends_opt'''
+#         # p[1]['extends'] = p[2]
+#         # p[1]['implements'] = p[3]
+#         # p[0] = p[1]
+
+
+# def p_class_header_name(p):
+#         '''class_header_name : empty  ''' # class_header_name1 type_parameters
+#                              # | class_header_name1
+#         # if len(p) == 2:
+#         #     p[1]['type_parameters'] = []
+#         # else:
+#         #     p[1]['type_parameters'] = p[2]
+#         # p[0] = p[1]
+# def p_class_header_extends_opt(p):
+#         '''class_header_extends_opt : empty  ''' 
+
+# def p_class_body(p):
+#         '''class_body : empty  ''' 
+
+
+
 def p_modifier(p):
-      '''modifier : PROTECTED
-                  | PRIVATE'''
+      '''modifier : KWRD_PROTECTED
+                  | KWRD_PRIVATE'''
 
         #  by default its public
         # p[0] = p[1]
 
 def p_type(p):
-        '''type : primitive_type
-                | reference_type'''
+        '''type : primitive_type '''
+                # | reference_type
         # p[0] = p[1]
 
 def p_primitive_type(p):
-    '''primitive_type : INT
-                      | FLOAT
-                      | CHAR
-                      | STRING
-                      | BOOLEAN'''
+    '''primitive_type : TYPE_INT
+                      | TYPE_FLOAT
+                      | TYPE_CHAR
+                      | TYPE_STRING
+                      | TYPE_BOOLEAN'''
         # p[0] = p[1]
 
-def p_reference_type(p):
-      '''reference_type : class_type
-                        | array_type'''
-      # p[0] = p[1]
+# def p_reference_type(p):
+#       '''reference_type : class_type
+#                         | array_type'''
+#       # p[0] = p[1]
 
 # print statement
 def p_printstatement_1(p):
@@ -294,7 +426,8 @@ def p_empty(p):
     'empty :'
     pass
 def p_error(p):
+    print p
     if p:
         print("Syntax error at '%s'" % p.value)
     else:
-        print("Syntax error at EOF")+
+        print("Syntax error at EOF")
