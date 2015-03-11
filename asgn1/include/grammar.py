@@ -152,9 +152,6 @@ def p_int_float(p):
     '''int_float : FLOAT_CONST
                 | INT_CONST'''
 
-# def p_method_invocation(p):
-#     '''method_invocation : IDENTIFIER LPAREN argument_list_opt RPAREN '''
-#     # p[0] = MethodInvocation(p[1], arguments=p[3])
 
 def p_method_invocation(p):
     '''method_invocation : name LPAREN argument_list_opt RPAREN '''
