@@ -5,6 +5,7 @@ import pickle
 import sys
 import os.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)))
+
 from include.grammar import *
 
 class Node(object): 
@@ -16,18 +17,29 @@ class Node(object):
         self.val=val
         Node.gid+=1
 
-def create_child_nodes(name1,name2):
+def create_leaf(name1,name2):
     leaf1 = Node(name2,[])
     leaf2 = Node(name1,[leaf1])
     return leaf2
 
 def printnodes(current_node):
+    sys.stderr.write(str(current_node.name) + "\n")
     if (len(current_node.children)==0):
         return;
     for i in current_node.children:
         print str(current_node.id)+" [label=\""+str(current_node.name)+"\"];"+str(i.id)+" [label=\""+str(i.name)+"\"];"+str(current_node.id)+"->"+str(i.id)
     for i in current_node.children:
         printnodes(i)
+
+def printleaves(current_node):
+    if (len(current_node.children) == 0):
+#        pass
+        print str(current_node.name) + " " 
+    else:
+        for i in current_node.children:
+           # if(len(i.children) == 0):
+           #     print str(current_node.name) + " " 
+            printleaves(i)
 
 # Get the token map
 tokens = scalalex.tokens
@@ -43,4 +55,8 @@ f.close()
 
 #parse over the input
 node=parser.parse(code_full)
-# printnodes(node)
+#print "digraph G {"
+#printnodes(node)
+#print "}"
+
+printleaves(node)
