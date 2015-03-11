@@ -122,10 +122,17 @@ def p_unary_expression(p):
 
 
 def p_unary_expression_not_plus_minus(p):
-    '''unary_expression_not_plus_minus : variable_literal
+    '''unary_expression_not_plus_minus : base_variable_set
                                            | TILDA unary_expression
                                            | NOT unary_expression
-                                           | LPAREN expression RPAREN'''
+                                           | cast_expression'''
+def p_base_variable_set(p):
+  '''base_variable_set : variable_literal
+                        | LPAREN expression RPAREN'''
+
+def p_cast_expression(p):
+        '''cast_expression : LPAREN primitive_type RPAREN unary_expression'''
+        # p[0] = Cast(Type(p[2], dimensions=p[3]), p[5])
 
 def p_primary(p):
     '''primary : literal
@@ -309,7 +316,8 @@ def p_normal_statement(p):
         '''normal_statement : block 
                              | expression_statement
                              | empty_statement
-                             | return_statement'''
+                             | return_statement
+                             | switch_statement'''
                              # | assert_statement
                              # | 
                              # | 
@@ -362,6 +370,56 @@ def p_while_statement(p):
 def p_do_while_statement(p):
         '''do_while_statement : KWRD_DO statement KWRD_WHILE LPAREN expression RPAREN STATE_END '''
         # p[0] = DoWhile(p[5], body=p[2])
+
+
+def p_switch_statement( p):
+        '''switch_statement : expression KWRD_MATCH switch_block '''
+        # p[0] = Switch(p[3], p[5])
+
+def p_switch_block(p):
+        '''switch_block : BLOCK_BEGIN BLOCK_END '''
+        # p[0] = []
+
+def p_switch_block2(p):
+        '''switch_block : BLOCK_BEGIN switch_block_statements BLOCK_END '''
+        # p[0] = p[2]
+
+def p_switch_block3(p):
+        '''switch_block : BLOCK_BEGIN switch_labels BLOCK_END '''
+        # p[0] = [SwitchCase(p[2])]
+
+def p_switch_block4(p):
+        '''switch_block : BLOCK_BEGIN switch_block_statements switch_labels BLOCK_END '''
+        # p[0] = p[2] + [SwitchCase(p[3])]
+
+def p_switch_block_statements(p):
+        '''switch_block_statements : switch_block_statement
+                                   | switch_block_statements switch_block_statement'''
+        # if len(p) == 2:
+        #     p[0] = [p[1]]
+        # else:
+        #     p[0] = p[1] + [p[2]]
+
+def p_switch_block_statement(p):
+        '''switch_block_statement : switch_labels block_statements'''
+        # p[0] = SwitchCase(p[1], body=p[2])
+
+def p_switch_labels(p):
+        '''switch_labels : switch_label
+                         | switch_labels switch_label'''
+        # if len(p) == 2:
+        #     p[0] = [p[1]]
+        # else:
+        #     p[0] = p[1] + [p[2]]
+
+def p_switch_label(p):
+        '''switch_label : KWRD_CASE expression FUNTYPE '''
+        # if len(p) == 3:
+        #     p[0] = 'default'
+        # else:
+        #     p[0] = p[2]
+
+
 
 def p_empty_statement(p):
         '''empty_statement : STATE_END '''

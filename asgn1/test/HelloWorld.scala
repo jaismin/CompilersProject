@@ -8,7 +8,7 @@
 // class Point(val xc: Int, val yc: Int) {
 //    var x: Int = xc;
 //    var y: Int = yc;
-//    if (x>0)
+//    if ((Double)x>0)
 //       {
 //          x=x+600;
 //       }
@@ -134,6 +134,15 @@
 //       x = x + dx;
 //       y = y + dy;
 //       z = z + dz;
+
+
+
+
+
+
+
+
+
 //       // println ("Point x location : " + x);
 //       // println ("Point y location : " + y);
 //       // println ("Point z location : " + z);
@@ -209,85 +218,111 @@
 
 // }
 
-class Point(val xc: Int, val yc: Int) {
-   var x: Int = xc;
-   var y: Int = yc;
+// class Point(val xc: Int, val yc: Int) {
+//    var x: Int = xc;
+//    var y: Int = yc;
 
 
 
-  var z:Array[Location] = new Array[String](3);
+//   var z:Array[Location] = new Array[String](3);
 
 
-  var z:Array[String] = new Array[String](3);
+//   var z:Array[String] = new Array[String](3);
 
-   var z:Array[Array[String]] = new Array[Array[String]](3);
+//    var z:Array[Array[String]] = new Array[Array[String]](3);
 
-   println("Fuck yeah"+X);
-   if (x>0)
-      {
-         x=x+600;
-      }
+//    println("Fuck yeah"+X);
+//    if (x>0)
+//       {
+//          x=x+600;
+//       }
   
-   def move(dx: Int, dy: Int) : Unit = {
-      x = x + dx;
-      y = y + dy;
-      println ("Point x location : " + x);
-      println ("Point y location : " + y);
-   }
-}
+//    def move(dx: Int, dy: Int) : Unit = {
+//       x = x + dx;
+//       y = y + dy;
+//       println ("Point x location : " + x);
+//       println ("Point y location : " + y);
+//    }
+// }
 
 
-object Test123 {
- def main(args: Array[String]) : Unit =  {
+// object Test123 {
+//  def main(args: Array[String]) : Unit =  {
       
-      val loc:Location = new Location(10, 20, 15);
-val z:Int =1;
-        if (z < 21)
-   {
-      class Point123() 
-      {
+//       val loc:Location = new Location(10, 20, 15);
+// val z:Int =1;
+//         if (z < 21)
+//    {
+//       class Point123() 
+//       {
      
-        println ("Point y location : ");
-        println ("Point z location : ");
+//         println ("Point y location : ");
+//         println ("Point z location : ");
 
-      }
-   }
+//       }
+//    }
 
-      // Move to a new location
-      loc.move(10, 10, 5);
-      println( "Returned Valuefjvnfkldv : " + addInt(5,7) );
-   }
+//       // Move to a new location
+//       loc.move(10, 10, 5);
+//       println( "Returned Valuefjvnfkldv : " + addInt(5,7) );
+//    }
 
-def addInt(a:Int,b:Int ) : Int = {
-      var sum:Int = 0;
-      sum = a + b;
+// def addInt(a:Int,b:Int ) : Int = {
+//       var sum:Int = 0;
+//       sum = a + b;
 
-      return sum;
-   }
+//       return sum;
+//    }
 
 
-   object Test345 {
-       def main(args: Array[String]):Unit = {
-      val loc:Location = new Location(10, 20, 15);
+//    object Test345 {
+//        def main(args: Array[String]):Unit = {
+//       val loc:Location = new Location(10, 20, 15);
 
-      // Move to a new location
-      loc.move(10, 10, 5);
-      println( "Returned Valuefjvnfkldv : " + addInt(5,7) );
-   }
+//       // Move to a new location
+//       loc.move(10, 10, 5);
+//       println( "Returned Valuefjvnfkldv : " + addInt(5,7) );
+//    }
 
  
 
-def addInt(a:Int,b:Int ) : Int = {
-      var sum:Int = 0;
-      sum = a + b;
+// def addInt(a:Int,b:Int ) : Int = {
+//       var sum:Int = 0;
+//       sum = a + b;
 
-      return sum;
-   }
+//       return sum;
+//    }
 
 
+// }
+
+
+
+
+// }
+
+
+
+object HelloWorld {
+
+  (2+3) match 
+  {
+  case 0 => ;
+  case 23 => ;
+  case 1  => println("January");
+  case 2  => println("February");
+  case 3  => println("March");
+  case 4  => println("April");
+  case 5  => println("May");
+  case 6  => println("June");
+  case 7  => println("July");
+  case 8  => println("August");
+  case 9  => println("September");
+  case 10 => println("October");
+  case 11 => println("November");
+  case 12 => println("December");
+  // catch the default with a variable so you can print it
+  case _  => println("Unexpected case: " + whoa.toString);
 }
-
-
-
-
+  
 }
