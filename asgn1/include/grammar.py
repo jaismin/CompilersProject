@@ -545,11 +545,11 @@ def p_for_statement(p):
 
 def p_for_logic(p):
     ''' for_logic : for_update 
-                  | for_update COMMA for_logic '''
+                  | for_update STATE_END for_logic '''
     if len(p)==2:
       p[0]=Node("for_logic",[p[1]])
     else:
-      child1 = create_leaf("COMMA",p[2])
+      child1 = create_leaf("STATE_END",p[2])
       p[0] = Node("for_logic",[p[1],child1,p[3]])
 
 def p_for_update(p):

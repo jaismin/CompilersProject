@@ -1,4 +1,0 @@
-type FunctorType = (LocalDate, HolidayCalendar, Int, Boolean) => LocalDate
-the type alias FunctorType is just a shorthand for
-(LocalDate, HolidayCalendar, Int, Boolean) => LocalDate
-

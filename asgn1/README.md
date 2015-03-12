@@ -23,6 +23,8 @@ The src folder consists of the file named lexer.py which consists of the lexer c
 
 ## Compilation Instructions
 
+### LEXER
+
 The test folder consists of various files namely HelloWorld.scala, etc. The given files can be run for output as 
 
 python src/lexer.py test/HelloWorld.scala
@@ -41,5 +43,15 @@ Alternately, the given file can also be run via the following commands.
 
 ### PARSER
 
-To run the dot file in graphviz,
-dot -Tps a.dot -o outfile.ps
+For part 2 of the assignment, we adopt the following procedure for compilation
+
+* cd asgn2
+* make
+* bin/parser test/HelloWorld.scala
+* dotty test1.dot
+* dot -Tpdf test1.dot -o HelloWorld.pdf
+* gnome-open HelloWorld.pdf
+
+
+<!-- To run the dot file in graphviz,
+dot -Tps a.dot -o outfile.ps -->

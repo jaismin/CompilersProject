@@ -1,4 +1,0 @@
-define NUM with the integer and floating values
-replace all lexers by their name
-write update rules for parse tree
-NULL in scala
