@@ -3,23 +3,28 @@ import java.io._
 
 object Test extends Application
 {
-       
-var myVar = "theValueis";
+   
+  var myVar :Int,(x:Int) => x+1;
 
-var myResult="";
+  myVar=4;
+  println(myVar);
 
-myVar match {
-       case "someValue"   => myResult= myVar + " A";
-       case "thisValue" | "theValueis"   => myResult=myVar + " B";
+// var myVar = "theValueis";
 
-       case "theValue"    =>  println("Fuck Yeah");
-                              myResult=myVar + " C";
+// var myResult="";
+
+// myVar match {
+//        case "someValue"   => myResult= myVar + " A";
+//        case "thisValue" | "theValueis"   => myResult=myVar + " B";
+
+//        case "theValue"    =>  println("Fuck Yeah");
+//                               myResult=myVar + " C";
 
 
-       case "doubleValue" => myResult=myVar + " D";
-       case _ => println ("Fuck!")
-    }
-println(myResult);
+//        case "doubleValue" => myResult=myVar + " D";
+//        case _ => println ("Fuck!")
+//     }
+// println(myResult);
 
 }
 

@@ -67,3 +67,47 @@ cast expression as in java only for primitive types
 
     # print "Whoa. You are seriously hosed."
     # Read ahead looking for a closing '}'
+
+
+
+    For all class names, the first letter should be in Upper Case.
+
+    Method
+Names
+- All method names should start with a Lower Case letter.
+
+Name of the program file should exactly match the object name.
+
+Scala program processing starts from the main() method, which is a mandatory part of every Scala Program
+
+case class , over ride
+
+
+var myVar :Int;
+val myVal :String;
+
+Allowed
+
+
+(new Inner).f() // Error: f is not accessible
+
+
+expressions inside 
+
+for (a <- 0 to max)
+
+for (a <- 0 until max by 2)
+
+0 to -10 by -1
+
+
+var inc = (x:Int) => x+1
+
+var x = inc(7)-1
+It is also possible to define functions with multiple parameters as follows:
+var mul = (x: Int, y: Int) => x*y
+
+var factor = 3
+val multiplier = (i:Int) => i * factor
+
+override val xc: Int, override val yc: Int

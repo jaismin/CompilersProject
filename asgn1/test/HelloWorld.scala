@@ -326,41 +326,11 @@
 object HelloWorld 
 {
 
-a=b=9;
-// if (i>5)
-// {
-//   a=b=9;
-//   a=9
-//   b=10;
-//   c=12
-//   d=14;
-// }
-// fjvbfkl=9
-// jnvf=9
-// a=10;
-// b=12
-// d=0
-// // jcnkml,.
+a=b+;
+def main(args: Array[String]):Unit =
+{
+println("Hello, world!"); // prints Hello World
+}
 
 
-
-//   (2+3) match 
-//   {
-//   case 0 => ;
-//   case 23 => ;
-//   case 1  => println("January");
-//   case 2  => println("February");
-//   case 3  => println("March");
-//   case 4  => println("April");
-//   case 5  => println("May");
-//   case 6  => println("June");
-//   case 7  => println("July");
-//   case 8  => println("August");
-//   case 9  => println("September");
-//   case 10 => println("October");
-//   case 11 => println("November");
-//   case 12 => println("December");
-//   // catch the default with a variable so you can print it
-//   case _  => println("Unexpected case: " + whoa.toString);
-// }
 }
