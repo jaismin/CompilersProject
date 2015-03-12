@@ -80,16 +80,7 @@ Name of the program file should exactly match the object name.
 
 Scala program processing starts from the main() method, which is a mandatory part of every Scala Program
 
-case class , over ride
-
-
-var myVar :Int;
-val myVal :String;
-
-Allowed
-
-
-(new Inner).f() // Error: f is not accessible
+case class , override
 
 
 expressions inside 

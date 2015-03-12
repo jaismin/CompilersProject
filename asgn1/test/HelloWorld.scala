@@ -326,14 +326,19 @@
 object HelloWorld 
 {
 
-//a=b=9;
-//a = b + 7;
-if(a <= b) 
-  if(a == b) println("eq");
-  else if (a < b) println("less");
-        else println("phuk");
-else if(a > b) println("greater");
-    else println("not comp");
+// //a=b=9;
+// //a = b + 7;
+// if(a <= b) 
+//   if(a == b) println("eq");
+//   else if (a < b) println("less");
+//         else println("phuk");
+// else if(a > b) println("greater");
+//     else println("not comp");
+
+// for( a <- 1 until 10 by 2 , a <- 1 to 10 by 2 , a <- 1 until 10)
+// println("hello world");
+
+var inc = (x:Int,y:Int) => x+y;
 
 
 

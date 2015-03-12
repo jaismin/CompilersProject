@@ -418,8 +418,16 @@ def p_variable_declaration_body(p):
         child4 = create_leaf("LPAREN", p[5])
         child5 = create_leaf("RPAREN", p[7])
         p[0] = Node("variable_declaration_body", [child1, p[2], child2, child3, child4, p[6], child5])
-     
-
+ 
+def p_variable_declaration_body1(p):
+  ''' variable_declaration_body : IDENTIFIER ASSIGN LPAREN func_arguement_list_opt RPAREN FUNTYPE expression'''      
+  
+  child1 = create_leaf("IDENTIFIER", p[1])
+  child2 = create_leaf("ASSIGN", p[2])
+  child3 = create_leaf("LPAREN", p[3])
+  child4 = create_leaf("RPAREN", p[5])
+  child5 = create_leaf("FUNTYPE", p[6])
+  p[0] = Node("variable_declaration_body", [child1, child2, child3, p[4], child4, child5,p[7]])
 def p_variable_declarators(p):
       '''variable_declarators : variable_declarator
                                 | variable_declarators COMMA variable_declarator'''
@@ -527,7 +535,52 @@ def p_do_while_statement(p):
         p[0] = Node("do_while_statement", [child1, p[2], child2, child3, p[5], child4, child5])
        
 
+def p_for_statement(p):
+  '''for_statement : KWRD_FOR LPAREN for_logic RPAREN statement'''
+  child1 = create_leaf ("FOR",p[1])
+  child2 = create_leaf ("LPAREN",p[2])
+  child3 = create_leaf ("RPAREN",p[4])
+  p[0] = Node("for_statement",[child1,child2,p[3],child3,p[5]])
 
+
+def p_for_logic(p):
+    ''' for_logic : for_update 
+                  | for_update COMMA for_logic '''
+    if len(p)==2:
+      p[0]=Node("for_logic",[p[1]])
+    else:
+      child1 = create_leaf("COMMA",p[2])
+      p[0] = Node("for_logic",[p[1],child1,p[3]])
+
+def p_for_update(p):
+  ''' for_update : for_loop for_step_opts '''
+  p[0]=Node("for_update",[p[1],p[2]])
+
+def p_for_loop(p):
+  ''' for_loop : IDENTIFIER CHOOSE expression for_untilTo expression '''
+  
+  child1 = create_leaf("IDENTIFIER",p[1])
+  child2 = create_leaf("CHOOSE",p[2])
+  p[0] = Node("for_loop_st",[child1,child2,p[3],p[4],p[5]])
+
+def p_for_untilTo(p):
+  '''for_untilTo : KWRD_UNTIL 
+                  | KWRD_TO'''
+
+  child1 = create_leaf("UNTIL_TO",p[1])
+  p[0]=Node("for_untilTo",[child1])
+
+
+def p_for_step_opts(p):
+  ''' for_step_opts : KWRD_BY expression
+                    | empty'''
+  if len(p)==2:
+    p[0]=Node("for_step_opts",[p[1]])
+  else :
+    child1 = create_leaf("BY",p[1])
+    p[0]=Node("for_step_opts",[child1,p[2]])
+
+               
 def p_switch_statement( p):
         '''switch_statement : expression KWRD_MATCH switch_block '''
         child1 = create_leaf("MATCH", p[2])

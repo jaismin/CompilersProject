@@ -113,7 +113,9 @@ reserved = {
     'Boolean' : 'TYPE_BOOLEAN',
     'Array' : 'KWRD_ARRAY',
     'macro' : 'KWRD_MACRO',
-    'Unit' : 'TYPE_VOID'
+    'Unit' : 'TYPE_VOID',
+    'by' : 'KWRD_BY',
+    'to' : 'KWRD_TO'
 }
 
 tokens = tokens + list(reserved.values())
