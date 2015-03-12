@@ -326,7 +326,18 @@
 object HelloWorld 
 {
 
-a=b=9;
+//a=b=9;
+//a = b + 7;
+if(a <= b) 
+  if(a == b) println("eq");
+  else if (a < b) println("less");
+        else println("phuk");
+else if(a > b) println("greater");
+    else println("not comp");
+
+
+
+//b = a;
 // if (i>5)
 // {
 //   a=b=9;
