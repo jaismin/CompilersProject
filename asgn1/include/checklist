@@ -16,17 +16,17 @@ check out statement_no_short_if in case of if else statements has while no short
 
 check out if then else
 
- pattern matching scala , doubts for switch case
+pattern matching scala , doubts for switch case
 
- check for the paranthese case
+check for the paranthese case
 
- pass and return objects check this out , same goes with declaration
+pass and return objects check this out , same goes with declaration
 
- can only pass integers inside the array dimensions
+can only pass integers inside the array dimensions
 
- escape the string while making a graph
+escape the string while making a graph
 
- cast expression as in java only for primitive types
+cast expression as in java only for primitive types
 
 
  doubts??
@@ -38,4 +38,32 @@ check out if then else
  dimensions for a single dimension array
  enum
 
- line grammer/ 252: int_float, 
+ line grammer/ 252: int_float,
+
+
+
+
+
+   # # print p
+    # if p:
+    #     
+    #     print("Syntax error at '%s'" % p.value)
+    # else:
+    #     print("Syntax error at EOF")
+    # print('error: {}'.format(p))
+    # print('error: {}'.format(p))
+    # while 1:
+    #     tok = yacc.token()             # Get the next token
+    #     if not tok or tok.type == 'STATE_END':
+    #         print tok 
+    #         break
+    # yacc.restart()
+    # Read ahead looking for a terminating ";"
+    # print('error: {}'.format(p))
+    # while 1:
+    #     tok = yacc.token()             # Get the next token
+    #     if not tok or tok.type == 'STATE_END' : break
+    # yacc.errok()
+
+    # print "Whoa. You are seriously hosed."
+    # Read ahead looking for a closing '}'
