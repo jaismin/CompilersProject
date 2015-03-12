@@ -326,11 +326,32 @@
 object HelloWorld 
 {
 
-a=b+;
-def main(args: Array[String]):Unit =
-{
-println("Hello, world!"); // prints Hello World
-}
+//a=b=9;
+//a = b + 7;
+if(a <= b) 
+  if(a == b) println("eq");
+  else if (a < b) println("less");
+        else println("phuk");
+else if(a > b) println("greater");
+    else println("not comp");
+
+
+
+//b = a;
+// if (i>5)
+// {
+//   a=b=9;
+//   a=9
+//   b=10;
+//   c=12
+//   d=14;
+// }
+// fjvbfkl=9
+// jnvf=9
+// a=10;
+// b=12
+// d=0
+// // jcnkml,.
 
 
 }
