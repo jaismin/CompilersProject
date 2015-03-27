@@ -2,7 +2,7 @@
 object BinarySearch {
   def binarySearch(v: Int, vs: Array[Int]): Boolean = {
     
-    if (vs.length == 0) p=false;
+    if (vs.length == 0) return false;
     var left: Int = 0;
     var right: Int = vs.length - 1;
     var mid: Int = 0;
@@ -18,7 +18,7 @@ object BinarySearch {
   }
   def binarySearchNewIndex(v: Int, vs: Array[Int]): Boolean = {
     
-    if (vs.length == 0) p=false;
+    if (vs.length == 0) return false;
     var left: Int = 0;
     var right: Int = vs.length;
     var mid: Int = 0;

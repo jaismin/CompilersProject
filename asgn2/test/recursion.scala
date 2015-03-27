@@ -4,7 +4,6 @@ object Sum extends App
   println(sum(list));
   println(sum2(list));
   println(sum3(list));
-  println(sumWithReduce(list));
    
   def sum(ints:Array[String]): Int =
   { 
