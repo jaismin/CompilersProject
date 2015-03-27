@@ -416,40 +416,13 @@ def p_method_invocation(p):
     '''method_invocation : name LPAREN argument_list_opt RPAREN '''
     child1 = create_leaf("LPAREN", p[2])
     child2 = create_leaf("RPAREN", p[4])
-    val=""
-    retType=""
-    if SCOPE.is_present(p[1].value,updateField="function"):
-      val=SCOPE.get_attribute_value(p[1].value,'Type',"function")
-      retType=SCOPE.get_attribute_value(p[1].value,'returnType',"function")
-      if (val==p[3].dataType):
-        pass
-      else:
-        print "Mismatch in arguement types to invoke the function"
-        assert(False)
-    else:
-      print "Function is not defined"
-    p[0] = Node("method_invocation", [p[1], child1, p[3], child2],retType)
+    p[0] = Node("method_invocation", [p[1], child1, p[3], child2])
 
 def p_array_access(p):
     '''array_access : name LBPAREN expression RBPAREN '''
     child1 = create_leaf("LBPAREN", p[2])
     child2 = create_leaf("RBPAREN", p[4])
-    val1=list()
-    if SCOPE.is_present(p[1].value,updateField="symbol"):
-      val=SCOPE.get_attribute_value(p[1].value,'Type',"symbol")
-      val1=val.split(",")
-      if (val1[0]!="Array"):
-        print "Array Undefined"
-        assert(False)
-      if (p[3].dataType=="Int"):
-        pass
-      else:
-        print "Only Integer Indices Allowed"
-        assert(False)
-    else:
-      print "Array undefined"
-      assert(False)
-    p[0] = Node("array_access", [p[1], child1, p[3], child2],",".join(val1[1:]))   
+    p[0] = Node("array_access", [p[1], child1, p[3], child2])   
 
 
 def p_argument_list_opt(p):
@@ -484,13 +457,14 @@ def p_argument_list(p):
 def p_name(p):
     '''name : simple_name
             | qualified_name'''
-    p[0] = Node("name", [p[1]],"Unit",p[1].value)
+    p[0] = Node("name", [p[1]],p[1].dataType,p[1].value)
     
 
 def p_simple_name(p):
     '''simple_name : IDENTIFIER'''
+    val=SCOPE.get_attribute_value(p[1],'Type',"symbol")
     child1 = create_leaf("IDENTIFIER", p[1])
-    p[0] = Node("simple_name", [child1],"Unit",p[1])
+    p[0] = Node("simple_name", [child1],val,p[1])
     
 
 def p_qualified_name(p):
@@ -500,19 +474,9 @@ def p_qualified_name(p):
    
 
 def p_valid_variable(p):
-    '''valid_variable : name'''
-    val=""
-    if SCOPE.is_present(p[1].value,updateField="symbol"):
-      val=SCOPE.get_attribute_value(p[1].value,'Type',"symbol")
-    else:
-      print "Variable undefined"
-      assert(False)
-
-    p[0] = Node("valid_variable", [p[1]],val)
-
-def p_valid_variable_1(p):
-    '''valid_variable : array_access'''
-    p[0] = Node("valid_variable", [p[1]],p[1].dataType)  
+    '''valid_variable : name
+                      | array_access'''
+    p[0] = Node("valid_variable", [p[1]],p[1].dataType)
 
 
 def p_variableliteral(p):
@@ -917,7 +881,7 @@ def p_constructor_arguement_list_declarator(p):
 def p_func_arguement_list_opt(p):
   '''func_arguement_list_opt : variable_declarators
                             | empty '''
-  p[0] = Node("func_arguement_list_opt", [p[1]],p[1].dataType)                       
+  p[0] = Node("func_arguement_list_opt", [p[1]])                       
 
 def p_class_declaration(p):
         '''class_declaration : class_header class_body'''
@@ -974,28 +938,24 @@ def p_method_header(p):
         child2 = create_leaf("RPAREN", p[4])
         child3 = create_leaf("COLON", p[5])
         child4 = create_leaf("ASSIGN", p[7])
-        attribute=dict()
-        attribute['Type']=p[3].dataType
-        attribute['returnType']=p[6].dataType
-        SCOPE.add_entry(p[1].value,attribute,"function")
         p[0] = Node("method_header", [p[1], child1, p[3], child2, child3, p[6], child4])
 
 
 def p_method_return_type(p):
         '''method_return_type : type''' 
-        p[0] = Node("method_return_type", [p[1]],p[1].value)
+        p[0] = Node("method_return_type", [p[1]])
 
 def p_method_return_type1(p):
         '''method_return_type : TYPE_VOID'''
         child1 = create_leaf("VOID", p[1])
-        p[0] = Node("method_return_type", [child1],"Unit")
+        p[0] = Node("method_return_type", [child1])
 
 def p_method_header_name(p):
         '''method_header_name : modifier_opts KWRD_DEF IDENTIFIER''' # class_header_name1 type_parameters
                              # | class_header_name1
         child1 = create_leaf("DEF", p[2])
         child2 = create_leaf("IDENTIFIER", p[3])
-        p[0] = Node("method_header_name", [p[1], child1, child2],"Unit",p[3])
+        p[0] = Node("method_header_name", [p[1], child1, child2])
 
 
 def p_method_body(p):

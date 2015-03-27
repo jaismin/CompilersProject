@@ -175,26 +175,26 @@ class Env:
         return self.symbolTable.get_table()
     
     #is_present in the current scope only
-    def is_present_current_block(self, name,updateField="sybmol"):
-        if (updateField=="symbol"):
-            return self.symbolTable.is_present(name)
-        elif (updateField=="function"):
-            return self.functionTable.is_present(name)
-        elif (updateField=="object"):
-            return self.objectTable.is_present(name)
+    # def is_present_current_block(self, name,updateField="sybmol"):
+    #     if (updateField=="symbol"):
+    #         return self.symbolTable.is_present(name)
+    #     elif (updateField=="function"):
+    #         return self.functionTable.is_present(name)
+    #     elif (updateField=="object"):
+    #         return self.objectTable.is_present(name)
         
     def is_present(self,name,updateField="symbol"):
         if updateField=="symbol":
             env=self
             while env!=None:
-                if env.symbolTable.is_present_current_block(name,updateField):
+                if env.symbolTable.is_present(name):
                     return True
                 env = env.prev_env
             return False
         elif updateField=="function":
             env=self
             while env!=None:
-                if env.functionTable.is_present_current_block(name,updateField):
+                if env.functionTable.is_present(name):
                     return True
                 env = env.prev_env
             return False
@@ -202,7 +202,7 @@ class Env:
         elif updateField=="object":
             env=self
             while env!=None:
-                if env.objectTable.is_present_current_block(name,updateField):
+                if env.objectTable.is_present(name):
                     return True
                 env = env.prev_env
             return False
