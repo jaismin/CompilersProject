@@ -105,7 +105,7 @@ class Env:
         elif updateField=="function":
             self.functionTable.add_entry(name, list_attributes)
         elif updateField == "object":
-            self.functionTable.add_entry(name, list_attributes)
+            self.objectTable.add_entry(name, list_attributes)
         else:
             print "Attribute Missing"
 
@@ -212,7 +212,7 @@ class Env:
         i=0
         while env!=None:
             print "Ancestor - ",i
-            env.symbolTable.print_table()
+            env.objectTable.print_table()
             env = env.prev_env
             i=i+1
     

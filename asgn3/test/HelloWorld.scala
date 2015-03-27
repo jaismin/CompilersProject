@@ -2,21 +2,46 @@
 object Test123 
 {
 
+
+class Point(val xc: Int, val yc: Double) 
+{
+   var x: Int = xc;
+   var y: Double = yc;
+
+   def move(dx: Int, dy: Int) : Unit=
+   {
+      x = x + dx;
+      y = y + dy;
+   }
+}
+
+
+// val a:Int=5.4;
+
 def func (a234:Int,a123:Array[String]) : Int = 
 {
    var (a23:Int,b34:Double)=(3,5.0);
 }
+def msub (a22:Int,a12:Int) : Int = 
+{
+   ;
+}
 
-var (a:Int,b:Double)=(3,5.0);
-var z:Array[String] = new Array[String](3);
+var (a:Int,b:Int)=(3,5);
+var z:Array[Int] = new Array[Int](3);
 var z1:Array[String] = Array("Zara", "Nuha", "Ayan");
 // var z3:Array[String] = Array(1,2,3);
 // var z2:Array[String] = Array("Zara", 1 , "Ayan");
-val pt:Point = new Point(10, 20);
+val pt:Point = new Point(10, 20.2);
 var a1:Int = 9;
-a1=func(23,z);
+// a1=func(23,z);
 
 
+a=(76+90)*76;
+b=1;
+var i:Int = 1;
+var MOD:Int = 1;
 
+var ans:Int =msub(1<<(a+b),(a*(z[a /i]*2 / msub(a+b,b)))%MOD);
 
 }

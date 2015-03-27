@@ -2,7 +2,7 @@ from symbolTable import *
 SCOPE = Env(None)                          # Current Scope
 class Node(object): 
     gid = 1   
-    def __init__(self,name,children,dataType="Unit",val=None,size=0,argumentList=None):
+    def __init__(self,name,children,dataType="Unit",val=None,size=None,argumentList=None):
         self.name = name
         self.children = children
         self.id=Node.gid
@@ -17,35 +17,45 @@ def create_leaf(name1,name2,dataType="Unit"):
     leaf2 = Node(name1,[leaf1],dataType)
     return leaf2
 
+
+def typeCheck(a,b):
+  if (a == b):
+    return True
+  elif ((a=="Double" and b=="Int") or (b=="Double" and a=="Int")):
+    print "Do type cast here "
+    return True
+  else:
+    return False
+
+
     
 def p_program_structure(p):
     '''ProgramStructure : ProgramStructure  class_and_objects
                       | class_and_objects '''
-    
     if len(p) == 3:
       if not (p[1].dataType=="Unit" and p[2].dataType=="Unit"):
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("ProgramStructure", [p[1], p[2]])
     else:
       if not (p[1].dataType=="Unit"):
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("ProgramStructure", [p[1]])
     
 def p_class_and_objects(p):
   '''class_and_objects : SingletonObject
                        | class_declaration'''
   if not (p[1].dataType=="Unit"):
-    print "Type Error"
-    assert(False)
+    print "Type Error at line  ",p.lexer.lineno
+    raise Exception("Correct the above Semantics! :P")
   p[0] = Node("class_and_objects", [p[1]])
 
 def p_SingletonObject(p):
     'SingletonObject : ObjectDeclare block'
     if not (p[1].dataType=="Unit" and p[2].dataType=="Unit" ):
-      print "Type Error"
-      assert(False)
+      print "Type Error at line  ",p.lexer.lineno
+      raise Exception("Correct the above Semantics! :P")
     p[0] = Node("SingletonObject", [p[1], p[2]])
 
    
@@ -56,10 +66,9 @@ def p_object_declare(p):
     if len(p) == 3:
       child1 = create_leaf("KWRD_OBJECT", p[1])
       child2 = create_leaf("IDENTIFIER", p[2])
-
       if not (child1.dataType=="Unit" and child2.dataType=="Unit"):
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("ObjectDeclare", [child1, child2])
     else:
       child1 = create_leaf("KWRD_OBJECT", p[1])
@@ -67,8 +76,8 @@ def p_object_declare(p):
       child3 = create_leaf("KWRD_EXTNDS", p[3])
       child4 = create_leaf("IDENTIFIER", p[4])
       if not (child1.dataType=="Unit" and child2.dataType=="Unit" and child3.dataType=="Unit" and child4.dataType=="Unit"):
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("ObjectDeclare", [child1, child2, child3, child4])
 
 # expression
@@ -90,10 +99,15 @@ def p_assignment_expression(p):
 
 def p_assignment(p):
     '''assignment : valid_variable assignment_operator assignment_expression'''
-    if not (p[1].dataType == p[3].dataType):
-      print "Type Error"
-      assert(False)
-    p[0] = Node("assignment", [p[1], p[2], p[3]],p[3].dataType)
+    if (p[1].dataType == p[3].dataType):
+      pass
+    # elif ((p[1].dataType=="Double" and p[3].dataType=="Int") or (p[3].dataType=="Double" and p[1].dataType=="Int")):
+    #   print "Do type cast here "
+    #   pass
+    else:
+      print "Type Error at line  ",p.lexer.lineno
+      raise Exception("Correct the above Semantics! :P")
+    p[0] = Node("assignment", [p[1], p[2], p[3]],p[1].dataType)
 
 
 def p_assignment_operator(p):
@@ -108,6 +122,8 @@ def p_assignment_operator(p):
                                | AND_ASSIGN
                                | OR_ASSIGN
                                | XOR_ASSIGN'''
+    # print p.lineno
+
     child1 = create_leaf("ASSIGN_OP", p[1])
     p[0] = Node("assignment_operator", [child1])        
 
@@ -121,8 +137,8 @@ def p_conditional_or_expression(p):
     else:
       child1 = create_leaf("OR", p[2])
       if not (p[1].dataType=="Boolean" and p[3].dataType=="Boolean"):
-        print "type error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("conditional_or_expression", [p[1], child1, p[3]],p[1].dataType)
 
 # AND(&&) has next least precedence, and AND is left assosiative 
@@ -136,8 +152,8 @@ def p_conditional_and_expression(p):
     else:
       child1 = create_leaf("AND", p[2])
       if not (p[1].dataType=="Boolean" and p[3].dataType=="Boolean"):
-        print "type error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("conditional_and_expression", [p[1], child1, p[3]],p[1].dataType)
 
 def p_inclusive_or_expression(p):
@@ -148,8 +164,8 @@ def p_inclusive_or_expression(p):
     else:
       child1 = create_leaf("OR_BITWISE", p[2])
       if not (p[1].dataType == "Int" and p[3].dataType == "Int"):
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("inclusive_or_expression", [p[1], child1, p[3]],p[1].dataType)
 
 def p_exclusive_or_expression(p):
@@ -160,8 +176,8 @@ def p_exclusive_or_expression(p):
     else:
       child1 = create_leaf("XOR", p[2])
       if not (p[1].dataType == "Int" and p[3].dataType == "Int"):
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("exclusive_or_expression", [p[1], child1, p[3]],p[1].dataType)
 
 def p_and_expression(p):
@@ -172,8 +188,8 @@ def p_and_expression(p):
     else:
       child1 = create_leaf("AND_BITWISE", p[2])
       if not (p[1].dataType == "Int" and p[3].dataType == "Int"):
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("and_expression", [p[1], child1, p[3]],p[1].dataType)
 
 def p_equality_expression(p):
@@ -185,8 +201,8 @@ def p_equality_expression(p):
     else:
       child1 = create_leaf("EqualityOp", p[2])
       if not (p[1].dataType == p[3].dataType):
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean")
    
 
@@ -201,8 +217,8 @@ def p_relational_expression(p):
     else:
       child1 = create_leaf("RelationalOp", p[2])
       if not (p[1].dataType == p[3].dataType):
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean")
    
 
@@ -215,8 +231,8 @@ def p_shift_expression(p):
         else:
           child1 = create_leaf("ShiftOp", p[2])
           if not (p[1].dataType == p[3].dataType and p[1].dataType=="Int"):
-            print "Type Error"
-            assert(False)
+            print "Type Error at line  ",p.lexer.lineno
+            raise Exception("Correct the above Semantics! :P")
           p[0] = Node("shift_expression", [p[1], child1, p[3]],p[1].dataType)
        
 
@@ -240,8 +256,8 @@ def p_additive_expression(p):
       elif (p[1].dataType=="String" and p[3].dataType=="String" and p[2]=="PLUS"):
         currType="String"
       else:
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
 
       p[0] = Node("additive_expression", [p[1], child1, p[3]],currType)
    
@@ -265,8 +281,8 @@ def p_multiplicative_expression(p):
       elif (p[1].dataType=="Double" and p[3].dataType=="Int" and p[2] != "REMAINDER"):
         currType="Double"
       else:
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
 
 
       p[0] = Node("multiplicative_expression", [p[1], child1, p[3]],currType)
@@ -278,8 +294,8 @@ def p_unary_expression(p):
                             | unary_expression_not_plus_minus'''
     if len(p) == 3:
       if not (p[2].dataType == "Int" or p[2].dataType=="Double"):
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       child1 = create_leaf("UnaryOp", p[1])
       p[0] = Node("unary_expression", [child1, p[2]],p[2].dataType)
     else:
@@ -299,8 +315,8 @@ def p_unary_expression_not_plus_minus(p):
       elif (p[1]=="NOT" and p[2].dataType=="Boolean"):
         pass
       else:
-        print "Type Error"
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
 
       child1 = create_leaf("Unary_1Op", p[1])
       p[0] = Node("unary_expression_not_plus_minus", [child1, p[2]],p[2].dataType)
@@ -333,11 +349,11 @@ def p_cast_expression(p):
             flag=2
 
         if (flag==0):
-          print "Type Error"
-          assert(False)
+          print "Type Error at line  ",p.lexer.lineno
+          raise Exception("Correct the above Semantics! :P")
         elif (flag==2):
-          print "Cast Error"
-          assert(False)
+          print "Cast Error at line  ",p.lexer.lineno
+          raise Exception("Correct the above Semantics! :P")
 
 
 
@@ -424,10 +440,11 @@ def p_method_invocation(p):
       if (val==p[3].dataType):
         pass
       else:
-        print "Mismatch in arguement types to invoke the function"
-        assert(False)
+        print "Mismatch in arguement types to invoke the function at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
     else:
-      print "Function is not defined"
+      print "Function is not defined at line ",p.lexer.lineno
+      raise Exception("Correct the above Semantics! :P")
     p[0] = Node("method_invocation", [p[1], child1, p[3], child2],retType)
 
 def p_array_access(p):
@@ -439,16 +456,16 @@ def p_array_access(p):
       val=SCOPE.get_attribute_value(p[1].value,'Type',"symbol")
       val1=val.split(",")
       if (val1[0]!="Array"):
-        print "Array Undefined"
-        assert(False)
+        print "Array Undefined at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
       if (p[3].dataType=="Int"):
         pass
       else:
-        print "Only Integer Indices Allowed"
-        assert(False)
+        print "Only Integer Indices Allowed at line ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
     else:
-      print "Array undefined"
-      assert(False)
+      print "Array Undefined at line  ",p.lexer.lineno
+      raise Exception("Correct the above Semantics! :P")
     p[0] = Node("array_access", [p[1], child1, p[3], child2],",".join(val1[1:]))   
 
 
@@ -505,8 +522,8 @@ def p_valid_variable(p):
     if SCOPE.is_present(p[1].value,updateField="symbol"):
       val=SCOPE.get_attribute_value(p[1].value,'Type',"symbol")
     else:
-      print "Variable undefined"
-      assert(False)
+      print "Variable undefined at line ",p.lexer.lineno
+      raise Exception("Correct the above Semantics! :P")
 
     p[0] = Node("valid_variable", [p[1]],val)
 
@@ -590,7 +607,7 @@ def p_variable_declaration_initializer(p):
   '''variable_declaration_initializer : expression
                                       | array_initializer
                                       | class_initializer'''
-  p[0] = Node("variable_declaration_initializer", [p[1]],p[1].dataType)
+  p[0] = Node("variable_declaration_initializer", [p[1]],p[1].dataType,p[1].value,p[1].size,p[1].argumentList)
 
 def p_variable_arguement_list(p):
   ''' variable_arguement_list : variable_declaration_initializer
@@ -598,24 +615,50 @@ def p_variable_arguement_list(p):
   if len(p) == 2:
     newType_1 = list()
     newType_1.append(p[1].dataType)
-    print p[1].dataType
-    print newType_1
-    p[0] = Node("variable_arguement_list", [p[1]],newType_1)
+
+    newSize_1 = list()
+    newSize_1.append(p[1].size)
+
+    newArg_1 = list()
+    newArg_1.append(p[1].argumentList)
+
+    # print p[1].dataType
+    # print newType_1
+    p[0] = Node("variable_arguement_list", [p[1]],newType_1,None,newSize_1,newArg_1)
   else:
     child1 = create_leaf("COMMA", p[2])
     newType_1 = list(p[1].dataType)
     newType_2 = list()
     newType_2.append(p[3].dataType)
-    print newType_1
-    print newType_2
-    p[0] = Node("variable_arguement_list", [p[1], child1, p[3]],newType_1+newType_2)
+
+
+
+    newSize_1 = list(p[1].size)
+    newSize_2 = list()
+    newSize_2.append(p[3].size)
+
+
+    newArg_1 = list(p[1].argumentList)
+    newArg_2 = list()
+    newArg_2.append(p[3].argumentList)
+
+
+    # print newType_1
+    # print newType_2
+    p[0] = Node("variable_arguement_list", [p[1], child1, p[3]],newType_1+newType_2,None,newSize_1+newSize_2,newArg_1+newArg_2)
 
 def p_variable_declaration_body_1(p):
       '''variable_declaration_body : variable_declarator ASSIGN  variable_declaration_initializer '''
       
       if (p[1].dataType!=p[3].dataType):
-        print("Type Error")
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
+      else:
+        # print type(p[3].size)
+        # print p[3].size
+        if (p[3].size!=None):
+          SCOPE.update_entry(p[1].value,'Size',int((p[3].size)),updateField="symbol")
+        #SCOPE.print_table()
 
       child1 = create_leaf("ASSIGN", p[2])
       p[0] = Node("variable_declaration_body", [p[1], child1, p[3]])
@@ -630,11 +673,17 @@ def p_variable_declaration_body_2(p):
       child3 = create_leaf("ASSIGN", p[4])
       child4 = create_leaf("LPAREN", p[5])
       child5 = create_leaf("RPAREN", p[7])
-      print p[2].dataType
-      print p[6].dataType
+      # print p[2].dataType
+      # print p[6].dataType
       if (p[2].dataType!=p[6].dataType):
-        print("Type Error")
-        assert(False)
+        print "Type Error at line  ",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
+      else :
+        for i1 in range(len(p[2].value)):
+          if (p[6].size)[i1] != None:
+            SCOPE.update_entry((p[2].value)[i1],'Size',int((p[6].size)[i1]),updateField="symbol")
+        #SCOPE.print_table()
+
       p[0] = Node("variable_declaration_body", [child1, p[2], child2, child3, child4, p[6], child5])
 
 #left 
@@ -654,18 +703,28 @@ def p_variable_declarators(p):
       if len(p) == 2:
         newType_1 = list()
         newType_1.append(p[1].dataType)
-        p[0] = Node("variable_declarators", [p[1]],newType_1)
+
+        newValue_1 = list()
+        newValue_1.append(p[1].value)
+
+        p[0] = Node("variable_declarators", [p[1]],newType_1,newValue_1)
       else:
         newType_1 = list(p[1].dataType)
         newType_2 = list()
         newType_2.append(p[3].dataType)
+
+        newValue_1 = list(p[1].value)
+        newValue_2 = list()
+        newValue_2.append(p[3].value)
+
+
         child1 = create_leaf("COMMA", p[2])
-        p[0] = Node("variable_declarators", [p[1], child1, p[3]],newType_1+newType_2)
+        p[0] = Node("variable_declarators", [p[1], child1, p[3]],newType_1+newType_2,newValue_1+newValue_2)
   
 
 def p_variable_declarator(p):
       '''variable_declarator : variable_declarator_id'''
-      p[0] = Node("variable_declarator", [p[1]],p[1].dataType)
+      p[0] = Node("variable_declarator", [p[1]],p[1].dataType,p[1].value)
 
 
 def p_variable_declarator_id(p):
@@ -675,11 +734,11 @@ def p_variable_declarator_id(p):
       #Insert in symbol table
       attribute=dict()
       attribute['Type']=p[3].value
-      print 'Hello'+p[3].value
+      # print 'Hello'+p[3].value
       SCOPE.add_entry(p[1],attribute,"symbol")
       child1 = create_leaf("IDENTIFIER", p[1])
       child2 = create_leaf("COLON", p[2])
-      p[0] = Node("variable_declarator_id", [child1, child2, p[3]],p[3].value)
+      p[0] = Node("variable_declarator_id", [child1, child2, p[3]],p[3].value,p[1])
       # p[0] = Variable(p[1], dimensions=p[2])
 
 
@@ -722,6 +781,9 @@ def p_if_then_statement(p):
         child1 = create_leaf("IF", p[1])
         child2 = create_leaf("LPAREN", p[2])
         child3 = create_leaf("RPAREN", p[4])
+        if (p[3].dataType!="Boolean"):
+          print "Conditional If only accepts boolean expression at line",p.lexer.lineno
+          raise Exception("Correct the above Semantics! :P")
         p[0] = Node("if_then_statement", [child1, child2, p[3], child3, p[5]])
         
 
@@ -731,6 +793,9 @@ def p_if_then_else_statement(p):
         child2 = create_leaf("LPAREN", p[2])
         child3 = create_leaf("RPAREN", p[4])
         child4 = create_leaf("ELSE", p[6])
+        if (p[3].dataType!="Boolean"):
+          print "Conditional If only accepts boolean expression at line",p.lexer.lineno
+          raise Exception("Correct the above Semantics! :P")
         p[0] = Node("if_then_else_statement", [child1, child2, p[3], child3, p[5], child4, p[7]])
        
 
@@ -740,6 +805,9 @@ def p_if_then_else_statement_precedence(p):
         child2 = create_leaf("LPAREN", p[2])
         child3 = create_leaf("RPAREN", p[4])
         child4 = create_leaf("ELSE", p[6])
+        if (p[3].dataType!="Boolean"):
+          print "Conditional If only accepts boolean expression at line",p.lexer.lineno
+          raise Exception("Correct the above Semantics! :P")
         p[0] = Node("if_then_else_statement_precedence", [child1, child2, p[3], child3, p[5], child4, p[7]])
       
 
@@ -754,6 +822,9 @@ def p_while_statement(p):
         child1 = create_leaf("WHILE", p[1])
         child2 = create_leaf("LPAREN", p[2])
         child3 = create_leaf("RPAREN", p[4])
+        if (p[3].dataType!="Boolean"):
+          print "Loop While only accepts boolean expression at line",p.lexer.lineno
+          raise Exception("Correct the above Semantics! :P")
         p[0] = Node("while_statement", [child1, child2, p[3], child3, p[5]])
         
 
@@ -764,6 +835,9 @@ def p_do_while_statement(p):
         child3 = create_leaf("LPAREN", p[4])
         child4 = create_leaf("RPAREN", p[6])
         child5 = create_leaf("STATE_END", p[7])
+        if (p[5].dataType!="Boolean"):
+          print "Conditional Do While only accepts boolean expression at line",p.lexer.lineno
+          raise Exception("Correct the above Semantics! :P")
         p[0] = Node("do_while_statement", [child1, p[2], child2, child3, p[5], child4, child5])
        
 
@@ -791,6 +865,18 @@ def p_for_update(p):
 def p_for_loop(p):
   ''' for_loop : IDENTIFIER CHOOSE expression for_untilTo expression '''
   
+  if SCOPE.is_present(p[1],updateField="symbol"):
+    pass
+  else:
+    print "Undeclared Variable at line",p.lexer.lineno
+    raise Exception("Correct the above Semantics! :P")
+
+  if (p[3].dataType==p[5].dataType && p[3].dataType=="Int"):
+    pass
+  else:
+    print "Only Integer expressions allowed in For statement at line",p.lexer.lineno
+    raise Exception("Correct the above Semantics! :P")
+
   child1 = create_leaf("IDENTIFIER",p[1])
   child2 = create_leaf("CHOOSE",p[2])
   p[0] = Node("for_loop_st",[child1,child2,p[3],p[4],p[5]])
@@ -809,11 +895,16 @@ def p_for_step_opts(p):
   if len(p)==2:
     p[0]=Node("for_step_opts",[p[1]])
   else :
+    if (p[2].dataType=="Int"):
+      pass
+    else:
+      print "Only Integer step allowed in For statement at line",p.lexer.lineno
+      raise Exception("Correct the above Semantics! :P")
     child1 = create_leaf("BY",p[1])
     p[0]=Node("for_step_opts",[child1,p[2]])
 
                
-def p_switch_statement( p):
+def p_switch_statement(p):
         '''switch_statement : expression KWRD_MATCH switch_block '''
         child1 = create_leaf("MATCH", p[2])
         p[0] = Node("switch_statement", [p[1], child1, p[3]])
@@ -894,24 +985,36 @@ def p_return_statement(p):
 def p_constructor_arguement_list_opt(p):
   '''constructor_arguement_list_opt : constructor_arguement_list
                             | empty '''
-  p[0] = Node("constructor_arguement_list_opt", [p[1]])
+  p[0] = Node("constructor_arguement_list_opt", [p[1]],p[1].dataType)
         
 
 def p_constructor_arguement_list(p):
   '''constructor_arguement_list : constructor_arguement_list_declarator
                          | constructor_arguement_list COMMA constructor_arguement_list_declarator'''
   if len(p) == 2:
-    p[0] = Node("constructor_arguement_list", [p[1]])
+    newConst_2=list()
+    newConst_2.append(p[1].dataType)
+    p[0] = Node("constructor_arguement_list", [p[1]],newConst_2)
   else:
     child1 = create_leaf("COMMA", p[2])
-    p[0] = Node("constructor_arguement_list", [p[1], child1, p[3]])
+
+    newConst_1=list(p[1].dataType)
+    newConst_2=list()
+    newConst_2.append(p[3].dataType)
+    # print newConst_1
+    # print newConst_2
+
+    p[0] = Node("constructor_arguement_list", [p[1], child1, p[3]],newConst_1+newConst_2)
 
 
 def p_constructor_arguement_list_declarator(p):
     '''constructor_arguement_list_declarator : declaration_keyword IDENTIFIER COLON type'''
     child1 = create_leaf("IDENTIFIER", p[2])
     child2 = create_leaf("COLON", p[3])
-    p[0] = Node("constructor_arguement_list_declarator", [p[1], child1, child2, p[4]]) 
+    attribute=dict()
+    attribute['Type']=p[4].value
+    SCOPE.add_entry(p[2],attribute,"symbol")
+    p[0] = Node("constructor_arguement_list_declarator", [p[1], child1, child2, p[4]],p[4].value) 
 
 
 def p_func_arguement_list_opt(p):
@@ -935,13 +1038,21 @@ def p_class_header_name(p):
                              # | class_header_name1
         child1 = create_leaf("LPAREN", p[2])
         child2 = create_leaf("RPAREN", p[4])
+        #Arguement List : p[3].dataType
+        #Name : p[1].value
+        attribute=dict()
+        attribute['ConstructorList']=p[3].dataType
+        SCOPE.add_entry(p[1].value,attribute,"object")
+        # print p[1].value
+        # print
+        # SCOPE.print_table()
         p[0] = Node("class_header_name", [p[1], child1, p[3], child2])
        
 
 def p_class_header_name1(p):
         '''class_header_name1 : modifier_opts KWRD_CLASS name'''
         child1 = create_leaf("CLASS", p[2])
-        p[0] = Node("class_header_name1", [p[1], child1, p[3]])
+        p[0] = Node("class_header_name1", [p[1], child1, p[3]],"Unit",p[3].value)
        
 
 def p_class_header_extends_opt(p):
@@ -1053,25 +1164,36 @@ def p_array_initializer(p):
     child6 = create_leaf("INT_CONST", p[7])
     child7 = create_leaf("RPAREN", p[8])
 
-    p[0] = Node("array_initializer", [child1, child2, child3, p[4], child4, child5, child6, child7],"Array,"+p[4].value,None,int(p[7]))
+    p[0] = Node("array_initializer", [child1, child2, child3, p[4], child4, child5, child6, child7],"Array,"+p[4].value,None,str(int(p[7])))
   else:
     child1 = create_leaf("ARRAY", p[1])
     child2 = create_leaf("LPAREN", p[2])
     child3 = create_leaf("RPAREN", p[4]) 
     currType=p[3].dataType[0]
-    print p[3].dataType
+    # print p[3].dataType
     for i in range(1,len(p[3].dataType)):
       if p[3].dataType[i] != currType:
-        print ("Type error: array can only be of same type")
-        assert(False)
-    p[0] = Node("array_initializer", [child1, child2, p[3], child3],"Array,"+currType,None,int(len(p[3].dataType)))   
+        print ("Type error: array can only be of same type at line ",p.lexer.lineno)
+        raise Exception("Correct the above Semantics! :P")
+    p[0] = Node("array_initializer", [child1, child2, p[3], child3],"Array,"+currType,None,str(int(len(p[3].dataType))))   
 
 def p_class_initializer(p):
   ''' class_initializer : KWRD_NEW name LPAREN argument_list_opt RPAREN ''' 
   child1 = create_leaf("NEW", p[1])
   child2 = create_leaf("LPAREN", p[3])
   child3 = create_leaf("RPAREN", p[5])
-  p[0] = Node("class_initializer", [child1, p[2], child2, p[4], child3],"Object@"+p[2].value)
+  if SCOPE.is_present(p[2].value,updateField="object"):
+    val=SCOPE.get_attribute_value(p[2].value,'ConstructorList',"object")
+    if val==p[4].dataType:
+      pass
+    else:
+      print ("Check Constructor Definition , line ",p.lexer.lineno)
+      raise Exception("Correct the above Semantics! :P")
+  else:
+    print ("Undefined Class Definition , line ",p.lexer.lineno)
+    raise Exception("Correct the above Semantics! :P")
+
+  p[0] = Node("class_initializer", [child1, p[2], child2, p[4], child3],"Object@"+p[2].value,None,None,p[4].dataType)
 
 # print statement
 # def p_printstatement_1(p):

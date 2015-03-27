@@ -11,11 +11,15 @@ from include.grammar import *
 def p_error(p):
   
     flag=-1;
+    # print dir(yacc)
+    
+    # assert(False)
 
-    print("Syntax error at '%s'" % p.value),
-    print('\t Error: {}'.format(p))
+    # print("Syntax error at '%s'" % p.value),
+    # print('\t Error: {}'.format(p))
 
     while 1:
+
         tok = yacc.token()             # Get the next token
         if not tok:
             flag=1
