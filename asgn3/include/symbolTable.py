@@ -72,6 +72,7 @@ class Env:
         self.width = 0                      # overall offset/width of this env
         self.paramwidth = 0
         self.prev_env=prev
+        self.code=list()
         if prev==None:
            self.level=0 
            self.parentName=""

@@ -1,5 +1,34 @@
 from symbolTable import *
 SCOPE = Env(None)                          # Current Scope
+globalTemp=list()
+registerSize=16
+varStart="@t"
+for i in range(1,registerSize+1):
+  globalTemp.append(0)
+
+
+def returnTemp():
+  global globalTemp
+  temp=globalTemp[0]
+  j=1
+  while j<registerSize and temp==1:
+    temp=globalTemp[j]
+    j=j+1
+    
+  if (j==registerSize):
+    print "Not enough variables"
+  else :
+    globalTemp[j-1]=1
+    return varStart+"_"+str(j)
+
+
+def freeVar(a):
+  if varStart in a:
+    b=int(a.split('_')[1])
+    global globalTemp
+    globalTemp[b-1]=0
+
+
 class Node(object): 
     gid = 1   
     def __init__(self,name,children,dataType="Unit",val=None,size=None,argumentList=None,holdingVariable="None"):
@@ -17,7 +46,25 @@ def create_leaf(name1,name2,dataType="Unit"):
     leaf1 = Node(name2,[],dataType)
     leaf2 = Node(name1,[leaf1],dataType)
     return leaf2
-    
+
+def p_start_here(p):
+  '''start_here : ProgramStructure end_here'''
+  p[0] = Node("startOfProgram", [p[1], p[2]])
+
+def p_end_here(p):
+  '''end_here : empty '''
+  for i in SCOPE.childs[0].code :
+    for j in range(5):
+      if (i[j]!=None):
+        if type(i[j])==str and "@t" in i[j]:
+          print i[j][1:],
+        else:
+          print i[j],
+    print 
+  
+  p[0]=Node("end_here",[p[1]])
+
+
 def p_program_structure(p):
     '''ProgramStructure : ProgramStructure  class_and_objects
                       | class_and_objects '''
@@ -72,17 +119,17 @@ def p_object_declare(p):
 # expression
 def p_expression(p):
     '''expression : assignment_expression'''
-    p[0] = Node("expression", [p[1]],p[1].dataType)
+    p[0] = Node("expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
 
 def p_expression_optional(p):
         '''expression_optional : expression
                           | empty'''
-        p[0] = Node("expression_optional", [p[1]],p[1].dataType)
+        p[0] = Node("expression_optional", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
 
 def p_assignment_expression(p):
     '''assignment_expression : assignment
                              | conditional_or_expression'''
-    p[0] = Node("assignment_expression", [p[1]],p[1].dataType)
+    p[0] = Node("assignment_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
 
 # assignment
 
@@ -97,7 +144,17 @@ def p_assignment(p):
       print "Type Error at line  ",p.lexer.lineno
       raise Exception("Correct the above Semantics! :P")
 
-    print p[1].holdingVariable," ",p[2].value," ",p[3].holdingVariable
+    if (p[2].value=="="):
+      SCOPE.code.append([p[1].holdingVariable,"=",p[3].holdingVariable,None,None])
+      freeVar(p[3].holdingVariable)
+    else:
+      val=p[2].value[0]
+      tempVar=returnTemp()
+      SCOPE.code.append([tempVar,"=",p[1].holdingVariable,None,None])
+      SCOPE.code.append([p[1].holdingVariable,"=",tempVar,val,p[3].holdingVariable])
+      freeVar(p[3].holdingVariable)
+      freeVar(tempVar)
+    # print p[1].holdingVariable," ",p[2].value," ",p[3].holdingVariable
 
     p[0] = Node("assignment", [p[1], p[2], p[3]],p[1].dataType)
 
@@ -117,7 +174,7 @@ def p_assignment_operator(p):
     # print p.lineno
 
     child1 = create_leaf("ASSIGN_OP", p[1])
-    p[0] = Node("assignment_operator", [child1],)        
+    p[0] = Node("assignment_operator", [child1],"Unit",p[1])        
 
 # OR(||) has least precedence, and OR is left assosiative 
 # a||b||c => first evalutae a||b then (a||b)||c
@@ -125,8 +182,10 @@ def p_conditional_or_expression(p):
     '''conditional_or_expression : conditional_and_expression
                                 | conditional_or_expression OR conditional_and_expression'''
     if len(p) == 2:
-      p[0] = Node("conditional_or_expression", [p[1]],p[1].dataType)
+      p[0] = Node("conditional_or_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
     else:
+
+      # handle using jump statements
       child1 = create_leaf("OR", p[2])
       if not (p[1].dataType=="Boolean" and p[3].dataType=="Boolean"):
         print "Type Error at line  ",p.lexer.lineno
@@ -140,8 +199,10 @@ def p_conditional_and_expression(p):
     '''conditional_and_expression : inclusive_or_expression
                                     | conditional_and_expression AND inclusive_or_expression'''
     if len(p) == 2:
-      p[0] = Node("conditional_and_expression", [p[1]],p[1].dataType)
+      p[0] = Node("conditional_and_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
     else:
+
+      # handle later
       child1 = create_leaf("AND", p[2])
       if not (p[1].dataType=="Boolean" and p[3].dataType=="Boolean"):
         print "Type Error at line  ",p.lexer.lineno
@@ -152,50 +213,70 @@ def p_inclusive_or_expression(p):
     '''inclusive_or_expression : exclusive_or_expression
                                    | inclusive_or_expression OR_BITWISE exclusive_or_expression'''
     if len(p) == 2:
-      p[0] = Node("inclusive_or_expression", [p[1]],p[1].dataType)
+      p[0] = Node("inclusive_or_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
     else:
       child1 = create_leaf("OR_BITWISE", p[2])
       if not (p[1].dataType == "Int" and p[3].dataType == "Int"):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
-      p[0] = Node("inclusive_or_expression", [p[1], child1, p[3]],p[1].dataType)
+      tempVar=returnTemp()
+      SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
+      freeVar(p[1].holdingVariable)
+      freeVar(p[3].holdingVariable)
+      # print tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable
+      p[0] = Node("inclusive_or_expression", [p[1], child1, p[3]],p[1].dataType,None,None,None,tempVar)
 
 def p_exclusive_or_expression(p):
     '''exclusive_or_expression : and_expression
                                    | exclusive_or_expression XOR and_expression'''
     if len(p) == 2:
-      p[0] = Node("exclusive_or_expression", [p[1]],p[1].dataType)
+      p[0] = Node("exclusive_or_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
     else:
       child1 = create_leaf("XOR", p[2])
       if not (p[1].dataType == "Int" and p[3].dataType == "Int"):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
-      p[0] = Node("exclusive_or_expression", [p[1], child1, p[3]],p[1].dataType)
+      tempVar=returnTemp()
+      SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
+      freeVar(p[1].holdingVariable)
+      freeVar(p[3].holdingVariable)
+      # print tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable
+      p[0] = Node("exclusive_or_expression", [p[1], child1, p[3]],p[1].dataType,None,None,None,tempVar)
 
 def p_and_expression(p):
     '''and_expression : equality_expression
                           | and_expression AND_BITWISE equality_expression'''
     if len(p) == 2:
-      p[0] = Node("and_expression", [p[1]],p[1].dataType)
+      p[0] = Node("and_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
     else:
       child1 = create_leaf("AND_BITWISE", p[2])
       if not (p[1].dataType == "Int" and p[3].dataType == "Int"):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
-      p[0] = Node("and_expression", [p[1], child1, p[3]],p[1].dataType)
+      tempVar=returnTemp()
+
+      SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
+      freeVar(p[1].holdingVariable)
+      freeVar(p[3].holdingVariable)
+
+      p[0] = Node("and_expression", [p[1], child1, p[3]],p[1].dataType,None,None,None,tempVar)
 
 def p_equality_expression(p):
     '''equality_expression : relational_expression
                             | equality_expression EQUAL relational_expression
                             | equality_expression NEQUAL relational_expression'''
     if len(p) == 2:
-      p[0] = Node("relational_expression", [p[1]],p[1].dataType)
+      p[0] = Node("relational_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
     else:
       child1 = create_leaf("EqualityOp", p[2])
       if not (p[1].dataType == p[3].dataType):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
-      p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean")
+      tempVar=returnTemp()
+      SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
+      freeVar(p[1].holdingVariable)
+      freeVar(p[3].holdingVariable)
+      p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean",None,None,None,tempVar)
    
 
 def p_relational_expression(p):
@@ -205,13 +286,17 @@ def p_relational_expression(p):
                                  | relational_expression GEQ shift_expression
                                  | relational_expression LEQ shift_expression'''
     if len(p) == 2:
-      p[0] = Node("relational_expression", [p[1]],p[1].dataType)
+      p[0] = Node("relational_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
     else:
       child1 = create_leaf("RelationalOp", p[2])
       if not (p[1].dataType == p[3].dataType):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
-      p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean")
+      tempVar=returnTemp()
+      SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
+      freeVar(p[1].holdingVariable)
+      freeVar(p[3].holdingVariable)
+      p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean",None,None,None,tempVar)
    
 
 def p_shift_expression(p):
@@ -219,13 +304,17 @@ def p_shift_expression(p):
                             | shift_expression LSHIFT additive_expression
                             | shift_expression RSHIFT additive_expression'''
         if len(p) == 2:
-          p[0] = Node("shift_expression", [p[1]],p[1].dataType)
+          p[0] = Node("shift_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
         else:
           child1 = create_leaf("ShiftOp", p[2])
           if not (p[1].dataType == p[3].dataType and p[1].dataType=="Int"):
             print "Type Error at line  ",p.lexer.lineno
             raise Exception("Correct the above Semantics! :P")
-          p[0] = Node("shift_expression", [p[1], child1, p[3]],p[1].dataType)
+          tempVar=returnTemp()
+          SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
+          freeVar(p[1].holdingVariable)
+          freeVar(p[3].holdingVariable)
+          p[0] = Node("shift_expression", [p[1], child1, p[3]],p[1].dataType,None,None,None,tempVar)
        
 
 def p_additive_expression(p):
@@ -233,7 +322,7 @@ def p_additive_expression(p):
                                | additive_expression PLUS multiplicative_expression
                                | additive_expression MINUS multiplicative_expression'''
     if len(p) == 2:
-      p[0] = Node("additive_expression", [p[1]],p[1].dataType)
+      p[0] = Node("additive_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
     else:
       child1 = create_leaf("AddOp", p[2])
       currType="Int"
@@ -245,13 +334,18 @@ def p_additive_expression(p):
         currType="Double"
       elif (p[1].dataType=="Double" and p[3].dataType=="Int"):
         currType="Double"
-      elif (p[1].dataType=="String" and p[3].dataType=="String" and p[2]=="PLUS"):
+      elif (p[1].dataType=="String" and p[3].dataType=="String" and p[2]=="+"):
         currType="String"
       else:
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
+      tempVar=returnTemp()
 
-      p[0] = Node("additive_expression", [p[1], child1, p[3]],currType)
+      SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
+      freeVar(p[1].holdingVariable)
+      freeVar(p[3].holdingVariable)
+
+      p[0] = Node("additive_expression", [p[1], child1, p[3]],currType,None,None,None,tempVar)
    
 
 def p_multiplicative_expression(p):
@@ -260,24 +354,29 @@ def p_multiplicative_expression(p):
                                      | multiplicative_expression DIVIDE unary_expression
                                      | multiplicative_expression REMAINDER unary_expression'''
     if len(p) == 2:
-      p[0] = Node("multiplicative_expression", [p[1]],p[1].dataType)
+      p[0] = Node("multiplicative_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
     else:
       child1 = create_leaf("MultOp", p[2])
       currType="Int" 
       if (p[1].dataType=="Int" and p[3].dataType=="Int"):
         currType="Int"
-      elif (p[1].dataType=="Int" and p[3].dataType=="Double" and p[2] != "REMAINDER"):
+      elif (p[1].dataType=="Int" and p[3].dataType=="Double" and p[2] != "%"):
         currType="Double"
-      elif (p[1].dataType=="Double" and p[3].dataType=="Double" and p[2] != "REMAINDER"):
+      elif (p[1].dataType=="Double" and p[3].dataType=="Double" and p[2] != "%"):
         currType="Double"
-      elif (p[1].dataType=="Double" and p[3].dataType=="Int" and p[2] != "REMAINDER"):
+      elif (p[1].dataType=="Double" and p[3].dataType=="Int" and p[2] != "%"):
         currType="Double"
       else:
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
 
+      tempVar=returnTemp()
 
-      p[0] = Node("multiplicative_expression", [p[1], child1, p[3]],currType)
+      SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
+      freeVar(p[1].holdingVariable)
+      freeVar(p[3].holdingVariable)
+
+      p[0] = Node("multiplicative_expression", [p[1], child1, p[3]],currType,None,None,None,tempVar)
     
 
 def p_unary_expression(p):
@@ -288,10 +387,25 @@ def p_unary_expression(p):
       if not (p[2].dataType == "Int" or p[2].dataType=="Double"):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
+      
+      tempVar1=returnTemp()
+      # print tempVar1,"= 0"
+
+      tempVar=returnTemp()
+      # print tempVar,"=",tempVar1,p[1],p[2].holdingVariable
+
+
+
+      SCOPE.code.append([tempVar1,"=","0",None,None])
+      SCOPE.code.append([tempVar,"=",tempVar1,p[1],p[2].holdingVariable])
+      
+      freeVar(p[2].holdingVariable)
+      freeVar(tempVar1)
+
       child1 = create_leaf("UnaryOp", p[1])
-      p[0] = Node("unary_expression", [child1, p[2]],p[2].dataType)
+      p[0] = Node("unary_expression", [child1, p[2]],p[2].dataType,None,None,None,tempVar)
     else:
-      p[0] = Node("unary_expression", [p[1]],p[1].dataType)
+      p[0] = Node("unary_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
 
 
 def p_unary_expression_not_plus_minus(p):
@@ -300,29 +414,33 @@ def p_unary_expression_not_plus_minus(p):
                                            | NOT unary_expression
                                            | cast_expression'''
     if len(p) == 2:
-      p[0] = Node("unary_expression_not_plus_minus", [p[1]],p[1].dataType)
+      p[0] = Node("unary_expression_not_plus_minus", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
     else:
-      if (p[1]=="TILDA" and p[2].dataType=="Int"):
+      if (p[1]=="~" and p[2].dataType=="Int"):
         pass
-      elif (p[1]=="NOT" and p[2].dataType=="Boolean"):
+      elif (p[1]=="!" and p[2].dataType=="Boolean"):
         pass
       else:
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
 
+      tempVar=returnTemp()
+      # print tempVar,"=",p[1],p[2].holdingVariable
+      SCOPE.code.append([tempVar,"=",None,p[1],p[2].holdingVariable])
+      freeVar(p[2].holdingVariable)
       child1 = create_leaf("Unary_1Op", p[1])
-      p[0] = Node("unary_expression_not_plus_minus", [child1, p[2]],p[2].dataType)
+      p[0] = Node("unary_expression_not_plus_minus", [child1, p[2]],p[2].dataType,None,None,None,tempVar)
     
 
 def p_base_variable_set(p):
   '''base_variable_set : variable_literal
                         | LPAREN expression RPAREN'''
   if len(p) == 2:
-    p[0] = Node("base_variable_set", [p[1]],p[1].dataType)
+    p[0] = Node("base_variable_set", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
   else:
     child1 = create_leaf("LPAREN", p[1])
     child2 = create_leaf("RPAREN", p[3])
-    p[0] = Node("base_variable_set", [child1, p[2], child2],p[2].dataType)
+    p[0] = Node("base_variable_set", [child1, p[2], child2],p[2].dataType,None,None,None,p[2].holdingVariable)
 
 
 def p_cast_expression(p):
@@ -347,48 +465,61 @@ def p_cast_expression(p):
           print "Cast Error at line  ",p.lexer.lineno
           raise Exception("Correct the above Semantics! :P")
 
+        tempVar=returnTemp()
+        SCOPE.code.append([tempVar,"=",None,"("+p[2].value+")",p[4].holdingVariable])
+        freeVar(p[4].holdingVariable)
+        # print tempVar,"=","cast to",p[2].value,p[4].holdingVariable
 
 
         
         child1 = create_leaf("LPAREN", p[1])
         child2 = create_leaf("RPAREN", p[3])
-        p[0] = Node("cast_expression", [child1, p[2], child2, p[4]],currType)
+        p[0] = Node("cast_expression", [child1, p[2], child2, p[4]],currType,None,None,None,tempVar)
        
 
 def p_primary(p):
     '''primary : literal
                 | method_invocation'''
-    p[0] = Node("primary", [p[1]],p[1].dataType)
+    p[0] = Node("primary", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
 
 
 
 def p_literal_1(p):
   '''literal : int_float'''
-  p[0] = Node("literal", [p[1]],p[1].dataType)
+  p[0] = Node("literal", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
 
 
 def p_literal_2(p):
   '''literal : CHARACTER'''
   child1 = create_leaf("LiteralConst", p[1],"Char")
-  p[0] = Node("literal", [child1],"Char")
+  tempVar=returnTemp()
+  SCOPE.code.append([tempVar,"=",p[1],None,None])
+  # print tempVar,"=",p[1]
+  p[0] = Node("literal", [child1],"Char",None,None,None,tempVar)
 
 def p_literal_3(p):
   '''literal : STRING_CONST'''
   child1 = create_leaf("LiteralConst", p[1],"String")
-  p[0] = Node("literal", [child1],"String")
+  tempVar=returnTemp()
+  SCOPE.code.append([tempVar,"=",p[1],None,None])
+  p[0] = Node("literal", [child1],"String",None,None,None,tempVar)
   
 
 def p_literal_4(p):
   '''literal : BOOL_CONSTT
               | BOOL_CONSTF'''
   child1 = create_leaf("LiteralConst", p[1],"Boolean")
-  p[0] = Node("literal", [child1],"Boolean")
+  tempVar=returnTemp()
+  SCOPE.code.append([tempVar,"=",p[1],None,None])
+  p[0] = Node("literal", [child1],"Boolean",None,None,None,tempVar)
   
 
 def p_literal_5(p):
   '''literal : KWRD_NULL'''
   child1 = create_leaf("LiteralConst", p[1],"Unit")
-  p[0] = Node("literal", [child1],"Unit")
+  tempVar=returnTemp()
+  SCOPE.code.append([tempVar,"=",p[1],None,None])
+  p[0] = Node("literal", [child1],"Unit",None,None,None,tempVar)
   
 
 
@@ -412,12 +543,16 @@ def p_literal_5(p):
 def p_int_float_1(p):
     '''int_float : FLOAT_CONST'''
     child1 = create_leaf("FloatConst", p[1],"Double")
-    p[0] = Node("int_float", [child1],"Double")
+    tempVar=returnTemp()
+    SCOPE.code.append([tempVar,"=",p[1],None,None])
+    p[0] = Node("int_float", [child1],"Double",None,None,None,tempVar)
 
 def p_int_float_2(p):
     '''int_float : INT_CONST'''
     child1 = create_leaf("IntConst", p[1],"Int")
-    p[0] = Node("int_float", [child1],"Int")
+    tempVar=returnTemp()
+    SCOPE.code.append([tempVar,"=",p[1],None,None])
+    p[0] = Node("int_float", [child1],"Int",None,None,None,tempVar)
 
 
 def p_method_invocation(p):
@@ -493,13 +628,13 @@ def p_argument_list(p):
 def p_name(p):
     '''name : simple_name
             | qualified_name'''
-    p[0] = Node("name", [p[1]],"Unit",p[1].value)
+    p[0] = Node("name", [p[1]],"Unit",p[1].value,None,None,p[1].holdingVariable)
     
 
 def p_simple_name(p):
     '''simple_name : IDENTIFIER'''
     child1 = create_leaf("IDENTIFIER", p[1])
-    p[0] = Node("simple_name", [child1],"Unit",p[1])
+    p[0] = Node("simple_name", [child1],"Unit",p[1],None,None,p[1])
     
 
 def p_qualified_name(p):
@@ -517,7 +652,7 @@ def p_valid_variable(p):
       print "Variable undefined at line ",p.lexer.lineno
       raise Exception("Correct the above Semantics! :P")
 
-    p[0] = Node("valid_variable", [p[1]],val)
+    p[0] = Node("valid_variable", [p[1]],val,None,None,None,p[1].holdingVariable)
 
 def p_valid_variable_1(p):
     '''valid_variable : array_access'''
@@ -527,7 +662,7 @@ def p_valid_variable_1(p):
 def p_variableliteral(p):
     '''variable_literal : valid_variable
                         | primary'''
-    p[0] = Node("variable_literal", [p[1]],p[1].dataType)
+    p[0] = Node("variable_literal", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
 
 # BLOCK STATEMENTS
 
@@ -620,7 +755,7 @@ def p_variable_declaration_initializer(p):
   '''variable_declaration_initializer : expression
                                       | array_initializer
                                       | class_initializer'''
-  p[0] = Node("variable_declaration_initializer", [p[1]],p[1].dataType,p[1].value,p[1].size,p[1].argumentList)
+  p[0] = Node("variable_declaration_initializer", [p[1]],p[1].dataType,p[1].value,p[1].size,p[1].argumentList,p[1].holdingVariable)
 
 def p_variable_arguement_list(p):
   ''' variable_arguement_list : variable_declaration_initializer
@@ -635,9 +770,12 @@ def p_variable_arguement_list(p):
     newArg_1 = list()
     newArg_1.append(p[1].argumentList)
 
+    newHold_1 = list()
+    newHold_1.append(p[1].holdingVariable)
+
     # print p[1].dataType
     # print newType_1
-    p[0] = Node("variable_arguement_list", [p[1]],newType_1,None,newSize_1,newArg_1)
+    p[0] = Node("variable_arguement_list", [p[1]],newType_1,None,newSize_1,newArg_1,newHold_1)
   else:
     child1 = create_leaf("COMMA", p[2])
     newType_1 = list(p[1].dataType)
@@ -656,9 +794,15 @@ def p_variable_arguement_list(p):
     newArg_2.append(p[3].argumentList)
 
 
+    newHold_1 = list(p[1].holdingVariable)
+    newHold_2 = list()
+    newHold_2.append(p[3].holdingVariable)
+
+
+
     # print newType_1
     # print newType_2
-    p[0] = Node("variable_arguement_list", [p[1], child1, p[3]],newType_1+newType_2,None,newSize_1+newSize_2,newArg_1+newArg_2)
+    p[0] = Node("variable_arguement_list", [p[1], child1, p[3]],newType_1+newType_2,None,newSize_1+newSize_2,newArg_1+newArg_2,newHold_1+newHold_2)
 
 def p_variable_declaration_body_1(p):
       '''variable_declaration_body : variable_declarator ASSIGN  variable_declaration_initializer '''
@@ -672,6 +816,11 @@ def p_variable_declaration_body_1(p):
         if (p[3].size!=None):
           SCOPE.update_entry(p[1].value,'Size',int((p[3].size)),updateField="symbol")
         #SCOPE.print_table()
+       
+      SCOPE.code.append([p[1].value,"=",p[3].holdingVariable,None,None])
+      freeVar(p[3].holdingVariable)
+      # print p[1].dataType
+      # for i123 in range (len(p[1].holdingVariable)):
 
       child1 = create_leaf("ASSIGN", p[2])
       p[0] = Node("variable_declaration_body", [p[1], child1, p[3]])
@@ -692,6 +841,9 @@ def p_variable_declaration_body_2(p):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
       else :
+        for i123 in range(len(p[2].value)):
+          SCOPE.code.append([(p[2].value)[i123],"=",(p[6].holdingVariable)[i123],None,None])
+          freeVar((p[6].holdingVariable)[i123])
         for i1 in range(len(p[2].value)):
           if (p[6].size)[i1] != None:
             SCOPE.update_entry((p[2].value)[i1],'Size',int((p[6].size)[i1]),updateField="symbol")
