@@ -1,8 +1,12 @@
 from symbolTable import *
 SCOPE = Env(None)                          # Current Scope
 globalTemp=list()
+globalLabel=1
+globalFunc=1
 registerSize=16
 varStart="@t"
+labelStart="Label"
+functionStart="Function"
 for i in range(1,registerSize+1):
   globalTemp.append(0)
 
@@ -21,6 +25,23 @@ def returnTemp():
     globalTemp[j-1]=1
     return varStart+"_"+str(j)
 
+def returnLabel():
+  global globalLabel
+  globalLabel+=1
+  return labelStart+str(globalLabel)
+
+def returnFunction():
+  global globalFunc
+  globalFunc+=1
+  return functionStart+str(globalFunc)
+
+def backpatch(listL1,string1):
+  for i in listL1:
+    SCOPE.code[i][4]=string1
+    # [None,None,label+":",None,None]
+    # append([None,None,label+":",None,None])
+
+  
 
 def freeVar(a):
   if varStart in a:
@@ -31,7 +52,7 @@ def freeVar(a):
 
 class Node(object): 
     gid = 1   
-    def __init__(self,name,children,dataType="Unit",val=None,size=None,argumentList=None,holdingVariable="None"):
+    def __init__(self,name,children,dataType="Unit",val=None,size=None,argumentList=None,holdingVariable=None,trueList=None,falseList=None,nextList=None):
         self.name = name
         self.children = children
         self.id=Node.gid
@@ -39,6 +60,9 @@ class Node(object):
         self.size=size
         self.argumentList=argumentList
         self.dataType=dataType
+        self.trueList = trueList;
+        self.falseList = falseList
+        self.nextList = nextList
         self.holdingVariable=holdingVariable
         Node.gid+=1
 
@@ -116,6 +140,7 @@ def p_object_declare(p):
         raise Exception("Correct the above Semantics! :P")
       p[0] = Node("ObjectDeclare", [child1, child2, child3, child4])
 
+
 # expression
 def p_expression(p):
     '''expression : assignment_expression'''
@@ -129,8 +154,23 @@ def p_expression_optional(p):
 def p_assignment_expression(p):
     '''assignment_expression : assignment
                              | conditional_or_expression'''
-    p[0] = Node("assignment_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
 
+    returnHold=p[1].holdingVariable
+    if p[1].trueList!=None and p[1].falseList!=None and (len(p[1].trueList) >0 or len(p[1].falseList) >0):
+      truelabel=returnLabel()
+      falselabel=returnLabel()
+      jumplabel=returnLabel()
+      retVar=returnTemp()
+      SCOPE.code.append([None,None,truelabel+":",None,None])
+      SCOPE.code.append([retVar,"=","1",None,None])
+      SCOPE.code.append([None,None,None,"goto",jumplabel])
+      SCOPE.code.append([None,None,falselabel+":",None,None])
+      SCOPE.code.append([retVar,"=","0",None,None])
+      SCOPE.code.append([None,None,jumplabel+":",None,None])
+      backpatch(p[1].trueList,truelabel)
+      backpatch(p[1].falseList,falselabel)
+      returnHold=retVar
+    p[0] = Node("assignment_expression", [p[1]],p[1].dataType,None,None,None,returnHold)
 # assignment
 
 def p_assignment(p):
@@ -176,44 +216,62 @@ def p_assignment_operator(p):
     child1 = create_leaf("ASSIGN_OP", p[1])
     p[0] = Node("assignment_operator", [child1],"Unit",p[1])        
 
+def p_Marker(p):
+    '''Marker : empty '''
+    label=returnLabel()
+    p[0] = Node("Marker", [p[1]],"Unit",label)      
+    SCOPE.code.append([None,None,label+":",None,None])
+  
 # OR(||) has least precedence, and OR is left assosiative 
 # a||b||c => first evalutae a||b then (a||b)||c
 def p_conditional_or_expression(p):
     '''conditional_or_expression : conditional_and_expression
-                                | conditional_or_expression OR conditional_and_expression'''
+                                | conditional_or_expression OR Marker conditional_and_expression'''
     if len(p) == 2:
       p[0] = Node("conditional_or_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
     else:
-
       # handle using jump statements
       child1 = create_leaf("OR", p[2])
-      if not (p[1].dataType=="Boolean" and p[3].dataType=="Boolean"):
+      if not (p[1].dataType=="Boolean" and p[4].dataType=="Boolean"):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
-      p[0] = Node("conditional_or_expression", [p[1], child1, p[3]],p[1].dataType)
+
+      p[0] = Node("conditional_or_expression", [p[1], child1, p[4]],p[1].dataType)
+      backpatch(p[1].falseList,p[3].value)
+      p[0].trueList = p[1].trueList+p[4].trueList;
+      p[0].falseList = p[4].falseList;
 
 # AND(&&) has next least precedence, and AND is left assosiative 
 # a&&b&&c => first evalutae a&&b then (a&&b)&&c
 
 def p_conditional_and_expression(p):
     '''conditional_and_expression : inclusive_or_expression
-                                    | conditional_and_expression AND inclusive_or_expression'''
+                                    | conditional_and_expression AND Marker inclusive_or_expression'''
     if len(p) == 2:
       p[0] = Node("conditional_and_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
     else:
 
       # handle later
       child1 = create_leaf("AND", p[2])
-      if not (p[1].dataType=="Boolean" and p[3].dataType=="Boolean"):
+      if not (p[1].dataType=="Boolean" and p[4].dataType=="Boolean"):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
-      p[0] = Node("conditional_and_expression", [p[1], child1, p[3]],p[1].dataType)
+      p[0] = Node("conditional_and_expression", [p[1], child1, p[4]],p[1].dataType)
+      backpatch(p[1].trueList, p[3].value)
+      p[0].trueList = p[4].trueList
+      p[0].falseList = p[1].falseList+p[4].falseList
 
 def p_inclusive_or_expression(p):
     '''inclusive_or_expression : exclusive_or_expression
                                    | inclusive_or_expression OR_BITWISE exclusive_or_expression'''
     if len(p) == 2:
       p[0] = Node("inclusive_or_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
     else:
       child1 = create_leaf("OR_BITWISE", p[2])
       if not (p[1].dataType == "Int" and p[3].dataType == "Int"):
@@ -226,11 +284,14 @@ def p_inclusive_or_expression(p):
       # print tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable
       p[0] = Node("inclusive_or_expression", [p[1], child1, p[3]],p[1].dataType,None,None,None,tempVar)
 
+
 def p_exclusive_or_expression(p):
     '''exclusive_or_expression : and_expression
                                    | exclusive_or_expression XOR and_expression'''
     if len(p) == 2:
       p[0] = Node("exclusive_or_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
     else:
       child1 = create_leaf("XOR", p[2])
       if not (p[1].dataType == "Int" and p[3].dataType == "Int"):
@@ -248,6 +309,8 @@ def p_and_expression(p):
                           | and_expression AND_BITWISE equality_expression'''
     if len(p) == 2:
       p[0] = Node("and_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
     else:
       child1 = create_leaf("AND_BITWISE", p[2])
       if not (p[1].dataType == "Int" and p[3].dataType == "Int"):
@@ -263,21 +326,38 @@ def p_and_expression(p):
 
 def p_equality_expression(p):
     '''equality_expression : relational_expression
-                            | equality_expression EQUAL relational_expression
-                            | equality_expression NEQUAL relational_expression'''
+                            | equality_expression EQUAL relational_expression 
+                            | equality_expression NEQUAL relational_expression''' #Marker Marker
     if len(p) == 2:
       p[0] = Node("relational_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
+
     else:
       child1 = create_leaf("EqualityOp", p[2])
       if not (p[1].dataType == p[3].dataType):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
-      tempVar=returnTemp()
-      SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
-      freeVar(p[1].holdingVariable)
-      freeVar(p[3].holdingVariable)
-      p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean",None,None,None,tempVar)
-   
+      # tempVar=returnTemp()
+      # SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
+      # freeVar(p[1].holdingVariable)
+      # freeVar(p[3].holdingVariable)
+      # label1 = returnLabel()
+      # label2 = returnLabel()
+      # SCOPE.code.append([None,None,label1+":",None,None])
+      # p[4] = Node("Marker", [p[1]],"Unit",label)
+      # SCOPE.code.append([None,None,label2+":",None,None])
+      # p[0].trueList=[label1]
+      # p[0].falseList=[label2]
+      p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean",None,None,None,None)
+      SCOPE.code.append(["if",p[1].holdingVariable,p[2],p[3].holdingVariable+" goto",None])
+      p[0].trueList=list()
+      (p[0].trueList).append(len(SCOPE.code)-1)
+      SCOPE.code.append([None,None,None,"goto",None])
+      p[0].falseList=list()
+      (p[0].falseList).append(len(SCOPE.code)-1)
+      
+
 
 def p_relational_expression(p):
     '''relational_expression : shift_expression
@@ -287,17 +367,22 @@ def p_relational_expression(p):
                                  | relational_expression LEQ shift_expression'''
     if len(p) == 2:
       p[0] = Node("relational_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
+      
     else:
       child1 = create_leaf("RelationalOp", p[2])
       if not (p[1].dataType == p[3].dataType):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
-      tempVar=returnTemp()
-      SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
-      freeVar(p[1].holdingVariable)
-      freeVar(p[3].holdingVariable)
-      p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean",None,None,None,tempVar)
-   
+      
+      p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean",None,None,None,None)
+      SCOPE.code.append(["if",p[1].holdingVariable,p[2],p[3].holdingVariable+" goto",None])
+      p[0].trueList=list()
+      (p[0].trueList).append(len(SCOPE.code)-1)
+      SCOPE.code.append([None,None,None,"goto",None])
+      p[0].falseList=list()
+      (p[0].falseList).append(len(SCOPE.code)-1)
 
 def p_shift_expression(p):
         '''shift_expression : additive_expression
@@ -305,6 +390,7 @@ def p_shift_expression(p):
                             | shift_expression RSHIFT additive_expression'''
         if len(p) == 2:
           p[0] = Node("shift_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+        
         else:
           child1 = create_leaf("ShiftOp", p[2])
           if not (p[1].dataType == p[3].dataType and p[1].dataType=="Int"):
@@ -314,6 +400,11 @@ def p_shift_expression(p):
           SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
           freeVar(p[1].holdingVariable)
           freeVar(p[3].holdingVariable)
+          # label1 = returnLabel()
+          # label2 = returnLabel()
+          # p[0].trueList=[label1]
+          # p[0].falseList=[label2]
+      
           p[0] = Node("shift_expression", [p[1], child1, p[3]],p[1].dataType,None,None,None,tempVar)
        
 
@@ -419,7 +510,9 @@ def p_unary_expression_not_plus_minus(p):
       if (p[1]=="~" and p[2].dataType=="Int"):
         pass
       elif (p[1]=="!" and p[2].dataType=="Boolean"):
-        pass
+        p[0].trueList=p[2].falseList
+        p[0].falseList=p[2].trueList
+
       else:
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
@@ -441,7 +534,8 @@ def p_base_variable_set(p):
     child1 = create_leaf("LPAREN", p[1])
     child2 = create_leaf("RPAREN", p[3])
     p[0] = Node("base_variable_set", [child1, p[2], child2],p[2].dataType,None,None,None,p[2].holdingVariable)
-
+    p[0].trueList=p[2].trueList
+    p[0].falseList=p[2].falseList
 
 def p_cast_expression(p):
         '''cast_expression : LPAREN primitive_type RPAREN unary_expression'''
@@ -646,6 +740,7 @@ def p_qualified_name(p):
 def p_valid_variable(p):
     '''valid_variable : name'''
     val=""
+    # print p[1].value
     if SCOPE.is_present(p[1].value,updateField="symbol"):
       val=SCOPE.get_attribute_value(p[1].value,'Type',"symbol")
     else:

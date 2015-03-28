@@ -83,11 +83,8 @@
 
 object Test123
 {
-	var (a:Int,b:Int,c:Int)=(23,23,0);
-	var a2344:Int=2;
-	c=a+b;
-	var (as:String, bs:String) = ("fsds","fafasf");
-	var (b1:String) = (as+bs);
-	c=-56*a;
+	var a:Boolean = false;
+	a=2==3;
+	
 
 }
