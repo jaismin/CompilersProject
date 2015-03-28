@@ -2,7 +2,7 @@ from symbolTable import *
 SCOPE = Env(None)                          # Current Scope
 class Node(object): 
     gid = 1   
-    def __init__(self,name,children,dataType="Unit",val=None,size=None,argumentList=None):
+    def __init__(self,name,children,dataType="Unit",val=None,size=None,argumentList=None,holdingVariable="None"):
         self.name = name
         self.children = children
         self.id=Node.gid
@@ -10,24 +10,13 @@ class Node(object):
         self.size=size
         self.argumentList=argumentList
         self.dataType=dataType
+        self.holdingVariable=holdingVariable
         Node.gid+=1
 
 def create_leaf(name1,name2,dataType="Unit"):
     leaf1 = Node(name2,[],dataType)
     leaf2 = Node(name1,[leaf1],dataType)
     return leaf2
-
-
-def typeCheck(a,b):
-  if (a == b):
-    return True
-  elif ((a=="Double" and b=="Int") or (b=="Double" and a=="Int")):
-    print "Do type cast here "
-    return True
-  else:
-    return False
-
-
     
 def p_program_structure(p):
     '''ProgramStructure : ProgramStructure  class_and_objects
@@ -107,6 +96,9 @@ def p_assignment(p):
     else:
       print "Type Error at line  ",p.lexer.lineno
       raise Exception("Correct the above Semantics! :P")
+
+    print p[1].holdingVariable," ",p[2].value," ",p[3].holdingVariable
+
     p[0] = Node("assignment", [p[1], p[2], p[3]],p[1].dataType)
 
 
@@ -125,7 +117,7 @@ def p_assignment_operator(p):
     # print p.lineno
 
     child1 = create_leaf("ASSIGN_OP", p[1])
-    p[0] = Node("assignment_operator", [child1])        
+    p[0] = Node("assignment_operator", [child1],)        
 
 # OR(||) has least precedence, and OR is left assosiative 
 # a||b||c => first evalutae a||b then (a||b)||c
@@ -540,12 +532,33 @@ def p_variableliteral(p):
 # BLOCK STATEMENTS
 
 
-def p_block(p):
-      '''block : BLOCK_BEGIN block_statements_opt BLOCK_END '''
-      child1 = create_leaf("BLOCK_BEGIN", p[1])
-      child2 = create_leaf("BLOCK_END", p[3])
-      p[0] = Node("block", [child1, p[2], child2])
+# def p_block(p):
+#       '''block : BLOCK_BEGIN block_statements_opt BLOCK_END '''
+#       child1 = create_leaf("BLOCK_BEGIN", p[1])
+#       child2 = create_leaf("BLOCK_END", p[3])
+#       p[0] = Node("block", [child1, p[2], child2])
        
+def p_block(p):
+      '''block : start_scope block_statements_opt end_scope'''
+      p[0] = Node("block", [p[1], p[2], p[3]])
+
+def p_start_scope(p):
+      '''start_scope : BLOCK_BEGIN'''
+      global SCOPE
+      NEW_SCOPE = Env(SCOPE) 
+      SCOPE=NEW_SCOPE
+      child1 = create_leaf("BLOCK_BEGIN", p[1])
+      p[0] = Node("start_scope", [child1])
+
+
+def p_end_scope(p):  
+      '''end_scope : BLOCK_END'''
+      global SCOPE
+      PREV_SCOPE=SCOPE.prev_env
+      SCOPE=PREV_SCOPE
+      # SCOPE.subtree()
+      child1 = create_leaf("BLOCK_END", p[1]) 
+      p[0] = Node("end_scope", [child1])
 
 def p_block_statements_opt(p):
       '''block_statements_opt : block_statements'''
@@ -730,7 +743,6 @@ def p_variable_declarator(p):
 def p_variable_declarator_id(p):
       '''variable_declarator_id : IDENTIFIER COLON type'''
 
-
       #Insert in symbol table
       attribute=dict()
       attribute['Type']=p[3].value
@@ -777,7 +789,7 @@ def p_statement_expression(p):
     
 
 def p_if_then_statement(p):
-        '''if_then_statement : KWRD_IF LPAREN expression RPAREN statement'''
+        '''if_then_statement : KWRD_IF LPAREN expression RPAREN block'''
         child1 = create_leaf("IF", p[1])
         child2 = create_leaf("LPAREN", p[2])
         child3 = create_leaf("RPAREN", p[4])
@@ -788,7 +800,7 @@ def p_if_then_statement(p):
         
 
 def p_if_then_else_statement(p):
-        '''if_then_else_statement : KWRD_IF LPAREN expression RPAREN if_then_else_intermediate KWRD_ELSE statement'''
+        '''if_then_else_statement : KWRD_IF LPAREN expression RPAREN if_then_else_intermediate KWRD_ELSE block'''
         child1 = create_leaf("IF", p[1])
         child2 = create_leaf("LPAREN", p[2])
         child3 = create_leaf("RPAREN", p[4])
@@ -812,13 +824,13 @@ def p_if_then_else_statement_precedence(p):
       
 
 def p_if_then_else_intermediate(p):
-        '''if_then_else_intermediate : normal_statement
+        '''if_then_else_intermediate : block
                                               | if_then_else_statement_precedence'''
         p[0] = Node("if_then_else_intermediate", [p[1]])
        
 
 def p_while_statement(p):
-        '''while_statement : KWRD_WHILE LPAREN expression RPAREN statement'''
+        '''while_statement : KWRD_WHILE LPAREN expression RPAREN block'''
         child1 = create_leaf("WHILE", p[1])
         child2 = create_leaf("LPAREN", p[2])
         child3 = create_leaf("RPAREN", p[4])
@@ -829,7 +841,7 @@ def p_while_statement(p):
         
 
 def p_do_while_statement(p):
-        '''do_while_statement : KWRD_DO statement KWRD_WHILE LPAREN expression RPAREN STATE_END '''
+        '''do_while_statement : KWRD_DO block KWRD_WHILE LPAREN expression RPAREN STATE_END '''
         child1 = create_leaf("DO", p[1])
         child2 = create_leaf("WHILE", p[3])
         child3 = create_leaf("LPAREN", p[4])
@@ -842,7 +854,7 @@ def p_do_while_statement(p):
        
 
 def p_for_statement(p):
-  '''for_statement : KWRD_FOR LPAREN for_logic RPAREN statement'''
+  '''for_statement : KWRD_FOR LPAREN for_logic RPAREN block'''
   child1 = create_leaf ("FOR",p[1])
   child2 = create_leaf ("LPAREN",p[2])
   child3 = create_leaf ("RPAREN",p[4])
@@ -871,7 +883,7 @@ def p_for_loop(p):
     print "Undeclared Variable at line",p.lexer.lineno
     raise Exception("Correct the above Semantics! :P")
 
-  if (p[3].dataType==p[5].dataType && p[3].dataType=="Int"):
+  if (p[3].dataType==p[5].dataType and p[3].dataType=="Int"):
     pass
   else:
     print "Only Integer expressions allowed in For statement at line",p.lexer.lineno
@@ -1034,19 +1046,19 @@ def p_class_header(p):
        
 
 def p_class_header_name(p):
-        '''class_header_name : class_header_name1 LPAREN constructor_arguement_list_opt RPAREN''' # class_header_name1 type_parameters
+        '''class_header_name : class_header_name1 func_args_start constructor_arguement_list_opt RPAREN''' # class_header_name1 type_parameters
                              # | class_header_name1
-        child1 = create_leaf("LPAREN", p[2])
+        # child1 = create_leaf("LPAREN", p[2])
         child2 = create_leaf("RPAREN", p[4])
         #Arguement List : p[3].dataType
         #Name : p[1].value
         attribute=dict()
         attribute['ConstructorList']=p[3].dataType
-        SCOPE.add_entry(p[1].value,attribute,"object")
+        SCOPE.prev_env.add_entry(p[1].value,attribute,"object")
         # print p[1].value
         # print
         # SCOPE.print_table()
-        p[0] = Node("class_header_name", [p[1], child1, p[3], child2])
+        p[0] = Node("class_header_name", [p[1], p[2], p[3], child2])
        
 
 def p_class_header_name1(p):
@@ -1070,8 +1082,10 @@ def p_class_header_extends(p):
 
 
 def p_class_body(p):
-        '''class_body : block ''' 
-        p[0] = Node("class_body", [p[1]])
+        '''class_body : BLOCK_BEGIN block_statements_opt end_scope ''' 
+        child1 = create_leaf("BLOCK_BEGIN", p[1])
+        p[0] = Node("class_body", [child1, p[2], p[3]])
+        # p[0] = Node("class_body", [p[1]])
 
 
 def p_method_declaration(p):
@@ -1080,18 +1094,26 @@ def p_method_declaration(p):
 
 
 def p_method_header(p):
-        '''method_header : method_header_name LPAREN func_arguement_list_opt RPAREN COLON method_return_type ASSIGN'''
-        child1 = create_leaf("LPAREN", p[2])
+        '''method_header : method_header_name func_args_start func_arguement_list_opt RPAREN COLON method_return_type ASSIGN'''
+        # child1 = create_leaf("LPAREN", p[2])
         child2 = create_leaf("RPAREN", p[4])
         child3 = create_leaf("COLON", p[5])
         child4 = create_leaf("ASSIGN", p[7])
         attribute=dict()
         attribute['Type']=p[3].dataType
         attribute['returnType']=p[6].dataType
-        SCOPE.add_entry(p[1].value,attribute,"function")
-        p[0] = Node("method_header", [p[1], child1, p[3], child2, child3, p[6], child4])
+        SCOPE.prev_env.add_entry(p[1].value,attribute,"function")
+        p[0] = Node("method_header", [p[1], p[2], p[3], child2, child3, p[6], child4])
 
+def p_func_args_start(p):
+        '''func_args_start : LPAREN'''
+        global SCOPE
+        NEW_SCOPE = Env(SCOPE) 
+        SCOPE=NEW_SCOPE
+        child1 = create_leaf("LPAREN", p[1])
+        p[0] = Node("func_args_start", [child1])
 
+  
 def p_method_return_type(p):
         '''method_return_type : type''' 
         p[0] = Node("method_return_type", [p[1]],p[1].value)
@@ -1110,8 +1132,9 @@ def p_method_header_name(p):
 
 
 def p_method_body(p):
-        '''method_body : block ''' 
-        p[0] = Node("method_body", [p[1]])
+        '''method_body : BLOCK_BEGIN block_statements_opt end_scope '''
+        child1 = create_leaf("BLOCK_BEGIN", p[1])
+        p[0] = Node("method_body", [child1, p[2], p[3]])
 
 def p_modifier(p):
       '''modifier : KWRD_PROTECTED

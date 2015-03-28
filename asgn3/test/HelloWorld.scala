@@ -21,10 +21,15 @@ class Point(val xc: Int, val yc: Double)
 def func (a234:Int,a123:Array[String]) : Int = 
 {
    var (a23:Int,b34:Double)=(3,5.0);
+   def msub (a22:Int,a12:Int) : Int = 
+{
+   var (a1:Int,b1:Double)=(3,5.0);
+}
+
 }
 def msub (a22:Int,a12:Int) : Int = 
 {
-   ;
+   var (a1:Int,b1:Double)=(3,5.0);
 }
 
 var (a:Int,b:Int)=(3,5);
@@ -44,4 +49,34 @@ var MOD:Int = 1;
 
 var ans:Int =msub(1<<(a+b),(a*(z[a /i]*2 / msub(a+b,b)))%MOD);
 
+}
+
+object HelloWorld
+{
+	var a:Int=3;
+	if (a < 7)
+	{
+		var b:Double=3.0;
+	}
+	  // for loop execution with a range
+  for( a <- 1 to 10){
+  	var b:Double=3.0;
+     // println( "Value of a: " + b );
+  }
+
+
+	def sum3(xs: Array[Int]): Int = 
+	{
+		var p:Int=0;
+	    if (p>0) 
+	    {
+	    	p=1;
+	    } 
+	    else 
+	    {
+	    	p=8;
+	    }
+      
+  	}
+		
 }

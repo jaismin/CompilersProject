@@ -60,9 +60,6 @@ class arrayObject:
 
 
 
-
-
-
 #Environment Class: Contains current symbolTable and pointer to parent Environment
 class Env:
     static_var = 1   
@@ -75,6 +72,12 @@ class Env:
         self.width = 0                      # overall offset/width of this env
         self.paramwidth = 0
         self.prev_env=prev
+        if prev==None:
+           self.level=0 
+           self.parentName=""
+        else:
+            self.level=prev.level+1
+            self.parentName=prev.name
         Env.static_var+=1                 # pointer to the previous hash table     
         if (prev != None):
             prev.childs.append(self)
@@ -90,9 +93,12 @@ class Env:
     
     def subtree(self):
         "Gets the node by name"
-        print self.name
+
+        print self.name,":::",self.level,':::',self.parentName
+        self.symbolTable.print_table()
         for child in range(0,len(self.childs)):
             # print self.node[child].name
+
             self.childs[child].subtree()
             # if(self.node[child].name==data):
             #     return self.node[child]
