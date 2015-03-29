@@ -82,9 +82,37 @@
 // }
 
 
+
+// def sum():Unit =
+// {
+// ;
+// }
+
+// object Test123
+// {
+
+//   var i:Int = 10;
+//   for( i <- 0 until 10 by 4) 
+//   {
+//     i=i+1;
+//   }
+  
+//   i=i+23*36;
+
+
+
+  
+// }
+
 class Point(val xc: Int, val yc: Int) 
 {
-  ; 
+  var z:Array[Int] = Array(1,2,3);
+  var z1:Int = 1;
+  def sum(b: Int) : Int =
+  {
+   var a:Int=3;
+   return a;
+  }
 }
 
 // def sum():Unit =
@@ -94,9 +122,13 @@ class Point(val xc: Int, val yc: Int)
 
 object Test123
 {
+  // var p:Int=0;
 
   var x:Point=new Point(2,3);
-  x.sum();
+  var y:Int = x.z[0];
+  x.z1=1;
+  x.z[1]=10;
+  y=x.sum(10);
 
 
   

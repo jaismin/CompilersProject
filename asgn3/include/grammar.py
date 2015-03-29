@@ -51,6 +51,47 @@ def freeVar(a):
       global globalTemp
       globalTemp[b-1]=0
 
+def Updatep1(pnew):
+  if pnew.isQualifiedName:
+      # print p[1].value
+    query=((pnew.value).split('.'))[0]
+    query1=((pnew.value).split('.'))[1]
+    # print query
+    if SCOPE.is_present(query,updateField="symbol"):
+      val1=SCOPE.get_attribute_value(query,'Type',"symbol")
+      if "Object" in val1:
+        pnew.value=val1.split('@')[1]+"@"+query1
+        # print pnew.value
+      else:
+        print "No such object definition found at line,",p.lexer.lineno()
+        raise Exception("Check your semantics! :P")
+    else:
+      print "No such variable found at line,",p.lexer.lineno()
+      raise Exception("Check your semantics! :P")
+  return pnew.value
+
+def Updatehold(pnew):
+  if pnew.isQualifiedName:
+      # print p[1].value
+    query=((pnew.holdingVariable).split('.'))[0]
+    query1=((pnew.holdingVariable).split('.'))[1]
+    # print query
+    if SCOPE.is_present(query,updateField="symbol"):
+      val1=SCOPE.get_attribute_value(query,'Type',"symbol")
+      if "Object" in val1:
+        pnew.holdingVariable=val1.split('@')[1]+"@"+query1
+        # print pnew.value
+      else:
+        print "No such object definition found at line,",p.lexer.lineno()
+        raise Exception("Check your semantics! :P")
+    else:
+      print "No such variable found at line,",p.lexer.lineno()
+      raise Exception("Check your semantics! :P")
+  return pnew.holdingVariable
+
+
+
+
 
 class Node(object): 
     gid = 1   
@@ -110,7 +151,7 @@ def p_end_here(p):
   '''end_here : empty '''
   p[0] = Node("endhere", [p[1]])
   traversetree()
-  SCOPE.subtree()
+  # SCOPE.subtree()
 
 
 def p_program_structure(p):
@@ -714,22 +755,10 @@ def p_method_invocation(p):
     val=""
     retType=""
     print "QualifiedName:",p[1].isQualifiedName
+    oldVal=p[1].value
     if p[1].isQualifiedName:
-      # print p[1].value
-      query=((p[1].value).split('.'))[0]
-      query1=((p[1].value).split('.'))[1]
-      print query
-      if SCOPE.is_present(query,updateField="symbol"):
-        val1=SCOPE.get_attribute_value(query,'Type',"symbol")
-        if "Object" in val1:
-          p[1].value=val1.split('@')[1]+"@"+query1
-          print p[1].value
-        else:
-          print "No such object definition found at line,",p.lexer.lineno()
-          raise Exception("Check your semantics! :P")
-      else:
-        print "No such variable found at line,",p.lexer.lineno()
-        raise Exception("Check your semantics! :P")
+      oldVal=oldVal.split('.')[1]
+    p[1].value=Updatep1(p[1])
 
     if SCOPE.is_present(p[1].value,updateField="function"):
       val=SCOPE.get_attribute_value(p[1].value,'Type',"function")
@@ -756,9 +785,9 @@ def p_method_invocation(p):
     holding=None
     if (retType!="Unit"):
       holding=returnTemp()
-      SCOPE.code.append([holding,"=","Lcall",SCOPE.get_attribute_append_name(p[1].value,updateField="function")+"__"+p[1].value,None])
+      SCOPE.code.append([holding,"=","Lcall",SCOPE.get_attribute_append_name(p[1].value,updateField="function")+"__"+oldVal,None])
     else:
-      SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name(p[1].value,updateField="function")+"__"+p[1].value,None])
+      SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name(p[1].value,updateField="function")+"__"+oldVal,None])
 
     SCOPE.code.append([None,None,None,"PopParam",len(p[3].holdingVariable)*4])
     p[0].holdingVariable=holding
@@ -776,6 +805,8 @@ def p_array_access(p):
     child1 = create_leaf("LBPAREN", p[2])
     child2 = create_leaf("RBPAREN", p[4])
     val1=list()
+    oldVal=p[1].value
+    p[1].value=Updatep1(p[1])
     if SCOPE.is_present(p[1].value,updateField="symbol"):
       val=SCOPE.get_attribute_value(p[1].value,'Type',"symbol")
       val1=val.split(",")
@@ -795,7 +826,7 @@ def p_array_access(p):
     SCOPE.code.append([temp,"=","4",None,None])
     temp1= returnTemp()
     SCOPE.code.append([temp1,"=",temp,"*",p[3].holdingVariable])
-    SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")+"__"+p[1].value,"+",temp1])
+    SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")+"__"+oldVal,"+",temp1])
     SCOPE.code.append([temp1,"=*","(",temp,")"])
     freeVar(temp)
     p[0].holdingVariable=temp1
@@ -871,19 +902,23 @@ def p_qualified_name(p):
     p[0] = Node("qualified_name", [p[1], child1, p[3]])
     p[0].isQualifiedName=True
     p[0].value=p[1].value+"."+p[3].value
+    p[0].holdingVariable=p[0].value
    
 
 def p_valid_variable(p):
     '''valid_variable : name'''
     val=""
     # print p[1].value
+    oldVal=p[1].value
+    p[1].value=Updatep1(p[1])
+    # p[1].holdingVariable=Updatehold(p[1])
     if SCOPE.is_present(p[1].value,updateField="symbol"):
       val=SCOPE.get_attribute_value(p[1].value,'Type',"symbol")
     else:
       print "Variable undefined at line ",p.lexer.lineno
       raise Exception("Correct the above Semantics! :P")
 
-    p[0] = Node("valid_variable", [p[1]],val,None,None,None,SCOPE.get_attribute_append_name(p[1].holdingVariable,updateField="symbol")+"__"+p[1].holdingVariable)
+    p[0] = Node("valid_variable", [p[1]],val,None,None,None,SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")+"__"+oldVal)
 
 def p_valid_variable_1(p):
     '''valid_variable : array_access'''
@@ -1444,28 +1479,29 @@ def p_do_while_statement_begin(p):
 
 
 def p_for_statement(p):
-  '''for_statement : KWRD_FOR LPAREN for_logic RPAREN block'''
+  '''for_statement : KWRD_FOR LPAREN for_loop RPAREN block'''
   child1 = create_leaf ("FOR",p[1])
   child2 = create_leaf ("LPAREN",p[2])
   child3 = create_leaf ("RPAREN",p[4])
   p[0] = Node("for_statement",[child1,child2,p[3],child3,p[5]])
+  for i in p[3].holdingVariable:
+    freeVar(i)
 
 
-def p_for_logic(p):
-    ''' for_logic : for_update 
-                  | for_update STATE_END for_logic '''
-    if len(p)==2:
-      p[0]=Node("for_logic",[p[1]])
-    else:
-      child1 = create_leaf("STATE_END",p[2])
-      p[0] = Node("for_logic",[p[1],child1,p[3]])
+# def p_for_logic(p):
+#     ''' for_logic : for_update '''
+#     if len(p)==2:
+#       p[0]=Node("for_logic",[p[1]])
+#     # else:
+#     #   child1 = create_leaf("STATE_END",p[2])
+#     #   p[0] = Node("for_logic",[p[1],child1,p[3]])
 
-def p_for_update(p):
-  ''' for_update : for_loop for_step_opts '''
-  p[0]=Node("for_update",[p[1],p[2]])
+# def p_for_update(p):
+#   ''' for_update : for_loop'''
+#   p[0]=Node("for_update",[p[1]])
 
 def p_for_loop(p):
-  ''' for_loop : IDENTIFIER CHOOSE expression for_untilTo expression '''
+  ''' for_loop : IDENTIFIER CHOOSE expression KWRD_UNTIL  expression for_step_opts'''
   
   if SCOPE.is_present(p[1],updateField="symbol"):
     pass
@@ -1473,7 +1509,7 @@ def p_for_loop(p):
     print "Undeclared Variable at line",p.lexer.lineno
     raise Exception("Correct the above Semantics! :P")
 
-  if (p[3].dataType==p[5].dataType and p[3].dataType=="Int"):
+  if (p[3].dataType==p[5].dataType and p[3].dataType=="Int" and SCOPE.get_attribute_value(p[1],"Type","symbol")=="Int"):
     pass
   else:
     print "Only Integer expressions allowed in For statement at line",p.lexer.lineno
@@ -1481,14 +1517,61 @@ def p_for_loop(p):
 
   child1 = create_leaf("IDENTIFIER",p[1])
   child2 = create_leaf("CHOOSE",p[2])
-  p[0] = Node("for_loop_st",[child1,child2,p[3],p[4],p[5]])
+  child3 = create_leaf("UNTIL_TO",p[4])
+  p[0] = Node("for_loop_st",[child1,child2,p[3],child3,p[5],p[6]])
+  if (p[6].holdingVariable!=None):
+    if p[6].dataType=="Int":
+      pass 
+    else:
+      print "Only Integer step allowed at line",p.lexer.lineno
+      raise Exception("Correct the above Semantics! :P")
 
-def p_for_untilTo(p):
-  '''for_untilTo : KWRD_UNTIL 
-                  | KWRD_TO'''
+    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"=",p[3].holdingVariable,None,None])
+    freeVar(p[3].holdingVariable)
+    for_start_label=returnLabel()
+    for_end_label=returnLabel()
+    block_start_label=returnLabel()
+    block_end_label=returnLabel()
+    SCOPE.code.append([None,None,None,for_start_label+":",None])
+    SCOPE.code.append(["if",SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"<",p[5].holdingVariable+" goto",block_start_label])
+    SCOPE.code.append([None,None,None,"goto",for_end_label])
+    SCOPE.code.append([None,None,None,block_end_label+":",None])
+    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"=",SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"+",p[6].holdingVariable])
+    SCOPE.code.append([None,None,None,"goto",for_start_label])
+    SCOPE.code.append([None,None,None,for_end_label+":",None])
+    SCOPE.startChildBlock=block_start_label
+    SCOPE.endChildBlock=block_end_label
+    p[0].holdingVariable=[p[5].holdingVariable,p[6].holdingVariable]
+  else:
+    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"=",p[3].holdingVariable,None,None])
+    freeVar(p[3].holdingVariable)
+    for_start_label=returnLabel()
+    for_end_label=returnLabel()
+    block_start_label=returnLabel()
+    block_end_label=returnLabel()
+    SCOPE.code.append([None,None,None,for_start_label+":",None])
+    SCOPE.code.append(["if",SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"< ",p[5].holdingVariable+" goto",block_start_label])
+    SCOPE.code.append([None,None,None,"goto",for_end_label])
+    SCOPE.code.append([None,None,None,block_end_label+":",None])
+    temp=returnTemp()
+    SCOPE.code.append([temp,"=","1",None,None])
+    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"=",SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"+",temp])
+    freeVar(temp)
+    SCOPE.code.append([None,None,None,"goto",for_start_label])
+    SCOPE.code.append([None,None,None,for_end_label+":",None])
+    SCOPE.startChildBlock=block_start_label
+    SCOPE.endChildBlock=block_end_label
+    p[0].holdingVariable=[p[5].holdingVariable]
 
-  child1 = create_leaf("UNTIL_TO",p[1])
-  p[0]=Node("for_untilTo",[child1])
+
+
+
+# def p_for_untilTo(p):
+#   '''for_untilTo : KWRD_UNTIL 
+#                   | KWRD_TO'''
+
+#   child1 = create_leaf("UNTIL_TO",p[1])
+#   p[0]=Node("for_untilTo",[child1])
 
 
 def p_for_step_opts(p):
@@ -1504,6 +1587,8 @@ def p_for_step_opts(p):
       raise Exception("Correct the above Semantics! :P")
     child1 = create_leaf("BY",p[1])
     p[0]=Node("for_step_opts",[child1,p[2]])
+    p[0].holdingVariable=p[2].holdingVariable
+    p[0].dataType=p[2].dataType
 
                
 def p_switch_statement(p):
