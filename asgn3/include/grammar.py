@@ -77,6 +77,8 @@ def p_start_here(p):
 
 def p_end_here(p):
   '''end_here : empty '''
+  
+
   for i in SCOPE.childs[0].code :
     for j in range(5):
       if (i[j]!=None):
@@ -85,6 +87,36 @@ def p_end_here(p):
         else:
           print i[j],
     print 
+  print 
+  print
+
+
+  currSCOPE=SCOPE.childs[0]
+
+  for i in range(len(currSCOPE.childs)):
+      currCode=currSCOPE.childs[i].code
+      for i in currCode :
+        for j in range(5):
+          if (i[j]!=None):
+            if type(i[j])==str and "@t" in i[j]:
+              print i[j][1:],
+            else:
+              print i[j],
+        print
+      print 
+      print
+
+
+  # print 
+  # print
+  # for i in SCOPE.childs[0].childs[0].childs[0].code :
+  #   for j in range(5):
+  #     if (i[j]!=None):
+  #       if type(i[j])==str and "@t" in i[j]:
+  #         print i[j][1:],
+  #       else:
+  #         print i[j],
+  #   print 
   
   p[0]=Node("end_here",[p[1]])
 
@@ -170,6 +202,23 @@ def p_assignment_expression(p):
       backpatch(p[1].trueList,truelabel)
       backpatch(p[1].falseList,falselabel)
       returnHold=retVar
+    elif p[1].trueList!=None and len(p[1].trueList) >0 :
+      truelabel=returnLabel()
+      retVar=returnTemp()
+      SCOPE.code.append([None,None,truelabel+":",None,None])
+      SCOPE.code.append([retVar,"=","1",None,None])
+      backpatch(p[1].trueList,truelabel)
+      returnHold=retVar
+
+    elif p[1].falseList!=None and len(p[1].falseList) >0 :
+      falselabel=returnLabel()
+      retVar=returnTemp()
+      SCOPE.code.append([None,None,falselabel+":",None,None])
+      SCOPE.code.append([retVar,"=","0",None,None])
+      backpatch(p[1].falseList,falselabel)
+      returnHold=retVar
+    else:
+      pass
     p[0] = Node("assignment_expression", [p[1]],p[1].dataType,None,None,None,returnHold)
 # assignment
 
@@ -338,17 +387,7 @@ def p_equality_expression(p):
       if not (p[1].dataType == p[3].dataType):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
-      # tempVar=returnTemp()
-      # SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
-      # freeVar(p[1].holdingVariable)
-      # freeVar(p[3].holdingVariable)
-      # label1 = returnLabel()
-      # label2 = returnLabel()
-      # SCOPE.code.append([None,None,label1+":",None,None])
-      # p[4] = Node("Marker", [p[1]],"Unit",label)
-      # SCOPE.code.append([None,None,label2+":",None,None])
-      # p[0].trueList=[label1]
-      # p[0].falseList=[label2]
+
       p[0] = Node("relational_expression", [p[1], child1, p[3]],"Boolean",None,None,None,None)
       SCOPE.code.append(["if",p[1].holdingVariable,p[2],p[3].holdingVariable+" goto",None])
       p[0].trueList=list()
@@ -356,6 +395,8 @@ def p_equality_expression(p):
       SCOPE.code.append([None,None,None,"goto",None])
       p[0].falseList=list()
       (p[0].falseList).append(len(SCOPE.code)-1)
+      freeVar(p[1].holdingVariable)
+      freeVar(p[3].holdingVariable)
       
 
 
@@ -383,6 +424,8 @@ def p_relational_expression(p):
       SCOPE.code.append([None,None,None,"goto",None])
       p[0].falseList=list()
       (p[0].falseList).append(len(SCOPE.code)-1)
+      freeVar(p[1].holdingVariable)
+      freeVar(p[3].holdingVariable)
 
 def p_shift_expression(p):
         '''shift_expression : additive_expression
@@ -390,7 +433,8 @@ def p_shift_expression(p):
                             | shift_expression RSHIFT additive_expression'''
         if len(p) == 2:
           p[0] = Node("shift_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
-        
+          p[0].trueList=p[1].trueList
+          p[0].falseList=p[1].falseList
         else:
           child1 = create_leaf("ShiftOp", p[2])
           if not (p[1].dataType == p[3].dataType and p[1].dataType=="Int"):
@@ -400,12 +444,10 @@ def p_shift_expression(p):
           SCOPE.code.append([tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable])
           freeVar(p[1].holdingVariable)
           freeVar(p[3].holdingVariable)
-          # label1 = returnLabel()
-          # label2 = returnLabel()
-          # p[0].trueList=[label1]
-          # p[0].falseList=[label2]
       
           p[0] = Node("shift_expression", [p[1], child1, p[3]],p[1].dataType,None,None,None,tempVar)
+          # p[0].trueList=p[1].trueList
+          # p[0].falseList=p[1].falseList
        
 
 def p_additive_expression(p):
@@ -414,6 +456,8 @@ def p_additive_expression(p):
                                | additive_expression MINUS multiplicative_expression'''
     if len(p) == 2:
       p[0] = Node("additive_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
     else:
       child1 = create_leaf("AddOp", p[2])
       currType="Int"
@@ -437,6 +481,8 @@ def p_additive_expression(p):
       freeVar(p[3].holdingVariable)
 
       p[0] = Node("additive_expression", [p[1], child1, p[3]],currType,None,None,None,tempVar)
+      # p[0].trueList=p[1].trueList
+      # p[0].falseList=p[1].falseList
    
 
 def p_multiplicative_expression(p):
@@ -446,6 +492,8 @@ def p_multiplicative_expression(p):
                                      | multiplicative_expression REMAINDER unary_expression'''
     if len(p) == 2:
       p[0] = Node("multiplicative_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
     else:
       child1 = create_leaf("MultOp", p[2])
       currType="Int" 
@@ -468,6 +516,8 @@ def p_multiplicative_expression(p):
       freeVar(p[3].holdingVariable)
 
       p[0] = Node("multiplicative_expression", [p[1], child1, p[3]],currType,None,None,None,tempVar)
+      # p[0].trueList=p[1].trueList
+      # p[0].falseList=p[1].falseList
     
 
 def p_unary_expression(p):
@@ -495,41 +545,56 @@ def p_unary_expression(p):
 
       child1 = create_leaf("UnaryOp", p[1])
       p[0] = Node("unary_expression", [child1, p[2]],p[2].dataType,None,None,None,tempVar)
+      p[0].trueList=p[2].trueList
+      p[0].falseList=p[2].falseList
     else:
       p[0] = Node("unary_expression", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
 
 
 def p_unary_expression_not_plus_minus(p):
     '''unary_expression_not_plus_minus : base_variable_set
-                                           | TILDA unary_expression
                                            | NOT unary_expression
                                            | cast_expression'''
     if len(p) == 2:
       p[0] = Node("unary_expression_not_plus_minus", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+      p[0].trueList=p[1].trueList
+      p[0].falseList=p[1].falseList
     else:
-      if (p[1]=="~" and p[2].dataType=="Int"):
+      if (p[2].dataType=="Boolean"):
         pass
-      elif (p[1]=="!" and p[2].dataType=="Boolean"):
-        p[0].trueList=p[2].falseList
-        p[0].falseList=p[2].trueList
-
       else:
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
 
-      tempVar=returnTemp()
-      # print tempVar,"=",p[1],p[2].holdingVariable
-      SCOPE.code.append([tempVar,"=",None,p[1],p[2].holdingVariable])
-      freeVar(p[2].holdingVariable)
       child1 = create_leaf("Unary_1Op", p[1])
-      p[0] = Node("unary_expression_not_plus_minus", [child1, p[2]],p[2].dataType,None,None,None,tempVar)
-    
+      p[0] = Node("unary_expression_not_plus_minus", [child1, p[2]],p[2].dataType,None,None,None,None)
+      p[0].trueList=p[2].falseList
+      p[0].falseList=p[2].trueList
+def p_unary_expression_not_plus_minus_1(p):
+    '''unary_expression_not_plus_minus : TILDA unary_expression '''
+    if (p[2].dataType=="Int"):
+      pass
+    else:
+      print "Type Error at line  ",p.lexer.lineno
+      raise Exception("Correct the above Semantics! :P")
+
+    child1 = create_leaf("Unary_1Op", p[1])
+    tempVar=returnTemp()
+    SCOPE.code.append([tempVar,"=",None,p[1],p[2].holdingVariable])
+    freeVar(p[2].holdingVariable)
+    p[0] = Node("unary_expression_not_plus_minus", [child1, p[2]],p[2].dataType,None,None,None,tempVar)
+    p[0].trueList=p[2].trueList
+    p[0].falseList=p[2].falseList
 
 def p_base_variable_set(p):
   '''base_variable_set : variable_literal
                         | LPAREN expression RPAREN'''
   if len(p) == 2:
     p[0] = Node("base_variable_set", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+    p[0].trueList=p[1].trueList
+    p[0].falseList=p[1].falseList
   else:
     child1 = create_leaf("LPAREN", p[1])
     child2 = create_leaf("RPAREN", p[3])
@@ -569,18 +634,24 @@ def p_cast_expression(p):
         child1 = create_leaf("LPAREN", p[1])
         child2 = create_leaf("RPAREN", p[3])
         p[0] = Node("cast_expression", [child1, p[2], child2, p[4]],currType,None,None,None,tempVar)
+        p[0].trueList=p[4].trueList
+        p[0].falseList=p[4].falseList
        
 
 def p_primary(p):
     '''primary : literal
                 | method_invocation'''
     p[0] = Node("primary", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+    p[0].trueList=p[1].trueList
+    p[0].falseList=p[1].falseList
 
 
 
 def p_literal_1(p):
   '''literal : int_float'''
   p[0] = Node("literal", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+  p[0].trueList=p[1].trueList
+  p[0].falseList=p[1].falseList
 
 
 def p_literal_2(p):
@@ -588,8 +659,9 @@ def p_literal_2(p):
   child1 = create_leaf("LiteralConst", p[1],"Char")
   tempVar=returnTemp()
   SCOPE.code.append([tempVar,"=",p[1],None,None])
-  # print tempVar,"=",p[1]
   p[0] = Node("literal", [child1],"Char",None,None,None,tempVar)
+  p[0].trueList=p[1].trueList
+  p[0].falseList=p[1].falseList
 
 def p_literal_3(p):
   '''literal : STRING_CONST'''
@@ -597,15 +669,27 @@ def p_literal_3(p):
   tempVar=returnTemp()
   SCOPE.code.append([tempVar,"=",p[1],None,None])
   p[0] = Node("literal", [child1],"String",None,None,None,tempVar)
+  p[0].trueList=p[1].trueList
+  p[0].falseList=p[1].falseList
   
 
 def p_literal_4(p):
-  '''literal : BOOL_CONSTT
-              | BOOL_CONSTF'''
+  '''literal : BOOL_CONSTT'''
   child1 = create_leaf("LiteralConst", p[1],"Boolean")
-  tempVar=returnTemp()
-  SCOPE.code.append([tempVar,"=",p[1],None,None])
-  p[0] = Node("literal", [child1],"Boolean",None,None,None,tempVar)
+  # tempVar=returnTemp()
+  # SCOPE.code.append([tempVar,"=",p[1],None,None])
+  p[0] = Node("literal", [child1],"Boolean",None,None,None,None)
+  SCOPE.code.append([None,None,None,"goto",None])
+  p[0].trueList=list()
+  (p[0].trueList).append(len(SCOPE.code)-1)
+
+def p_literal_7(p):
+  '''literal : BOOL_CONSTF'''
+  child1 = create_leaf("LiteralConst", p[1],"Boolean")
+  p[0] = Node("literal", [child1],"Boolean",None,None,None,None)
+  SCOPE.code.append([None,None,None,"goto",None])
+  p[0].falseList=list()
+  (p[0].falseList).append(len(SCOPE.code)-1)
   
 
 def p_literal_5(p):
@@ -615,24 +699,6 @@ def p_literal_5(p):
   SCOPE.code.append([tempVar,"=",p[1],None,None])
   p[0] = Node("literal", [child1],"Unit",None,None,None,tempVar)
   
-
-
-
-# def p_literal(p):
-#     '''literal : int_float
-#                 | CHARACTER
-#                 | STRING_CONST
-#                 | BOOL_CONSTT
-#                 | BOOL_CONSTF
-#                 | KWRD_NULL'''
-#     if type(p[1]) == type("sample-string"):    # here
-#       currType="Unit"
-#       # if (p[1]=="True" or p[1]=="False")
-#       child1 = create_leaf("LiteralConst", p[1])
-#       p[0] = Node("literal", [child1])
-#     else:
-#       p[0] = Node("literal", [p[1]],p[1].dataType)
-
 
 def p_int_float_1(p):
     '''int_float : FLOAT_CONST'''
@@ -758,6 +824,9 @@ def p_variableliteral(p):
     '''variable_literal : valid_variable
                         | primary'''
     p[0] = Node("variable_literal", [p[1]],p[1].dataType,None,None,None,p[1].holdingVariable)
+    p[0].falseList=p[1].falseList
+    p[0].trueList=p[1].trueList
+
 
 # BLOCK STATEMENTS
 
@@ -776,7 +845,12 @@ def p_start_scope(p):
       '''start_scope : BLOCK_BEGIN'''
       global SCOPE
       NEW_SCOPE = Env(SCOPE) 
+      PREV_SCOPE=SCOPE
       SCOPE=NEW_SCOPE
+      if (PREV_SCOPE.startChildBlock!=None):
+        SCOPE.code.append([None,None,PREV_SCOPE.startChildBlock+":",None,None])
+        PREV_SCOPE.startChildBlock=None
+
       child1 = create_leaf("BLOCK_BEGIN", p[1])
       p[0] = Node("start_scope", [child1])
 
@@ -785,7 +859,14 @@ def p_end_scope(p):
       '''end_scope : BLOCK_END'''
       global SCOPE
       PREV_SCOPE=SCOPE.prev_env
+
+      if (PREV_SCOPE.endChildBlock!=None):
+        SCOPE.code.append([None,None,None,"goto",PREV_SCOPE.endChildBlock])
+        PREV_SCOPE.endChildBlock=None
+
+
       SCOPE=PREV_SCOPE
+      
       # SCOPE.subtree()
       child1 = create_leaf("BLOCK_END", p[1]) 
       p[0] = Node("end_scope", [child1])
@@ -1003,8 +1084,7 @@ def p_variable_declarator_id(p):
 
 def p_statement(p):
         '''statement : normal_statement 
-                     | if_then_statement
-                     | if_then_else_statement
+                     | if_else_statement
                      | while_statement
                      | do_while_statement
                      | for_statement'''
@@ -1035,61 +1115,195 @@ def p_statement_expression(p):
         p[0] = Node("statement_expression", [p[1]],p[1].dataType)
     
 
-def p_if_then_statement(p):
-        '''if_then_statement : KWRD_IF LPAREN expression RPAREN block'''
-        child1 = create_leaf("IF", p[1])
-        child2 = create_leaf("LPAREN", p[2])
-        child3 = create_leaf("RPAREN", p[4])
-        if (p[3].dataType!="Boolean"):
-          print "Conditional If only accepts boolean expression at line",p.lexer.lineno
-          raise Exception("Correct the above Semantics! :P")
-        p[0] = Node("if_then_statement", [child1, child2, p[3], child3, p[5]])
+# def p_if_then_statement(p):
+#         '''if_then_statement : KWRD_IF LPAREN expression RPAREN block'''
+#         child1 = create_leaf("IF", p[1])
+#         child2 = create_leaf("LPAREN", p[2])
+#         child3 = create_leaf("RPAREN", p[4])
+#         if (p[3].dataType!="Boolean"):
+#           print "Conditional If only accepts boolean expression at line",p.lexer.lineno
+#           raise Exception("Correct the above Semantics! :P")
+#         p[0] = Node("if_then_statement", [child1, child2, p[3], child3, p[5]])
         
 
-def p_if_then_else_statement(p):
-        '''if_then_else_statement : KWRD_IF LPAREN expression RPAREN if_then_else_intermediate KWRD_ELSE block'''
-        child1 = create_leaf("IF", p[1])
-        child2 = create_leaf("LPAREN", p[2])
-        child3 = create_leaf("RPAREN", p[4])
-        child4 = create_leaf("ELSE", p[6])
-        if (p[3].dataType!="Boolean"):
-          print "Conditional If only accepts boolean expression at line",p.lexer.lineno
-          raise Exception("Correct the above Semantics! :P")
-        p[0] = Node("if_then_else_statement", [child1, child2, p[3], child3, p[5], child4, p[7]])
+# def p_if_then_else_statement(p):
+#         '''if_then_else_statement : KWRD_IF LPAREN expression RPAREN if_then_else_intermediate KWRD_ELSE block'''
+#         child1 = create_leaf("IF", p[1])
+#         child2 = create_leaf("LPAREN", p[2])
+#         child3 = create_leaf("RPAREN", p[4])
+#         child4 = create_leaf("ELSE", p[6])
+#         if (p[3].dataType!="Boolean"):
+#           print "Conditional If only accepts boolean expression at line",p.lexer.lineno
+#           raise Exception("Correct the above Semantics! :P")
+#         p[0] = Node("if_then_else_statement", [child1, child2, p[3], child3, p[5], child4, p[7]])
        
 
-def p_if_then_else_statement_precedence(p):
-        '''if_then_else_statement_precedence : KWRD_IF LPAREN expression RPAREN if_then_else_intermediate KWRD_ELSE if_then_else_intermediate'''
-        child1 = create_leaf("IF", p[1])
-        child2 = create_leaf("LPAREN", p[2])
-        child3 = create_leaf("RPAREN", p[4])
-        child4 = create_leaf("ELSE", p[6])
-        if (p[3].dataType!="Boolean"):
-          print "Conditional If only accepts boolean expression at line",p.lexer.lineno
-          raise Exception("Correct the above Semantics! :P")
-        p[0] = Node("if_then_else_statement_precedence", [child1, child2, p[3], child3, p[5], child4, p[7]])
+# def p_if_then_else_statement_precedence(p):
+#         '''if_then_else_statement_precedence : KWRD_IF LPAREN expression RPAREN if_then_else_intermediate KWRD_ELSE if_then_else_intermediate'''
+#         child1 = create_leaf("IF", p[1])
+#         child2 = create_leaf("LPAREN", p[2])
+#         child3 = create_leaf("RPAREN", p[4])
+#         child4 = create_leaf("ELSE", p[6])
+#         if (p[3].dataType!="Boolean"):
+#           print "Conditional If only accepts boolean expression at line",p.lexer.lineno
+#           raise Exception("Correct the above Semantics! :P")
+#         p[0] = Node("if_then_else_statement_precedence", [child1, child2, p[3], child3, p[5], child4, p[7]])
       
 
-def p_if_then_else_intermediate(p):
-        '''if_then_else_intermediate : block
-                                              | if_then_else_statement_precedence'''
-        p[0] = Node("if_then_else_intermediate", [p[1]])
-       
+# def p_if_then_else_intermediate(p):
+#         '''if_then_else_intermediate : block
+#                                               | if_then_else_statement_precedence'''
+#         p[0] = Node("if_then_else_intermediate", [p[1]])
 
+def p_start_scope_if(p):
+      '''start_scope_if : BLOCK_BEGIN'''
+      global SCOPE
+      NEW_SCOPE = Env(SCOPE) 
+      PREV_SCOPE=SCOPE
+      SCOPE=NEW_SCOPE
+      if (PREV_SCOPE.startChildBlock!=None):
+        SCOPE.code.append([None,None,None,PREV_SCOPE.startChildBlock+":",None])
+        PREV_SCOPE.startChildBlock=None
+      
+      child1 = create_leaf("BLOCK_BEGIN", p[1])
+      p[0] = Node("start_scope_if", [child1])
+
+
+def p_end_scope_if(p):  
+      '''end_scope_if : BLOCK_END'''
+      global SCOPE
+      PREV_SCOPE=SCOPE.prev_env
+
+      if (PREV_SCOPE.endChildBlock!=None):
+        SCOPE.code.append([None,None,None,"goto",PREV_SCOPE.endChildBlock])
+
+
+      SCOPE=PREV_SCOPE
+      
+      # SCOPE.subtree()
+      child1 = create_leaf("BLOCK_END", p[1]) 
+      p[0] = Node("end_scope_if", [child1])
+
+
+def p_MarkIfStart(p):
+  '''MarkIfStart : empty'''
+  endLabel=returnLabel()
+  SCOPE.endChildBlock=endLabel
+  p[0] = Node("MarkIfStart", [p[1]])
+
+
+
+def p_MarkIfEnd(p):
+  '''MarkIfEnd : empty'''
+  # global SCOPE
+  SCOPE.code.append([None,None,None,SCOPE.endChildBlock+":",None])
+  SCOPE.endChildBlock=None
+  p[0] = Node("MarkIfEnd", [p[1]])
+
+# def p_MarkIfExpressionSeen(p):
+#   '''MarkIfExpressionSeen : empty'''
+#   # Expression has been emitted
+#   global SCOPE
+#   SCOPE.code.append([None,None,None,"goto",SCOPE.endChildBlock])
+#   p[0] = Node("MarkIfEnd", [p[1]])
+
+
+def p_if_else_block(p):
+      '''if_else_block : start_scope_if block_statements_opt end_scope_if'''
+      p[0] = Node("block", [p[1], p[2], p[3]])
+
+def p_if_else_statement(p):
+        '''if_else_statement : MarkIfStart if_else_begin if_else_intermediate MarkIfEnd'''
+        p[0] = Node("if_else_statement", [p[1],p[2]])        
+
+def p_if_else_begin(p):
+  '''if_else_begin : if_else_starting if_else_ending'''
+  p[0]=Node("if_else_begin",[p[1],p[2]])
+
+  
+def p_if_else_starting(p):
+  '''if_else_starting : KWRD_IF LPAREN expression RPAREN'''
+  child1 = create_leaf("IF", p[1])
+  child2 = create_leaf("LPAREN", p[2])
+  child3 = create_leaf("RPAREN", p[4])
+  if (p[3].dataType!="Boolean"):
+    print "Conditional If only accepts boolean expression at line",p.lexer.lineno
+    raise Exception("Correct the above Semantics! :P")
+  p[0]=Node("if_else_begin",[child1,child2,p[3],child3])
+
+  startLabelChild=returnLabel()
+  SCOPE.code.append(["if",p[3].holdingVariable,"== 1","goto",startLabelChild])
+  SCOPE.startChildBlock=startLabelChild
+  freeVar(p[3].holdingVariable)
+
+
+  # // BNEQZ 
+  # // set label for child block
+
+def p_if_else_ending(p):
+  '''if_else_ending : if_else_block'''
+  p[0]=Node("if_else_ending",[p[1]])
+
+
+def p_if_else_intermediate(p):
+  '''if_else_intermediate : KWRD_ELSE if_else_end
+                          | empty'''
+  if (len(p)==2):
+    p[0]=Node("if_else_intermediate",[p[1]])
+  else:
+    child1= create_leaf("ELSE", p[1])
+    p[0]=Node("if_else_intermediate",[child1, p[2]])
+
+def p_MarkBeforeElse(p):
+  '''MarkBeforeElse : empty'''
+  p[0]=Node("MarkBeforeElse",[p[1]])
+  startLabelChild=returnLabel()
+  SCOPE.code.append([None,None,None,"goto",startLabelChild])
+  SCOPE.startChildBlock=startLabelChild
+
+
+def p_if_else_end(p):
+  ''' if_else_end : MarkBeforeElse if_else_block
+                  | if_else_begin if_else_intermediate'''
+  
+  p[0]=Node("if_else_end",[p[1],p[2]])
+    
 def p_while_statement(p):
-        '''while_statement : KWRD_WHILE LPAREN expression RPAREN block'''
-        child1 = create_leaf("WHILE", p[1])
+  '''while_statement : while_header while_body'''
+  p[0] = Node("while_statement", [p[1],p[2]])
+
+def p_while_header(p):
+        '''while_header : while_begin LPAREN expression RPAREN'''
+        newLabel=returnLabel()
+        
+        SCOPE.code.append(["if",p[3].holdingVariable,"== 1","goto",newLabel])
+        freeVar(p[3].holdingVariable)
+        SCOPE.startChildBlock=newLabel
+
         child2 = create_leaf("LPAREN", p[2])
         child3 = create_leaf("RPAREN", p[4])
         if (p[3].dataType!="Boolean"):
           print "Loop While only accepts boolean expression at line",p.lexer.lineno
           raise Exception("Correct the above Semantics! :P")
-        p[0] = Node("while_statement", [child1, child2, p[3], child3, p[5]])
+        p[0] = Node("while_header", [p[1], child2, p[3], child3])
+
+def p_while_body(p):
+    '''while_body : block'''
+    p[0] = Node("while_statement_body", [p[1]])
+
+
+def p_while_begin(p):
+  '''while_begin : KWRD_WHILE'''
+  child1 = create_leaf("WHILE", p[1])
+  label=returnLabel()
+  SCOPE.code.append([None,None,label+":",None,None])
+  SCOPE.endChildBlock=label
+  p[0] = Node("while_begin", [child1])
+
         
 
 def p_do_while_statement(p):
-        '''do_while_statement : KWRD_DO block KWRD_WHILE LPAREN expression RPAREN STATE_END '''
-        child1 = create_leaf("DO", p[1])
+        '''do_while_statement : do_while_statement_begin block KWRD_WHILE LPAREN expression RPAREN STATE_END '''
         child2 = create_leaf("WHILE", p[3])
         child3 = create_leaf("LPAREN", p[4])
         child4 = create_leaf("RPAREN", p[6])
@@ -1097,8 +1311,27 @@ def p_do_while_statement(p):
         if (p[5].dataType!="Boolean"):
           print "Conditional Do While only accepts boolean expression at line",p.lexer.lineno
           raise Exception("Correct the above Semantics! :P")
-        p[0] = Node("do_while_statement", [child1, p[2], child2, child3, p[5], child4, child5])
+
+        SCOPE.code.append(["if",p[5].holdingVariable,"== 1","goto",p[1].value])
+        freeVar(p[5].holdingVariable)
+
+        p[0] = Node("do_while_statement", [p[1], p[2], child2, child3, p[5], child4, child5])
        
+def p_do_while_statement_begin(p):
+  ''' do_while_statement_begin : KWRD_DO '''
+  child1 = create_leaf("DO", p[1])
+  label1=returnLabel()
+  label2=returnLabel()
+  SCOPE.startChildBlock=label1
+  SCOPE.endChildBlock=label2
+  SCOPE.code.append([None,None,None,"goto",label1])
+  SCOPE.code.append([None,None,label2+":",None,None])
+ 
+  p[0]=Node("do_while_statement_begin",[child1],"Unit",label1)
+
+
+
+
 
 def p_for_statement(p):
   '''for_statement : KWRD_FOR LPAREN for_logic RPAREN block'''

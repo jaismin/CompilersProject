@@ -73,6 +73,8 @@ class Env:
         self.paramwidth = 0
         self.prev_env=prev
         self.code=list()
+        self.startChildBlock=None
+        self.endChildBlock=None
         if prev==None:
            self.level=0 
            self.parentName=""

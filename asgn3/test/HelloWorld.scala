@@ -83,8 +83,21 @@
 
 object Test123
 {
-	var a:Boolean = false;
-	a=2==3;
+	var x:Int = 0;
+	var a:Int = 0;
 	
-
+	if( x == 10 )
+	{
+       a=1;  
+  }
+  else if (x==20)
+  {
+    a=2;
+  }
+  else
+  {
+    a=3;
+  }
+  
+  
 }
