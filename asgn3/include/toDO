@@ -2,3 +2,5 @@ scoping
 return types
 boolean , remember a==flase
 
+calling void functions are only allowed as statements and not for others
+

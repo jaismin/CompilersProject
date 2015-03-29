@@ -71,15 +71,8 @@ def create_leaf(name1,name2,dataType="Unit"):
     leaf2 = Node(name1,[leaf1],dataType)
     return leaf2
 
-def p_start_here(p):
-  '''start_here : ProgramStructure end_here'''
-  p[0] = Node("startOfProgram", [p[1], p[2]])
-
-def p_end_here(p):
-  '''end_here : empty '''
-  
-
-  for i in SCOPE.childs[0].code :
+def printCode(currElement):
+  for i in currElement.code :
     for j in range(5):
       if (i[j]!=None):
         if type(i[j])==str and "@t" in i[j]:
@@ -89,6 +82,33 @@ def p_end_here(p):
     print 
   print 
   print
+
+
+def traversetree():
+  global SCOPE
+  queue=list()
+  queue.append(SCOPE)
+  while len(queue) >0 :
+    currElement=queue[0]
+    del queue[0]
+    for i in range (len(currElement.childs)):
+      queue.append(currElement.childs[i])
+    printCode(currElement)
+
+
+def p_start_here(p):
+  '''start_here : ProgramStructure end_here'''
+  p[0] = Node("startOfProgram", [p[1], p[2]])
+
+
+
+def p_end_here(p):
+  '''end_here : empty '''
+  p[0] = Node("endOfProgram", [p[1]])
+  traversetree()
+  
+
+  
 
 
   currSCOPE=SCOPE.childs[0]
@@ -1200,13 +1220,6 @@ def p_MarkIfEnd(p):
   SCOPE.endChildBlock=None
   p[0] = Node("MarkIfEnd", [p[1]])
 
-# def p_MarkIfExpressionSeen(p):
-#   '''MarkIfExpressionSeen : empty'''
-#   # Expression has been emitted
-#   global SCOPE
-#   SCOPE.code.append([None,None,None,"goto",SCOPE.endChildBlock])
-#   p[0] = Node("MarkIfEnd", [p[1]])
-
 
 def p_if_else_block(p):
       '''if_else_block : start_scope_if block_statements_opt end_scope_if'''
@@ -1328,9 +1341,6 @@ def p_do_while_statement_begin(p):
   SCOPE.code.append([None,None,label2+":",None,None])
  
   p[0]=Node("do_while_statement_begin",[child1],"Unit",label1)
-
-
-
 
 
 def p_for_statement(p):
@@ -1697,14 +1707,6 @@ def p_class_initializer(p):
     raise Exception("Correct the above Semantics! :P")
 
   p[0] = Node("class_initializer", [child1, p[2], child2, p[4], child3],"Object@"+p[2].value,None,None,p[4].dataType)
-
-# print statement
-# def p_printstatement_1(p):
-#     "print_st : IDENTIFIER LPAREN IDENTIFIER RPAREN "
-#     try:
-#         print(names[p[3]])
-#     except LookupError:
-#         print("Undefined name '%s'" % p[3])
 
 def p_empty(p):
     'empty :'

@@ -1,6 +1,6 @@
 digraph G {
-368 [label="startOfProgram"];363 [label="ProgramStructure"];368->363
-368 [label="startOfProgram"];367 [label="end_here"];368->367
+369 [label="startOfProgram"];363 [label="ProgramStructure"];369->363
+369 [label="startOfProgram"];368 [label="end_here"];369->368
 363 [label="ProgramStructure"];362 [label="class_and_objects"];363->362
 362 [label="class_and_objects"];361 [label="SingletonObject"];362->361
 361 [label="SingletonObject"];5 [label="ObjectDeclare"];361->5
@@ -211,7 +211,7 @@ digraph G {
 195 [label="BLOCK_END"];194 [label="}"];195->194
 359 [label="end_scope"];358 [label="BLOCK_END"];359->358
 358 [label="BLOCK_END"];357 [label="}"];358->357
-367 [label="end_here"];366 [label="empty"];367->366
+368 [label="end_here"];366 [label="empty"];368->366
 366 [label="empty"];365 [label="Empty"];366->365
 365 [label="Empty"];364 [label="NOP"];365->364
 }
