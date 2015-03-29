@@ -61,6 +61,7 @@ class arrayObject:
 
 
 #Environment Class: Contains current symbolTable and pointer to parent Environment
+from sets import Set
 class Env:
     static_var = 1   
     def __init__(self, prev=None):
@@ -75,6 +76,8 @@ class Env:
         self.code=list()
         self.startChildBlock=None
         self.endChildBlock=None
+        self.funcName=None
+        self.objName = None
         if prev==None:
            self.level=0 
            self.parentName=""
@@ -84,6 +87,7 @@ class Env:
         Env.static_var+=1                 # pointer to the previous hash table     
         if (prev != None):
             prev.childs.append(self)
+        self.tempvar = Set([])
 
     def gprev(self):
         return self.prev
@@ -117,6 +121,15 @@ class Env:
             self.objectTable.add_entry(name, list_attributes)
         else:
             print "Attribute Missing"
+
+    def ChildObj(self, ObjSearched):
+        for child in range(0,len(self.childs)):
+            if child.objName == ObjSearched:
+                return child
+
+            # print self.node[child].name
+
+            # self.childs[child].subtree()
 
 
     # update entry in the most recent hash table in case not found in the most recent goes to the parent and then to next parent and 
@@ -175,6 +188,29 @@ class Env:
                     return found
                 env=env.prev_env
             return None
+        else:
+            print "Attribute not found"
+
+
+    def get_attribute_append_name(self,name,updateField="symbol"):
+        if updateField=="symbol":
+            env=self
+            while env!=None:
+                if env.symbolTable.is_present(name):
+                    return env.name
+                env = env.prev_env
+        elif updateField=="function":
+            env=self
+            while env!=None:
+                if env.functionTable.is_present(name):
+                    return env.name
+                env = env.prev_env
+        elif updateField=="object":
+            env=self
+            while env!=None:
+                if env.objectTable.is_present(name):
+                    return env.name
+                env = env.prev_env
         else:
             print "Attribute not found"
 

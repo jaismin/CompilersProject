@@ -81,23 +81,23 @@
 		
 // }
 
+
+class Point(val xc: Int, val yc: Int) 
+{
+  ; 
+}
+
+// def sum():Unit =
+// {
+// ;
+// }
+
 object Test123
 {
-	var x:Int = 0;
-	var a:Int = 0;
-	
-	if( x == 10 )
-	{
-       a=1;  
-  }
-  else if (x==20)
-  {
-    a=2;
-  }
-  else
-  {
-    a=3;
-  }
-  
+
+  var x:Point=new Point(2,3);
+  x.sum();
+
+
   
 }
