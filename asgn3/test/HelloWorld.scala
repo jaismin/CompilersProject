@@ -108,10 +108,19 @@ class Point(val xc: Int, val yc: Int)
 {
   var z:Array[Int] = Array(1,2,3);
   var z1:Int = 1;
+  var z3:Int=z1;
   def sum(b: Int) : Int =
   {
    var a:Int=3;
-   return a;
+   return z1;
+
+   for( a <- 1 until 10)
+   {
+   var b:Int=3;
+   b=z1;
+
+  }
+
   }
 }
 

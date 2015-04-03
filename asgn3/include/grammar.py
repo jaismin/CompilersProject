@@ -785,9 +785,9 @@ def p_method_invocation(p):
     holding=None
     if (retType!="Unit"):
       holding=returnTemp()
-      SCOPE.code.append([holding,"=","Lcall",SCOPE.get_attribute_append_name(p[1].value,updateField="function")+"__"+oldVal,None])
+      SCOPE.code.append([holding,"=","Lcall",SCOPE.get_attribute_append_name(p[1].value,updateField="function").name+"__"+oldVal,None])
     else:
-      SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name(p[1].value,updateField="function")+"__"+oldVal,None])
+      SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name(p[1].value,updateField="function").name+"__"+oldVal,None])
 
     SCOPE.code.append([None,None,None,"PopParam",len(p[3].holdingVariable)*4])
     p[0].holdingVariable=holding
@@ -826,7 +826,7 @@ def p_array_access(p):
     SCOPE.code.append([temp,"=","4",None,None])
     temp1= returnTemp()
     SCOPE.code.append([temp1,"=",temp,"*",p[3].holdingVariable])
-    SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")+"__"+oldVal,"+",temp1])
+    SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+oldVal,"+",temp1])
     SCOPE.code.append([temp1,"=*","(",temp,")"])
     freeVar(temp)
     p[0].holdingVariable=temp1
@@ -918,7 +918,29 @@ def p_valid_variable(p):
       print "Variable undefined at line ",p.lexer.lineno
       raise Exception("Correct the above Semantics! :P")
 
-    p[0] = Node("valid_variable", [p[1]],val,None,None,None,SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")+"__"+oldVal)
+
+    node=SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")
+    nodename=node.name+"__"+oldVal
+    
+    if (node.objName!=None and p[1].isQualifiedName==False):
+      offset=SCOPE.get_attribute_value(p[1].value,'Offset',"symbol")
+
+      currScope=SCOPE
+      while(currScope!=None and currScope!=node):
+          print 
+          if (currScope.funcName!=None):
+            nodename="*(this+"+str(offset)+")"
+            break
+          currScope=currScope.prev_env
+            
+      
+      
+      
+
+      
+    # SCOPE.CheckValidParentObject(nodeName,oldVal.split)
+
+    p[0] = Node("valid_variable", [p[1]],val,None,None,None,nodename)
 
 def p_valid_variable_1(p):
     '''valid_variable : array_access'''
@@ -1108,7 +1130,7 @@ def p_variable_declaration_body_1(p):
           SCOPE.code.append([temp2,"=",j,None,None])
           temp1= returnTemp()
           SCOPE.code.append([temp1,"=",temp,"*",temp2])
-          SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")+"__"+p[1].value,"+",temp1])
+          SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value,"+",temp1])
           SCOPE.code.append([temp1,"=*","(",temp,")"])
           SCOPE.code.append([temp1,"=",i,None,None])
           freeVar(temp1)
@@ -1121,8 +1143,8 @@ def p_variable_declaration_body_1(p):
       elif ("Object" in p[1].dataType):
         pass
       else:
-        SCOPE.code.append([SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")+"__"+p[1].value,"=",p[3].holdingVariable,None,None])
-        SCOPE.tempvar.add(SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")+"__"+p[1].value)
+        SCOPE.code.append([SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value,"=",p[3].holdingVariable,None,None])
+        SCOPE.tempvar.add(SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value)
         freeVar(p[3].holdingVariable)
       # print p[1].dataType
       # for i123 in range (len(p[1].holdingVariable)):
@@ -1157,7 +1179,7 @@ def p_variable_declaration_body_2(p):
               temp2=returnTemp()
               SCOPE.code.append([temp2,"=",j,None,None])
               SCOPE.code.append([temp1,"=",temp,"*",temp2])
-              SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name((p[2].value)[i123],updateField="symbol")+"__"+(p[2].value)[i123],"+",temp1])
+              SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name((p[2].value)[i123],updateField="symbol").name+"__"+(p[2].value)[i123],"+",temp1])
               SCOPE.code.append([temp1,"=*","(",temp,")"])
               SCOPE.code.append([temp1,"=",i,None,None])
               freeVar(temp1)
@@ -1168,7 +1190,7 @@ def p_variable_declaration_body_2(p):
           elif ("Object" in (p[2].dataType)[i123]):
             pass
           else:
-            newName=SCOPE.get_attribute_append_name((p[2].value)[i123],updateField="symbol")+"__"+(p[2].value)[i123]
+            newName=SCOPE.get_attribute_append_name((p[2].value)[i123],updateField="symbol").name+"__"+(p[2].value)[i123]
             SCOPE.code.append([newName,"=",(p[6].holdingVariable)[i123],None,None])
             SCOPE.tempvar.add(newName)
             freeVar((p[6].holdingVariable)[i123])
@@ -1526,36 +1548,36 @@ def p_for_loop(p):
       print "Only Integer step allowed at line",p.lexer.lineno
       raise Exception("Correct the above Semantics! :P")
 
-    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"=",p[3].holdingVariable,None,None])
+    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"=",p[3].holdingVariable,None,None])
     freeVar(p[3].holdingVariable)
     for_start_label=returnLabel()
     for_end_label=returnLabel()
     block_start_label=returnLabel()
     block_end_label=returnLabel()
     SCOPE.code.append([None,None,None,for_start_label+":",None])
-    SCOPE.code.append(["if",SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"<",p[5].holdingVariable+" goto",block_start_label])
+    SCOPE.code.append(["if",SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"<",p[5].holdingVariable+" goto",block_start_label])
     SCOPE.code.append([None,None,None,"goto",for_end_label])
     SCOPE.code.append([None,None,None,block_end_label+":",None])
-    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"=",SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"+",p[6].holdingVariable])
+    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"=",SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"+",p[6].holdingVariable])
     SCOPE.code.append([None,None,None,"goto",for_start_label])
     SCOPE.code.append([None,None,None,for_end_label+":",None])
     SCOPE.startChildBlock=block_start_label
     SCOPE.endChildBlock=block_end_label
     p[0].holdingVariable=[p[5].holdingVariable,p[6].holdingVariable]
   else:
-    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"=",p[3].holdingVariable,None,None])
+    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"=",p[3].holdingVariable,None,None])
     freeVar(p[3].holdingVariable)
     for_start_label=returnLabel()
     for_end_label=returnLabel()
     block_start_label=returnLabel()
     block_end_label=returnLabel()
     SCOPE.code.append([None,None,None,for_start_label+":",None])
-    SCOPE.code.append(["if",SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"< ",p[5].holdingVariable+" goto",block_start_label])
+    SCOPE.code.append(["if",SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"< ",p[5].holdingVariable+" goto",block_start_label])
     SCOPE.code.append([None,None,None,"goto",for_end_label])
     SCOPE.code.append([None,None,None,block_end_label+":",None])
     temp=returnTemp()
     SCOPE.code.append([temp,"=","1",None,None])
-    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"=",SCOPE.get_attribute_append_name(p[1])+"__"+p[1],"+",temp])
+    SCOPE.code.append([SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"=",SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"+",temp])
     freeVar(temp)
     SCOPE.code.append([None,None,None,"goto",for_start_label])
     SCOPE.code.append([None,None,None,for_end_label+":",None])
@@ -1707,7 +1729,11 @@ def p_constructor_arguement_list_declarator(p):
     child2 = create_leaf("COLON", p[3])
     attribute=dict()
     attribute['Type']=p[4].value
+    SCOPE.offset+=4
+    attribute['Offset']=SCOPE.offset
     SCOPE.add_entry(p[2],attribute,"symbol")
+
+    
     p[0] = Node("constructor_arguement_list_declarator", [p[1], child1, child2, p[4]],p[4].value) 
 
 

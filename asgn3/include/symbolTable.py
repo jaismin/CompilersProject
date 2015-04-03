@@ -78,6 +78,7 @@ class Env:
         self.endChildBlock=None
         self.funcName=None
         self.objName = None
+        self.offset=0
         if prev==None:
            self.level=0 
            self.parentName=""
@@ -223,25 +224,25 @@ class Env:
                 return None
 
             newenv=env.ChildObj(split1)
-            return newenv.name
+            return newenv
 
         if updateField=="symbol":
             env=self
             while env!=None:
                 if env.symbolTable.is_present(name):
-                    return env.name
+                    return env
                 env = env.prev_env
         elif updateField=="function":
             env=self
             while env!=None:
                 if env.functionTable.is_present(name):
-                    return env.name
+                    return env
                 env = env.prev_env
         elif updateField=="object":
             env=self
             while env!=None:
                 if env.objectTable.is_present(name):
-                    return env.name
+                    return env
                 env = env.prev_env
         else:
             print "Attribute not found"
