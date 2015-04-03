@@ -111,33 +111,36 @@ class Point(val xc: Int, val yc: Int)
   var z3:Int=z1;
   def sum(b: Int) : Int =
   {
-   var a:Int=3;
-   return z1;
+   var a:Int=b;
+   z1=4;
 
    for( a <- 1 until 10)
    {
    var b:Int=3;
-   b=z1;
+   b=xc;
 
   }
+  return 1;
 
   }
 }
 
-// def sum():Unit =
-// {
-// ;
-// }
-
-object Test123
+object HelloWorld
 {
-  // var p:Int=0;
-
-  var x:Point=new Point(2,3);
+  
+def main(args: Array[String]): Unit = 
+{
+  var (x:Point)=(new Point(2,3));
   var y:Int = x.z[0];
   x.z1=1;
   x.z[1]=10;
   y=x.sum(10);
+  y=x.yc;
+
+
+}
+
+  
 
 
   

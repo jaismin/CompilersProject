@@ -4,3 +4,7 @@ boolean , remember a==flase
 
 calling void functions are only allowed as statements and not for others
 
+
+
+Add a return statement if one does not exist
+check return type

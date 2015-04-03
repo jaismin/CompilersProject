@@ -88,7 +88,7 @@ class Env:
         Env.static_var+=1                 # pointer to the previous hash table     
         if (prev != None):
             prev.childs.append(self)
-        self.tempvar = Set([])
+        self.totalSize=0
 
     def gprev(self):
         return self.prev

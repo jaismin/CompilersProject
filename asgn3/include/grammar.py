@@ -1,6 +1,10 @@
+
+
+
 from symbolTable import *
 SCOPE = Env(None)                          # Current Scope
 globalTemp=list()
+globalTempShootDown=0
 globalLabel=1
 globalFunc=1
 registerSize=1000
@@ -12,19 +16,26 @@ for i in range(1,registerSize+1):
 
 
 def returnTemp():
-  global globalTemp
-  temp=globalTemp[0]
-  j=1
-  while j<registerSize and temp==1:
-    temp=globalTemp[j]
-    j=j+1
+  # global globalTemp
+  global globalTempShootDown
+  globalTempShootDown+=1
+  # var='Guys:push in symbol table'
+  attribute=dict()
+  attribute['Type']='Temp'
+  SCOPE.add_entry((varStart+"_"+str(globalTempShootDown))[1:],attribute,"symbol")
+  return varStart+"_"+str(globalTempShootDown)
+  # temp=globalTemp[0]
+  # j=1
+  # while j<registerSize and temp==1:
+  #   temp=globalTemp[j]
+  #   j=j+1
     
-  if (j==registerSize):
-    print "Not enough variables"
-  else :
-    globalTemp[j-1]=1
-    SCOPE.tempvar.add(varStart+"_"+str(j))
-    return varStart+"_"+str(j)
+  # if (j==registerSize):
+  #   print "Not enough variables"
+  # else :
+  #   globalTemp[j-1]=1
+  #   SCOPE.tempvar.add(varStart+"_"+str(j))
+  #   return varStart+"_"+str(j)
 
 def returnLabel():
   global globalLabel
@@ -42,14 +53,19 @@ def backpatch(listL1,string1):
     # [None,None,label+":",None,None]
     # append([None,None,label+":",None,None])
 
-  
+
+
+
 
 def freeVar(a):
-  if a!=None:
-    if varStart in a:
-      b=int(a.split('_')[1])
-      global globalTemp
-      globalTemp[b-1]=0
+  pass
+  # if a!=None:
+  #   if varStart in a:
+  #     if ")" in a:
+  #       a=a[:-1]
+  #     b=int(a.split('_')[1])
+  #     global globalTemp
+  #     globalTemp[b-1]=0
 
 def Updatep1(pnew):
   if pnew.isQualifiedName:
@@ -121,7 +137,10 @@ def printCode(currElement):
     for j in range(5):
       if (i[j]!=None):
         if type(i[j])==str and "@t" in i[j]:
-          print i[j][1:],
+          if (i[j][0]=='*'):
+            print i[j][0:2]+i[j][3:],
+          else:
+            print i[j][1:],
         else:
           print i[j],
     print 
@@ -132,13 +151,117 @@ def printCode(currElement):
 def traversetree():
   global SCOPE
   queue=list()
+  objects=list()
   queue.append(SCOPE)
   while len(queue) >0 :
     currElement=queue[0]
     del queue[0]
     for i in range (len(currElement.childs)):
       queue.append(currElement.childs[i])
+      # if (currElement.childs[i].objName==None):
+      #   queue.append(currElement.childs[i])
+      # else:
+      #   objects.append(currElement.childs[i])
+        
     printCode(currElement)
+
+
+# def dfsTraversal():
+#   global SCOPE
+#   queue=list()
+#   objects=list()
+#   queue.append(SCOPE)
+#   while len(queue) >0 :
+#     currElement=queue[len(queue)-1]
+#     del queue[len(queue)-1]
+#     for i in range (len(currElement.childs)):
+#       j=len(currElement.childs)-1-i
+#       queue.append(currElement.childs[j])
+#       # if (currElement.childs[i].objName==None):
+#       #   queue.append(currElement.childs[i])
+#       # else:
+#       #   objects.append(currElement.childs[i])
+    
+#     printCode(currElement)
+
+
+
+
+def replaceCode(currScope,replaceThis):
+  if (replaceThis!=None):
+      for i in currScope.code:
+        for j in range(5):
+          if (i[j]!=None):
+            if type(i[j])==str and '__' in i[j] and ':' not in i[j]:
+              string123=i[j].split('__')[0]
+              if (string123==replaceThis):
+                abc=i[j].split('__')
+                abc[0]="this."+replaceThis
+                abc123="__".join(abc)
+                i[j]=abc123
+
+
+def obtainTableSize(currScope):
+  value=0
+  # print type (currScope.symbolTable.table)
+  for key,val in (currScope.symbolTable.table).iteritems():
+    # print key,val
+    if 'Array' in val['Type'] or 'Object' in val['Type']:
+      pass
+    else:
+      if (currScope.objName==None):
+        value=value+1
+      else:
+        if (val['Type']=='Temp'):
+          value=value+1
+      # print 'Val:',key,value
+  # print 
+  # print 
+  return value
+
+
+
+
+def backpatch_address(currScope):
+
+
+  for i in range (len(currScope.childs)):
+    currScope.totalSize=currScope.totalSize+backpatch_address(currScope.childs[i])
+  
+  currScope.totalSize=currScope.totalSize+obtainTableSize(currScope)
+
+  if (currScope.objName==None and currScope.funcName==None):
+    return currScope.totalSize
+  elif (currScope.objName!=None or currScope.funcName!=None):
+    currScope.code[1][4]=str(currScope.totalSize*4)
+    return 0
+    
+
+
+
+
+
+def dfsTraversal(currScope,replaceThis):
+  
+  
+  if currScope.objName!=None:
+    replaceThis=currScope.name
+
+  replaceCode(currScope,replaceThis)
+
+  
+  for i in range (len(currScope.childs)):
+    dfsTraversal(currScope.childs[i],replaceThis)
+  
+
+  if currScope.objName!=None:
+    replaceThis=None
+      
+
+  
+
+
+
 
 
 def p_start_here(p):
@@ -150,6 +273,8 @@ def p_start_here(p):
 def p_end_here(p):
   '''end_here : empty '''
   p[0] = Node("endhere", [p[1]])
+  dfsTraversal(SCOPE,None)
+  backpatch_address(SCOPE)
   traversetree()
   # SCOPE.subtree()
 
@@ -754,9 +879,11 @@ def p_method_invocation(p):
     child2 = create_leaf("RPAREN", p[4])
     val=""
     retType=""
-    print "QualifiedName:",p[1].isQualifiedName
+    # print "QualifiedName:",p[1].isQualifiedName
     oldVal=p[1].value
+    oldVal1=""
     if p[1].isQualifiedName:
+      oldVal1=oldVal.split('.')[0]
       oldVal=oldVal.split('.')[1]
     p[1].value=Updatep1(p[1])
 
@@ -773,12 +900,23 @@ def p_method_invocation(p):
       raise Exception("Correct the above Semantics! :P")
     p[0] = Node("method_invocation", [p[1], child1, p[3], child2],retType)
 
+    d=0;
+    if p[1].isQualifiedName:
+      d+=1;
+      SCOPE.code.append([None,None,None,"PushParam","this("+oldVal1+")"])
+
 
     for i in p[3].holdingVariable:
       j=i
-
+      d+=1
+      # print oldVal
       if varStart in i:
-        i=i[1:]
+        if (i[0]=='*'):
+          i=i[0:2]+i[3:]
+        else:
+          i=i[1:]
+        
+      # print 'Function',i
       SCOPE.code.append([None,None,None,"PushParam",i])
       freeVar(j)
 
@@ -788,8 +926,10 @@ def p_method_invocation(p):
       SCOPE.code.append([holding,"=","Lcall",SCOPE.get_attribute_append_name(p[1].value,updateField="function").name+"__"+oldVal,None])
     else:
       SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name(p[1].value,updateField="function").name+"__"+oldVal,None])
-
-    SCOPE.code.append([None,None,None,"PopParam",len(p[3].holdingVariable)*4])
+    SCOPE.code.append([None,None,None,"PopParam",d*4])
+    if p[1].isQualifiedName:
+      SCOPE.code.append([None,None,None,"#Considered ^this^ as 4 byte pointer",None])
+    # SCOPE.code.append([None,None,None,"PopParam",len(p[3].holdingVariable)*4])
     p[0].holdingVariable=holding
     
 
@@ -826,10 +966,23 @@ def p_array_access(p):
     SCOPE.code.append([temp,"=","4",None,None])
     temp1= returnTemp()
     SCOPE.code.append([temp1,"=",temp,"*",p[3].holdingVariable])
-    SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+oldVal,"+",temp1])
-    SCOPE.code.append([temp1,"=*","(",temp,")"])
-    freeVar(temp)
-    p[0].holdingVariable=temp1
+    
+
+    nodename=""
+    if p[1].isQualifiedName:
+      nodename=SCOPE.get_attribute_append_name(oldVal[:oldVal.find('.')],updateField="symbol").name+"__"+oldVal.split('.')[0]
+      nodename_later=SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+oldVal.split('.')[1]
+      nodename=nodename+'.'+nodename_later
+    else:
+      node=SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")
+      nodename=node.name+"__"+oldVal
+
+
+    SCOPE.code.append([temp,"=",nodename,"+",temp1])
+    # SCOPE.code.append([temp1,"=*","(",temp,")"])
+    freeVar(temp1)
+    p[0].holdingVariable="*("+temp+")"
+    # print p[0].holdingVariable
     
 
 
@@ -918,24 +1071,36 @@ def p_valid_variable(p):
       print "Variable undefined at line ",p.lexer.lineno
       raise Exception("Correct the above Semantics! :P")
 
+    # if p[1].isQualifiedName:
+    #   print 
+    #   SCOPE.get_attribute_append_name(,updateField="symbol")
 
-    node=SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")
-    nodename=node.name+"__"+oldVal
+    nodename=""
+    if p[1].isQualifiedName:
+      nodename=SCOPE.get_attribute_append_name(oldVal[:oldVal.find('.')],updateField="symbol").name+"__"+oldVal.split('.')[0]
+      nodename_later=SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+oldVal.split('.')[1]
+      nodename=nodename+'.'+nodename_later
+    else:
+      node=SCOPE.get_attribute_append_name(p[1].value,updateField="symbol")
+      nodename=node.name+"__"+oldVal
+
+    # print 'Hello',nodename
     
-    if (node.objName!=None and p[1].isQualifiedName==False):
-      offset=SCOPE.get_attribute_value(p[1].value,'Offset',"symbol")
+    # if (node.objName!=None and p[1].isQualifiedName==False):
+    #   offset=SCOPE.get_attribute_value(p[1].value,'Offset',"symbol")
+    #   # print 'Hello',p[1].value
 
-      currScope=SCOPE
-      while(currScope!=None and currScope!=node):
-          print 
-          if (currScope.funcName!=None):
-            nodename="*(this+"+str(offset)+")"
-            break
-          currScope=currScope.prev_env
+    #   # currScope=SCOPE
+    #   # while(currScope!=None and currScope!=node):
+    #   #     # print 
+    #   #     if (currScope.funcName!=None):
+    #   #       nodename="this."+p[1].value
+    #   #       break
+    #   #     currScope=currScope.prev_env
             
       
       
-      
+    # print nodename
 
       
     # SCOPE.CheckValidParentObject(nodeName,oldVal.split)
@@ -1110,7 +1275,8 @@ def p_variable_arguement_list(p):
 
 def p_variable_declaration_body_1(p):
       '''variable_declaration_body : variable_declarator ASSIGN  variable_declaration_initializer '''
-      
+      # print p[1].dataType
+      # print p[3].dataType
       if (p[1].dataType!=p[3].dataType):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
@@ -1131,8 +1297,8 @@ def p_variable_declaration_body_1(p):
           temp1= returnTemp()
           SCOPE.code.append([temp1,"=",temp,"*",temp2])
           SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value,"+",temp1])
-          SCOPE.code.append([temp1,"=*","(",temp,")"])
-          SCOPE.code.append([temp1,"=",i,None,None])
+          # SCOPE.code.append([temp1,"=*","(",temp,")"])
+          SCOPE.code.append(["*("+temp+")","=",i,None,None])
           freeVar(temp1)
           freeVar(temp)
           freeVar(temp2)
@@ -1141,10 +1307,21 @@ def p_variable_declaration_body_1(p):
 
         
       elif ("Object" in p[1].dataType):
-        pass
+        for i in p[3].holdingVariable:
+          if (i[0]=='*'):
+            i=i[0:2]+i[3:]
+          else:
+            i=i[1:]
+          SCOPE.code.append([None,None,None,"PushParam",i])
+
+        SCOPE.code.append([None,None,None,"PushParam",'this.'+p[1].value])
+
+        # print 'Apart',
+        SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name(p[1].dataType.split('@')[1],updateField="object").name+'__'+p[1].dataType.split('@')[1],None])
+
       else:
         SCOPE.code.append([SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value,"=",p[3].holdingVariable,None,None])
-        SCOPE.tempvar.add(SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value)
+        # SCOPE.tempvar.add(SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value)
         freeVar(p[3].holdingVariable)
       # print p[1].dataType
       # for i123 in range (len(p[1].holdingVariable)):
@@ -1164,6 +1341,7 @@ def p_variable_declaration_body_2(p):
       child5 = create_leaf("RPAREN", p[7])
       # print p[2].dataType
       # print p[6].dataType
+
       if (p[2].dataType!=p[6].dataType):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
@@ -1188,11 +1366,25 @@ def p_variable_declaration_body_2(p):
               freeVar(i)
               j=j+1
           elif ("Object" in (p[2].dataType)[i123]):
+           
+            for i in (p[6].holdingVariable)[i123]:
+              if (i[0]=='*'):
+                i=i[0:2]+i[3:]
+              else:
+                i=i[1:]
+              SCOPE.code.append([None,None,None,"PushParam",i])
+
+            SCOPE.code.append([None,None,None,"PushParam",'this.'+(p[2].value)[i123]])
+            # print (p[2].value)[i123]
+            SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name((p[2].dataType)[i123].split('@')[1],updateField="object").name+'__'+(p[2].dataType)[i123].split('@')[1],None])
+
+
+
             pass
           else:
             newName=SCOPE.get_attribute_append_name((p[2].value)[i123],updateField="symbol").name+"__"+(p[2].value)[i123]
             SCOPE.code.append([newName,"=",(p[6].holdingVariable)[i123],None,None])
-            SCOPE.tempvar.add(newName)
+            # SCOPE.tempvar.add(newName)
             freeVar((p[6].holdingVariable)[i123])
 
 
@@ -1762,6 +1954,8 @@ def p_class_header_name(p):
         #Name : p[1].value
         attribute=dict()
         attribute['ConstructorList']=p[3].dataType
+        # print p[3].value
+        # attribute['ClassVariables']=
         SCOPE.prev_env.add_entry(p[1].value,attribute,"object")
         # print p[1].value
         # print
@@ -1792,7 +1986,7 @@ def p_class_header_extends(p):
 
 
 def p_class_body(p):
-        '''class_body : class_body_start block_statements_opt end_scope ''' 
+        '''class_body : class_body_start block_statements_opt class_body_end ''' 
         
         p[0] = Node("class_body", [p[1], p[2], p[3]])
         # p[0] = Node("class_body", [p[1]])
@@ -1801,7 +1995,21 @@ def p_class_body_start(p):
   '''class_body_start : BLOCK_BEGIN'''
   child1 = create_leaf("BLOCK_BEGIN", p[1])
   p[0] = Node("class_body_start", [child1])
+  SCOPE.code.append([None,None,None,SCOPE.prev_env.name+'__'+SCOPE.objName+":",None])
+  SCOPE.code.append([None,None,None,"BeginClass",None])
 
+def p_class_body_end(p):
+  '''class_body_end : BLOCK_END'''
+  global SCOPE
+  SCOPE.code.append([None,None,None,"EndClass",None])
+  # SCOPE.code[1][4]=str(len(SCOPE.tempvar)*4)
+  #'Guys: Backpatch Later'
+  PREV_SCOPE=SCOPE.prev_env
+  SCOPE=PREV_SCOPE
+  
+
+  child1 = create_leaf("BLOCK_END", p[1]) 
+  p[0] = Node("end_scope", [child1])
 
 
 
@@ -1869,7 +2077,7 @@ def p_method_end_scope(p):
   '''method_end_scope : BLOCK_END'''
   global SCOPE
   SCOPE.code.append([None,None,None,"EndFunc",None])
-  SCOPE.code[1][4]=str(len(SCOPE.tempvar)*4)
+  # SCOPE.code[1][4]=str(len(SCOPE.tempvar)*4)
   PREV_SCOPE=SCOPE.prev_env
   SCOPE=PREV_SCOPE
   child1 = create_leaf("BLOCK_END", p[1]) 
@@ -1940,7 +2148,7 @@ def p_array_initializer(p):
         print ("Type error: array can only be of same type at line ",p.lexer.lineno)
         raise Exception("Correct the above Semantics! :P")
     p[0] = Node("array_initializer", [child1, child2, p[3], child3],"Array,"+currType,None,str(int(len(p[3].dataType))))
-    p[0].holdingVariable=p[3].holdingVariable   
+    p[0].holdingVariable=p[3].holdingVariable  
 
 def p_class_initializer(p):
   ''' class_initializer : KWRD_NEW name LPAREN argument_list_opt RPAREN ''' 
@@ -1949,6 +2157,11 @@ def p_class_initializer(p):
   child3 = create_leaf("RPAREN", p[5])
   if SCOPE.is_present(p[2].value,updateField="object"):
     val=SCOPE.get_attribute_value(p[2].value,'ConstructorList',"object")
+
+    # print '*************'
+    # print p[4].holdingVariable
+    # print p[4].dataType
+    # print '*************'
     if val==p[4].dataType:
       pass
     else:
@@ -1959,7 +2172,7 @@ def p_class_initializer(p):
     raise Exception("Correct the above Semantics! :P")
 
   p[0] = Node("class_initializer", [child1, p[2], child2, p[4], child3],"Object@"+p[2].value,None,None,p[4].dataType)
-
+  p[0].holdingVariable=p[4].holdingVariable
 def p_empty(p):
     'empty :'
     child1 = create_leaf("Empty", "NOP")
