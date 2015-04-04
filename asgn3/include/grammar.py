@@ -905,20 +905,20 @@ def p_method_invocation(p):
       d+=1;
       SCOPE.code.append([None,None,None,"PushParam","this("+oldVal1+")"])
 
-
-    for i in p[3].holdingVariable:
-      j=i
-      d+=1
-      # print oldVal
-      if varStart in i:
-        if (i[0]=='*'):
-          i=i[0:2]+i[3:]
-        else:
-          i=i[1:]
-        
-      # print 'Function',i
-      SCOPE.code.append([None,None,None,"PushParam",i])
-      freeVar(j)
+    if p[3].holdingVariable!=None:
+      for i in p[3].holdingVariable:
+        j=i
+        d+=1
+        # print oldVal
+        if varStart in i:
+          if (i[0]=='*'):
+            i=i[0:2]+i[3:]
+          else:
+            i=i[1:]
+          
+        # print 'Function',i
+        SCOPE.code.append([None,None,None,"PushParam",i])
+        freeVar(j)
 
     holding=None
     if (retType!="Unit"):
@@ -1287,42 +1287,45 @@ def p_variable_declaration_body_1(p):
           SCOPE.update_entry(p[1].value,'Size',int((p[3].size)),updateField="symbol")
         #SCOPE.print_table()
       # print p[3].holdingVariable
-      if ("Array" in p[1].dataType):
-        j=0
-        for i in p[3].holdingVariable:
-          temp= returnTemp()
-          SCOPE.code.append([temp,"=","4",None,None])
-          temp2=returnTemp()
-          SCOPE.code.append([temp2,"=",j,None,None])
-          temp1= returnTemp()
-          SCOPE.code.append([temp1,"=",temp,"*",temp2])
-          SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value,"+",temp1])
-          # SCOPE.code.append([temp1,"=*","(",temp,")"])
-          SCOPE.code.append(["*("+temp+")","=",i,None,None])
-          freeVar(temp1)
-          freeVar(temp)
-          freeVar(temp2)
-          freeVar(i)
-          j=j+1
+      if p[1].dataType!=None:
+        if ("Array" in p[1].dataType):
+          j=0
+          if p[3].holdingVariable!=None:
+            for i in p[3].holdingVariable:
+              temp= returnTemp()
+              SCOPE.code.append([temp,"=","4",None,None])
+              temp2=returnTemp()
+              SCOPE.code.append([temp2,"=",j,None,None])
+              temp1= returnTemp()
+              SCOPE.code.append([temp1,"=",temp,"*",temp2])
+              SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value,"+",temp1])
+              # SCOPE.code.append([temp1,"=*","(",temp,")"])
+              SCOPE.code.append(["*("+temp+")","=",i,None,None])
+              freeVar(temp1)
+              freeVar(temp)
+              freeVar(temp2)
+              freeVar(i)
+              j=j+1
 
-        
-      elif ("Object" in p[1].dataType):
-        for i in p[3].holdingVariable:
-          if (i[0]=='*'):
-            i=i[0:2]+i[3:]
-          else:
-            i=i[1:]
-          SCOPE.code.append([None,None,None,"PushParam",i])
+          
+        elif ("Object" in p[1].dataType):
+          if p[3].holdingVariable!=None:
+            for i in p[3].holdingVariable:
+              if (i[0]=='*'):
+                i=i[0:2]+i[3:]
+              else:
+                i=i[1:]
+              SCOPE.code.append([None,None,None,"PushParam",i])
 
-        SCOPE.code.append([None,None,None,"PushParam",'this.'+p[1].value])
+          SCOPE.code.append([None,None,None,"PushParam",'this.'+p[1].value])
 
-        # print 'Apart',
-        SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name(p[1].dataType.split('@')[1],updateField="object").name+'__'+p[1].dataType.split('@')[1],None])
+          # print 'Apart',
+          SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name(p[1].dataType.split('@')[1],updateField="object").name+'__'+p[1].dataType.split('@')[1],None])
 
-      else:
-        SCOPE.code.append([SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value,"=",p[3].holdingVariable,None,None])
-        # SCOPE.tempvar.add(SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value)
-        freeVar(p[3].holdingVariable)
+        else:
+          SCOPE.code.append([SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value,"=",p[3].holdingVariable,None,None])
+          # SCOPE.tempvar.add(SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value)
+          freeVar(p[3].holdingVariable)
       # print p[1].dataType
       # for i123 in range (len(p[1].holdingVariable)):
 
@@ -1698,8 +1701,9 @@ def p_for_statement(p):
   child2 = create_leaf ("LPAREN",p[2])
   child3 = create_leaf ("RPAREN",p[4])
   p[0] = Node("for_statement",[child1,child2,p[3],child3,p[5]])
-  for i in p[3].holdingVariable:
-    freeVar(i)
+  if p[3].holdingVariable!=None:
+    for i in p[3].holdingVariable:
+      freeVar(i)
 
 
 # def p_for_logic(p):
