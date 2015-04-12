@@ -1,4 +1,5 @@
 from symbolTable import *
+from mips import *
 SCOPE = Env(None)                          # Current Scope
 globalTemp=list()
 globalTempShootDown=0
@@ -191,6 +192,8 @@ def p_end_here(p):
   dfsTraversal(SCOPE,None)
   backpatch_address(SCOPE)
   traversetree()
+  # print "<<<<<<<<<<<<<------------------->>>>>>>>>>>>>>"
+  generateMips(SCOPE)
 
 def p_program_structure(p):
     '''ProgramStructure : ProgramStructure  class_and_objects
