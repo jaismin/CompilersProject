@@ -267,19 +267,19 @@ def p_assignment_expression(p):
       falselabel=returnLabel()
       jumplabel=returnLabel()
       retVar=returnTemp()
-      SCOPE.code.append([None,None,truelabel+":",None,None])
+      SCOPE.code.append([None,None,None,truelabel+":",None])
       SCOPE.code.append([retVar,"=","1",None,None])
       SCOPE.code.append([None,None,None,"goto",jumplabel])
-      SCOPE.code.append([None,None,falselabel+":",None,None])
+      SCOPE.code.append([None,None,None,falselabel+":",None])
       SCOPE.code.append([retVar,"=","0",None,None])
-      SCOPE.code.append([None,None,jumplabel+":",None,None])
+      SCOPE.code.append([None,None,None,jumplabel+":",None])
       backpatch(p[1].trueList,truelabel)
       backpatch(p[1].falseList,falselabel)
       returnHold=retVar
     elif p[1].trueList!=None and len(p[1].trueList) >0 :
       truelabel=returnLabel()
       retVar=returnTemp()
-      SCOPE.code.append([None,None,truelabel+":",None,None])
+      SCOPE.code.append([None,None,None,truelabel+":",None])
       SCOPE.code.append([retVar,"=","1",None,None])
       backpatch(p[1].trueList,truelabel)
       returnHold=retVar
@@ -287,7 +287,7 @@ def p_assignment_expression(p):
     elif p[1].falseList!=None and len(p[1].falseList) >0 :
       falselabel=returnLabel()
       retVar=returnTemp()
-      SCOPE.code.append([None,None,falselabel+":",None,None])
+      SCOPE.code.append([None,None,None,falselabel+":",None])
       SCOPE.code.append([retVar,"=","0",None,None])
       backpatch(p[1].falseList,falselabel)
       returnHold=retVar
@@ -337,7 +337,7 @@ def p_Marker(p):
     '''Marker : empty '''
     label=returnLabel()
     p[0] = Node("Marker", [p[1]],"Unit",label)      
-    SCOPE.code.append([None,None,label+":",None,None])
+    SCOPE.code.append([None,None,None,label+":",None])
   
 # OR(||) has least precedence, and OR is left assosiative 
 # a||b||c => first evalutae a||b then (a||b)||c
@@ -1051,7 +1051,7 @@ def p_start_scope(p):
       PREV_SCOPE=SCOPE
       SCOPE=NEW_SCOPE
       if (PREV_SCOPE.startChildBlock!=None):
-        SCOPE.code.append([None,None,PREV_SCOPE.startChildBlock+":",None,None])
+        SCOPE.code.append([None,None,None,PREV_SCOPE.startChildBlock+":",None])
         PREV_SCOPE.startChildBlock=None
 
       child1 = create_leaf("BLOCK_BEGIN", p[1])
@@ -1535,7 +1535,7 @@ def p_while_begin(p):
   '''while_begin : KWRD_WHILE'''
   child1 = create_leaf("WHILE", p[1])
   label=returnLabel()
-  SCOPE.code.append([None,None,label+":",None,None])
+  SCOPE.code.append([None,None,None,label+":",None])
   SCOPE.endChildBlock=label
   p[0] = Node("while_begin", [child1])
 
@@ -1564,7 +1564,7 @@ def p_do_while_statement_begin(p):
   SCOPE.startChildBlock=label1
   SCOPE.endChildBlock=label2
   SCOPE.code.append([None,None,None,"goto",label1])
-  SCOPE.code.append([None,None,label2+":",None,None])
+  SCOPE.code.append([None,None,None,label2+":",None])
  
   p[0]=Node("do_while_statement_begin",[child1],"Unit",label1)
 
@@ -1630,7 +1630,7 @@ def p_for_loop(p):
     block_start_label=returnLabel()
     block_end_label=returnLabel()
     SCOPE.code.append([None,None,None,for_start_label+":",None])
-    SCOPE.code.append(["if",SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"< ",p[5].holdingVariable+" goto",block_start_label])
+    SCOPE.code.append(["if",SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"<",p[5].holdingVariable+" goto",block_start_label])
     SCOPE.code.append([None,None,None,"goto",for_end_label])
     SCOPE.code.append([None,None,None,block_end_label+":",None])
     temp=returnTemp()
