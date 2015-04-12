@@ -1,0 +1,75 @@
+t_19
+t_20
+
+
+t_1 = 1
+t_2 = 2
+t_3 = 3
+t_4 = 4
+t_5 = 0
+t_6 = t_4 * t_5
+t_4 = node2__z + t_6
+*(t_4) = t_1
+t_7 = 4
+t_8 = 1
+t_9 = t_7 * t_8
+t_7 = node2__z + t_9
+*(t_7) = t_2
+t_10 = 4
+t_11 = 2
+t_12 = t_10 * t_11
+t_10 = node2__z + t_12
+*(t_10) = t_3
+t_13 = 1
+node2__z1 = t_13
+node2__z3 = node2__z1
+
+
+t_19 = 2
+t_20 = 3
+t_21 = 0
+t_22 = 4
+t_23 = t_22 * t_21
+t_22 = node2__x.z + t_23
+node5__y = *(t_22)
+t_24 = 1
+node2__x.z1 = t_24
+t_25 = 1
+t_26 = 4
+t_27 = t_26 * t_25
+t_26 = node2__x.z + t_27
+t_28 = 10
+*(t_26) = t_28
+t_29 = 10
+PushParam this(x)
+PushParam t_29
+t_30 = Lcall node2__sum
+PopParam 8
+#Considered ^this^ as 4 byte pointer
+node5__y = t_30
+
+
+node2__sum:
+BeginFunc 4
+t_14 = 3
+node3__a = t_14
+Return this.z1
+t_15 = 1
+t_16 = 10
+node3__a = t_15
+Label2:
+if node3__a <  t_16 goto Label4
+goto Label3
+Label5:
+t_17 = 1
+node3__a = node3__a + t_17
+goto Label2
+Label3:
+EndFunc
+
+
+Label4:
+t_18 = 3
+node4__b = t_18
+node4__b = this.z1
+goto Label5

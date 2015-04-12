@@ -1,0 +1,57 @@
+labels
+bitwise or
+xor
+bitwise_and
+==
+!=
+> 
+<
+<=
+>=
+>>
+<<
++
+-
+*
+/
+%
+<----------
+unary -
+unary +
+---------->
+cast expressions
+assignment
+<--------------
+Boolean
+------------->
+
+<----------
+kwrd NULL
+------------>
+
+Pushparam
+pop param
+
+Lcall
+Array access
+
+goto
+
+if goto
+
+if ==1 goto
+
+if ==0 goto
+
+
+for loop
+
+return
+
+class label
+
+end class
+
+begin func
+
+end func

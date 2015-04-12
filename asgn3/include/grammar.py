@@ -818,8 +818,8 @@ def p_literal_2(p):
   tempVar=returnTemp()
   SCOPE.code.append([tempVar,"=",p[1],None,None])
   p[0] = Node("literal", [child1],"Char",None,None,None,tempVar)
-  p[0].trueList=p[1].trueList
-  p[0].falseList=p[1].falseList
+  # p[0].trueList=p[1].trueList
+  # p[0].falseList=p[1].falseList
 
 def p_literal_3(p):
   '''literal : STRING_CONST'''
@@ -827,8 +827,8 @@ def p_literal_3(p):
   tempVar=returnTemp()
   SCOPE.code.append([tempVar,"=",p[1],None,None])
   p[0] = Node("literal", [child1],"String",None,None,None,tempVar)
-  p[0].trueList=p[1].trueList
-  p[0].falseList=p[1].falseList
+  # p[0].trueList=p[1].trueList
+  # p[0].falseList=p[1].falseList
   
 
 def p_literal_4(p):
@@ -1309,18 +1309,21 @@ def p_variable_declaration_body_1(p):
 
           
         elif ("Object" in p[1].dataType):
+          d=0;
           if p[3].holdingVariable!=None:
             for i in p[3].holdingVariable:
               if (i[0]=='*'):
                 i=i[0:2]+i[3:]
               else:
                 i=i[1:]
+              d=d+1
               SCOPE.code.append([None,None,None,"PushParam",i])
 
           SCOPE.code.append([None,None,None,"PushParam",'this.'+p[1].value])
 
           # print 'Apart',
           SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name(p[1].dataType.split('@')[1],updateField="object").name+'__'+p[1].dataType.split('@')[1],None])
+          SCOPE.code.append([None,None,None,"PopParam",(d+1)*4])
 
         else:
           SCOPE.code.append([SCOPE.get_attribute_append_name(p[1].value,updateField="symbol").name+"__"+p[1].value,"=",p[3].holdingVariable,None,None])
@@ -1369,18 +1372,19 @@ def p_variable_declaration_body_2(p):
               freeVar(i)
               j=j+1
           elif ("Object" in (p[2].dataType)[i123]):
-           
+            d=0
             for i in (p[6].holdingVariable)[i123]:
               if (i[0]=='*'):
                 i=i[0:2]+i[3:]
               else:
                 i=i[1:]
+              d=d+1
               SCOPE.code.append([None,None,None,"PushParam",i])
 
             SCOPE.code.append([None,None,None,"PushParam",'this.'+(p[2].value)[i123]])
             # print (p[2].value)[i123]
             SCOPE.code.append([None,None,"Lcall",SCOPE.get_attribute_append_name((p[2].dataType)[i123].split('@')[1],updateField="object").name+'__'+(p[2].dataType)[i123].split('@')[1],None])
-
+            SCOPE.code.append([None,None,None,"PopParam",(d+1)*4])
 
 
             pass
