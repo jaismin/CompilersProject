@@ -873,7 +873,7 @@ def p_array_access(p):
       raise Exception("Correct the above Semantics! :P")
     p[0] = Node("array_access", [p[1], child1, p[3], child2],",".join(val1[1:]))  
     temp= returnTemp()
-    SCOPE.code.append([temp,"=","4",None,None])
+    SCOPE.code.append([temp,"=",4,None,None])
     temp1= returnTemp()
     SCOPE.code.append([temp1,"=",temp,"*",p[3].holdingVariable])
     
@@ -1203,7 +1203,7 @@ def p_variable_declaration_body_1(p):
           if p[3].holdingVariable!=None:
             for i in p[3].holdingVariable:
               temp= returnTemp()
-              SCOPE.code.append([temp,"=","4",None,None])
+              SCOPE.code.append([temp,"=",4,None,None])
               temp2=returnTemp()
               SCOPE.code.append([temp2,"=",j,None,None])
               temp1= returnTemp()
@@ -1268,13 +1268,13 @@ def p_variable_declaration_body_2(p):
             j=0
             for i in (p[6].holdingVariable)[i123]:
               temp= returnTemp()
-              SCOPE.code.append([temp,"=","4",None,None])
+              SCOPE.code.append([temp,"=",4,None,None])
               temp1= returnTemp()
               temp2=returnTemp()
               SCOPE.code.append([temp2,"=",j,None,None])
               SCOPE.code.append([temp1,"=",temp,"*",temp2])
               SCOPE.code.append([temp,"=",SCOPE.get_attribute_append_name((p[2].value)[i123],updateField="symbol").name+"__"+(p[2].value)[i123],"+",temp1])
-              SCOPE.code.append([temp1,"=*","(",temp,")"])
+              SCOPE.code.append([temp1,"=","*("+temp+")",None,None])
               SCOPE.code.append([temp1,"=",i,None,None])
               freeVar(temp1)
               freeVar(temp)

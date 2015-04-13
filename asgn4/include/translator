@@ -24,6 +24,13 @@ assignment
 
 
 
+
+
+
+Array access
+
+
+
 cast expressions
 <--------------
 Boolean
@@ -34,7 +41,6 @@ kwrd NULL
 Pushparam
 pop param
 Lcall
-Array access
 return
 class label
 end class

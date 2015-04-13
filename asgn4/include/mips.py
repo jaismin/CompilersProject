@@ -1,9 +1,16 @@
+varStart="temp"
+globalTempShootDown=0;
+
+
 def printCode123(currElement):
   # print len(currElement.tempvar)
   for i in currElement.code :
-    # for ele in i:
-    #   if type(ele) == type("fuck"):
-    #     ele = ele.replace("@", "")
+    print i
+    for x in range(len(i)):
+      # print i[x]
+      if i[x] != None and type(i[x]) ==type("@") and "@" in i[x]:
+        i[x] = i[x].replace("@", "")
+        # print i[x]
     if i[3] == '|' :
       print "or $"+i[0] +",$"+i[2]+",$"+i[4];
     elif i[3] == '^' :
@@ -15,18 +22,22 @@ def printCode123(currElement):
     elif i[2] == '!=':
       print "bne $"+i[1]+",$"+i[3].split()[0]+","+i[4];
     elif i[2] == '>':
-      print "slt $_temp,$"+i[3].split()[0]+",$"+i[1]
-      print "beq $_temp,1,"+i[4];
+      t1 = returnTemp()
+      print "slt $"+t1+",$"+i[3].split()[0]+",$"+i[1]
+      print "beq $"+t1+",1,"+i[4];
     elif  i[2] == '<' :
-      print "slt $_temp,$"+i[3].split()[0]+",$"+i[1]
-      print "beq $_temp,$zero,"+i[4];
+      t1 = returnTemp()
+      print "slt $"+t1 +",$"+i[3].split()[0]+",$"+i[1]
+      print "beq $"+t1+",$zero,"+i[4];
     elif i[2] == '>=':
-      print "slt $_temp,$"+i[3].split()[0]+","+i[1]
-      print "beq $_temp,1,$"+i[4];
+      t1 = returnTemp()
+      print "slt $"+t1+",$"+i[3].split()[0]+",$"+i[1]
+      print "beq $"+t1+",1,"+i[4];
       print "beq $"+i[1]+",$"+i[3].split()[0]+",$"+i[4];
     elif  i[2] == '<=' :
-      print "slt $_temp,$"+i[3].split()[0]+","+i[1]
-      print "beq $_temp,$zero,"+i[4];
+      t1 = returnTemp();
+      print "slt $"+t1 +",$"+i[3].split()[0]+",$"+i[1]
+      print "beq $"+t1+",$zero,"+i[4];
       print "beq $"+i[1]+",$"+i[3].split()[0]+","+i[4];
     elif i[3] == '<<':
       print "sll $"+i[0]+",$"+i[2]+",$"+i[4]
@@ -48,12 +59,13 @@ def printCode123(currElement):
 
     elif i[1] == '=' and i[2]!= 'Lcall' :
       # print type(i[2]) 
+      t1 = returnTemp();
       if type(i[2]) == type(10):
-        print "lw $_temp, "+str(i[2]);
+        print "li $"+t1+", "+str(i[2]);
       else:
-        print "lw $_temp, $"+i[2];
+        print "lw $"+t1+", $"+i[2];
           
-      print "sw $_temp, $"+i[0];
+      print "sw $"+t1+", $"+i[0];
       
     elif i[2] == "== 1":
       print "beq $"+i[1]+",1,"+i[4];
@@ -70,7 +82,10 @@ def printCode123(currElement):
       
     # tempVar,"=",p[1].holdingVariable,p[2],p[3].holdingVariable
     
-
+def returnTemp():
+  global globalTempShootDown
+  globalTempShootDown+=1
+  return varStart+"_"+str(globalTempShootDown)
     
 
 def traversetree123(SCOPE):
