@@ -8,7 +8,7 @@ class HashTable:
     def __init__(self):
         self.table={}   # a dictionary
 
-    def add_entry (self, name, list_attributes):
+    def add_entry (self, name, list_attributes,sOffset,x):
         if name in self.table:
             print 'Error: Entry already present - [' + name + ']'
 	    assert(False)
@@ -17,11 +17,14 @@ class HashTable:
             self.table[name]= {}    # a dictionary
             for i_key in list_attributes:   
                 self.table[name][i_key]=list_attributes[i_key]
+            if x=="symbol":
+                self.table[name]['stackOffset'] = sOffset
         
     #update if already present else add it.
     def update_entry(self, name, attribute_name, attribute_value):
         try:                        #try catch exception
             self.table[name][attribute_name] = attribute_value
+            
             return True
         except: 
             return False
@@ -79,6 +82,7 @@ class Env:
         self.funcName=None
         self.objName = None
         self.offset=0
+        self.stackOffset=0
         if prev==None:
            self.level=0 
            self.parentName=""
@@ -115,11 +119,13 @@ class Env:
     #adds entry in current hashtable
     def add_entry(self,name, list_attributes,updateField="symbol"):
         if updateField=="symbol":
-            self.symbolTable.add_entry(name, list_attributes)
+            self.symbolTable.add_entry(name, list_attributes,self.stackOffset,"symbol")
+            # print self.stackOffset,name
+            self.stackOffset=self.stackOffset+4
         elif updateField=="function":
-            self.functionTable.add_entry(name, list_attributes)
+            self.functionTable.add_entry(name, list_attributes,0,"function")
         elif updateField == "object":
-            self.objectTable.add_entry(name, list_attributes)
+            self.objectTable.add_entry(name, list_attributes,0,"object")
         else:
             print "Attribute Missing"
 

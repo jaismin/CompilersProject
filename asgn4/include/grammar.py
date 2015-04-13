@@ -1,11 +1,28 @@
 from symbolTable import *
 from mips import *
+
+
+PROGRAM_NAME=""
+def setProgramName(val):
+    global PROGRAM_NAME
+    PROGRAM_NAME=val
+    PROGRAM_NAME=PROGRAM_NAME.split('/')[-1]
+    PROGRAM_NAME= PROGRAM_NAME.split('.')[0]
+
+
+START_MAIN_NAME=""
+START_NAME=""
+
+dataSegment=dict()
+stackSegment=dict()
+
 SCOPE = Env(None)                          # Current Scope
 globalTemp=list()
 globalTempShootDown=0
 globalLabel=1
 globalFunc=1
 registerSize=1000
+isObject=0
 varStart="@t"
 labelStart="Label"
 functionStart="Function"
@@ -127,7 +144,9 @@ def traversetree():
     del queue[0]
     for i in range (len(currElement.childs)):
       queue.append(currElement.childs[i])
-        
+    # if currElement.name==START_NAME:
+    #   pass
+    # else:
     printCode(currElement)
 
 def replaceCode(currScope,replaceThis):
@@ -144,10 +163,15 @@ def replaceCode(currScope,replaceThis):
                 i[j]=abc123
 
 
+
 def obtainTableSize(currScope):
   value=0
+  global dataSegment
+  
   for key,val in (currScope.symbolTable.table).iteritems():
-    if 'Array' in val['Type'] or 'Object' in val['Type']:
+    # if 'Array' in val['Type'] or 'Object' in val['Type'] or 'String' in val['Type']:
+    #   pass
+    if 'String' in val['Type']:
       pass
     else:
       if (currScope.objName==None):
@@ -155,6 +179,7 @@ def obtainTableSize(currScope):
       else:
         if (val['Type']=='Temp'):
           value=value+1
+      print key,val
   return value
 
 
@@ -162,15 +187,24 @@ def obtainTableSize(currScope):
 
 def backpatch_address(currScope):
   for i in range (len(currScope.childs)):
-    currScope.totalSize=currScope.totalSize+backpatch_address(currScope.childs[i])
+    # currScope.totalSize=currScope.totalSize+backpatch_address(currScope.childs[i])
+    backpatch_address(currScope.childs[i])
   
-  currScope.totalSize=currScope.totalSize+obtainTableSize(currScope)
-
-  if (currScope.objName==None and currScope.funcName==None):
-    return currScope.totalSize
-  elif (currScope.objName!=None or currScope.funcName!=None):
+  # currScope.totalSize=currScope.totalSize+obtainTableSize(currScope)
+  # print currScope.name
+  currScope.totalSize=obtainTableSize(currScope)
+  if currScope.name!=START_NAME and currScope.name!="node1":
     currScope.code[1][4]=str(currScope.totalSize*4)
-    return 0
+
+  # currScope.totalSize=obtainTableSize(currScope)
+  # print currScope.name
+  # currScope.code[1][4]=str(currScope.totalSize*4)
+
+  # if (currScope.objName==None and currScope.funcName==None):
+  #   return currScope.totalSize
+  # elif (currScope.objName!=None or currScope.funcName!=None):
+  #   currScope.code[1][4]=str(currScope.totalSize*4)
+  #   return 0
 
 def dfsTraversal(currScope,replaceThis):
   if currScope.objName!=None:
@@ -182,6 +216,22 @@ def dfsTraversal(currScope,replaceThis):
   if currScope.objName!=None:
     replaceThis=None
 
+
+# def printSymbolTable(currScope):
+#   value=0
+#   for key,val in (currScope.symbolTable.table).iteritems():
+#     print key,val
+  #   if 'Array' in val['Type'] or 'Object' in val['Type']:
+  #     pass
+  #   else:
+  #     if (currScope.objName==None):
+  #       value=value+1
+  #     else:
+  #       if (val['Type']=='Temp'):
+  #         value=value+1
+  # return value
+
+
 def p_start_here(p):
   '''start_here : ProgramStructure end_here'''
   p[0] = Node("startOfProgram", [p[1], p[2]])
@@ -189,11 +239,30 @@ def p_start_here(p):
 def p_end_here(p):
   '''end_here : empty '''
   p[0] = Node("endhere", [p[1]])
+  global START
+  global START_MAIN_NAME
+  # print START_NAME
+  # print START_MAIN_NAME
   dfsTraversal(SCOPE,None)
   backpatch_address(SCOPE)
+  for i in SCOPE.childs:
+    # print i.name
+    # print START_NAME
+    if i.name==START_NAME:
+      # printCode(i)
+      SCOPE.code.append([None,None,'Lcall',START_MAIN_NAME,None])
+      # print 'Lcall ',
+      # print 'will handle later'
+      # printSymbolTable(i)
+      # i.name
   traversetree()
-  # print "<<<<<<<<<<<<<------------------->>>>>>>>>>>>>>"
   generateMips(SCOPE)
+
+
+
+
+  # print "<<<<<<<<<<<<<------------------->>>>>>>>>>>>>>"
+  
 
 def p_program_structure(p):
     '''ProgramStructure : ProgramStructure  class_and_objects
@@ -219,9 +288,37 @@ def p_class_and_objects(p):
 
 def p_SingletonObject(p):
     'SingletonObject : ObjectDeclare block'
+
     if not (p[1].dataType=="Unit" and p[2].dataType=="Unit" ):
       print "Type Error at line  ",p.lexer.lineno
       raise Exception("Correct the above Semantics! :P")
+
+    global SCOPE
+    global START_NAME
+    global START_MAIN_NAME
+    if (SCOPE.name!="node1"):
+      print 'Object definition only allowed in the main scope only'
+      # print SCOPE.functionTable.table
+    else:
+        flag=0
+        for child in SCOPE.childs:
+          if child.objName==None:
+            SCOPE.code.insert(0,[None,None,None,"Prepare",None])
+            for name in child.functionTable.table:
+              if name=="main":
+                START_MAIN_NAME=child.name+"__main"
+                START_NAME=child.name
+                flag=1
+        if flag==0:
+          print 'No main function inside singleton object definition'
+          raise Exception("Correct the above Semantics! :P")
+          
+
+        
+
+    # if SCOPE.prev_env.name!="node_0"
+    # print p[1].value
+
     p[0] = Node("SingletonObject", [p[1], p[2]])
 
    
@@ -236,6 +333,26 @@ def p_object_declare(p):
         print "Type Error at line  ",p.lexer.lineno
         raise Exception("Correct the above Semantics! :P")
       p[0] = Node("ObjectDeclare", [child1, child2])
+      global SCOPE
+      p[0].value=SCOPE.name
+
+      global isObject
+      
+      if (isObject==0):
+        isObject=1
+        if p[2]==PROGRAM_NAME:
+          pass
+        else:
+          print p[2]
+          print PROGRAM_NAME
+          print "Singleton Object Name must be same as program name, at line",p.lexer.lineno
+          raise Exception("Correct the above Semantics! :P")
+      else:
+        print "Sorry, curently we allow to declare only one singleton object",p.lexer.lineno
+        raise Exception("Correct the above Semantics! :P")
+
+
+
     else:
       child1 = create_leaf("KWRD_OBJECT", p[1])
       child2 = create_leaf("IDENTIFIER", p[2])
@@ -268,10 +385,10 @@ def p_assignment_expression(p):
       jumplabel=returnLabel()
       retVar=returnTemp()
       SCOPE.code.append([None,None,None,truelabel+":",None])
-      SCOPE.code.append([retVar,"=","1",None,None])
+      SCOPE.code.append([retVar,"=",1,None,None])
       SCOPE.code.append([None,None,None,"goto",jumplabel])
       SCOPE.code.append([None,None,None,falselabel+":",None])
-      SCOPE.code.append([retVar,"=","0",None,None])
+      SCOPE.code.append([retVar,"=",0,None,None])
       SCOPE.code.append([None,None,None,jumplabel+":",None])
       backpatch(p[1].trueList,truelabel)
       backpatch(p[1].falseList,falselabel)
@@ -280,7 +397,7 @@ def p_assignment_expression(p):
       truelabel=returnLabel()
       retVar=returnTemp()
       SCOPE.code.append([None,None,None,truelabel+":",None])
-      SCOPE.code.append([retVar,"=","1",None,None])
+      SCOPE.code.append([retVar,"=",1,None,None])
       backpatch(p[1].trueList,truelabel)
       returnHold=retVar
 
@@ -288,7 +405,7 @@ def p_assignment_expression(p):
       falselabel=returnLabel()
       retVar=returnTemp()
       SCOPE.code.append([None,None,None,falselabel+":",None])
-      SCOPE.code.append([retVar,"=","0",None,None])
+      SCOPE.code.append([retVar,"=",0,None,None])
       backpatch(p[1].falseList,falselabel)
       returnHold=retVar
     else:
@@ -605,7 +722,7 @@ def p_unary_expression(p):
 
 
 
-      SCOPE.code.append([tempVar1,"=","0",None,None])
+      SCOPE.code.append([tempVar1,"=",0,None,None])
       SCOPE.code.append([tempVar,"=",tempVar1,p[1],p[2].holdingVariable])
       
       freeVar(p[2].holdingVariable)
@@ -1052,6 +1169,7 @@ def p_start_scope(p):
       SCOPE=NEW_SCOPE
       if (PREV_SCOPE.startChildBlock!=None):
         SCOPE.code.append([None,None,None,PREV_SCOPE.startChildBlock+":",None])
+        SCOPE.code.append([None,None,None,"Jump",None])
         PREV_SCOPE.startChildBlock=None
 
       child1 = create_leaf("BLOCK_BEGIN", p[1])
@@ -1064,6 +1182,7 @@ def p_end_scope(p):
       PREV_SCOPE=SCOPE.prev_env
 
       if (PREV_SCOPE.endChildBlock!=None):
+        SCOPE.code.append([None,None,None,"IJumpBack",None])
         SCOPE.code.append([None,None,None,"goto",PREV_SCOPE.endChildBlock])
         PREV_SCOPE.endChildBlock=None
 
@@ -1409,6 +1528,7 @@ def p_start_scope_if(p):
       SCOPE=NEW_SCOPE
       if (PREV_SCOPE.startChildBlock!=None):
         SCOPE.code.append([None,None,None,PREV_SCOPE.startChildBlock+":",None])
+        SCOPE.code.append([None,None,None,"Jump",None])
         PREV_SCOPE.startChildBlock=None
       
       child1 = create_leaf("BLOCK_BEGIN", p[1])
@@ -1421,7 +1541,9 @@ def p_end_scope_if(p):
       PREV_SCOPE=SCOPE.prev_env
 
       if (PREV_SCOPE.endChildBlock!=None):
+        SCOPE.code.append([None,None,None,"IJumpBack",None])
         SCOPE.code.append([None,None,None,"goto",PREV_SCOPE.endChildBlock])
+        
 
 
       SCOPE=PREV_SCOPE
@@ -1634,7 +1756,7 @@ def p_for_loop(p):
     SCOPE.code.append([None,None,None,"goto",for_end_label])
     SCOPE.code.append([None,None,None,block_end_label+":",None])
     temp=returnTemp()
-    SCOPE.code.append([temp,"=","1",None,None])
+    SCOPE.code.append([temp,"=",1,None,None])
     SCOPE.code.append([SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"=",SCOPE.get_attribute_append_name(p[1]).name+"__"+p[1],"+",temp])
     freeVar(temp)
     SCOPE.code.append([None,None,None,"goto",for_start_label])

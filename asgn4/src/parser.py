@@ -8,6 +8,10 @@ import re
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)))
 from include.grammar import *
 
+
+setProgramName(sys.argv[1])
+print sys.argv[1]
+
 def p_error(p):
   
     flag=-1;

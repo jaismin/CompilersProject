@@ -1,11 +1,10 @@
-object sort {
+object HelloWorld {
   def sort(a: Array[Int]) : Unit =   {
+    
+     val xxx:Boolean = true;
+      xxx=2 < 3;
 
-    // def swap(i: Int, j: Int) : Unit = {
-    //   val t: Int = a[i]; 
-    //   a[i] = a[j]; 
-    //   a[j] = t;
-    // }
+
 
     // def sort1(l: Int, r: Int): Unit =  {
     //   val pivot: Int = a[(l+r)/2];

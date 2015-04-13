@@ -21,7 +21,7 @@ class Point1(val xc: Int, val yc: Int)
 
 object HelloWorld
 {
-  
+  var a:Int=10;
 def main(args: Array[String]): Unit = 
 {
   var (x:Point1)=(new Point1(2,3));

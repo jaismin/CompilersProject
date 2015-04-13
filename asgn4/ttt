@@ -1,0 +1,78 @@
+test/test.scala
+node4
+node4__main
+node2
+node4
+node4
+node4
+hello World
+
+
+
+
+node1__Point:
+BeginClass 0
+this.node2__x = this.node2__xc
+this.node2__y = this.node2__yc
+EndClass
+
+
+node2__move:
+BeginFunc 16
+t_1 = this.node2__x + node3__dx
+this.node2__x = t_1
+t_2 = this.node2__y + node3__dy
+this.node2__y = t_2
+EndFunc
+
+
+node4__main:
+BeginFunc 28
+t_3 = 10
+t_4 = 20
+PushParam t_3
+PushParam t_4
+PushParam this.loc
+Lcall node1__Point
+PopParam 12
+t_5 = 10
+t_6 = 10
+PushParam this(loc)
+PushParam t_5
+PushParam t_6
+Lcall node2__move
+PopParam 12
+#Considered ^this^ as 4 byte pointer
+t_7 = "Hello"
+t_8 = "World"
+t_9 = t_7 + t_8
+Return t_9
+EndFunc
+
+
+node1__Point:
+lw $_temp, $this.node2__xc
+sw $_temp, $this.node2__x
+lw $_temp, $this.node2__yc
+sw $_temp, $this.node2__y
+node2__move:
+add $@t_1,$this.node2__x,$node3__dx
+lw $_temp, $@t_1
+sw $_temp, $this.node2__x
+add $@t_2,$this.node2__y,$node3__dy
+lw $_temp, $@t_2
+sw $_temp, $this.node2__y
+node4__main:
+lw $_temp, 10
+sw $_temp, $@t_3
+lw $_temp, 20
+sw $_temp, $@t_4
+lw $_temp, 10
+sw $_temp, $@t_5
+lw $_temp, 10
+sw $_temp, $@t_6
+lw $_temp, $"Hello"
+sw $_temp, $@t_7
+lw $_temp, $"World"
+sw $_temp, $@t_8
+add $@t_9,$@t_7,$@t_8

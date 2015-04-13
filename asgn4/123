@@ -1,0 +1,70 @@
+test/Classes.scala
+node2
+node5
+node6
+node4
+node3
+node1
+
+
+Lcall  node3__main
+will handle later
+
+
+node1__Point:
+BeginClass
+EndClass
+
+
+node3__main:
+BeginFunc
+t_1 = 60
+node4__a = t_1
+t_2 = 13
+node4__b = t_2
+t_3 = 0
+node4__c = t_3
+t_4 = 3
+if node4__a < t_4 goto Label3
+goto Label4
+Label3:
+t_5 = 1
+goto Label5
+Label4:
+t_5 = 0
+Label5:
+if t_5 == 1 goto Label6
+Label2:
+t_8 = 1
+t_9 = 10
+node4__a = t_8
+Label7:
+if node4__a < t_9 goto Label9
+goto Label8
+Label10:
+t_10 = 1
+node4__a = node4__a + t_10
+goto Label7
+Label8:
+EndFunc
+
+
+Label6:
+Jump
+t_6 = 1
+t_7 = node4__a + t_6
+node4__a = t_7
+IJumpBack
+goto Label2
+
+
+Label9:
+Jump
+t_11 = 3
+node6__b = t_11
+t_12 = 20
+node6__b = t_12
+IJumpBack
+goto Label10
+
+
